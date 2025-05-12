@@ -112,9 +112,9 @@ export default function Sidebar() {
 
   const menuItems = [
     { name: "Dashboard", icon: RiDashboardFill },
-    { name: "Users", icon: FaUsers },
-    { name: "Agents", icon: RiShieldUserLine },
     { name: "Approval", icon: FiUserPlus },
+    { name: "Users", icon: FaUsers },
+    { name: "Agents", icon: RiShieldUserLine }, 
     { name: "Category", icon: PiNetworkFill },
     { name: "Sell Products", icon: IoReceiptOutline },
   ];

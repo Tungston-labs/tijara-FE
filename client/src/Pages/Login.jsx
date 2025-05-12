@@ -27,7 +27,8 @@ export default function Login() {
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("username", username);
       localStorage.setItem("role", role);
-
+      
+      console.log("gvhsxjwghxjvhxgwhefhx",response.data)
       // Redirect to dashboard or home
       window.location.href = "/box";
     } catch (err) {
