@@ -148,25 +148,69 @@
 //   );
 // }
 
-
 import { useState, useEffect, useRef } from "react";
 import { Eye, Filter } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
-const Approvesellers = Array(8).fill({
-  no: "01",
-  sellerName: "JOE JOY",
-  email: "Athulk@gmail.com",
-  phone: "6238945012",
-  license: "1854879652",
-  companyName: "Abc company",
-  type: "Seller",
-});
+import axios from "axios";
+import { useSelector } from "react-redux";
 
 export default function ApproveSellerTable() {
   const navigate = useNavigate();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const popupRef = useRef(null);
+  const [sellers, setSellers] = useState([]);
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [gotoPage, setGotoPage] = useState("");
+  const auth = useSelector((state) => state.auth);
+
+  useEffect(() => {
+    if (!auth.accessToken) return;
+
+    const fetchSellers = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:5000/admin/auth/unapproved-users",
+          {
+            params: { role: "seller", search, page, limit: 10 },
+            headers: { Authorization: `Bearer ${auth.accessToken}` },
+          }
+        );
+        setSellers(response.data.data);
+        setTotalPages(response.data.totalPages);
+      } catch (error) {
+        console.error(
+          "Error fetching buyers data:",
+          error.response?.data || error.message
+        );
+      }
+    };
+
+    fetchSellers();
+  }, [auth.accessToken, search, page]);
+
+  const handleApprove = (userId) => {
+    axios
+      .post(
+        "http://localhost:5000/admin/auth/verify-user",
+        {
+          userId,
+          role: "seller",
+          status: "approved",
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${auth.accessToken}`,
+          },
+          withCredentials: true,
+        }
+      )
+      .then(() => {
+        setSellers((prev) => prev.filter((user) => user._id !== userId));
+      })
+      .catch((err) => console.error("Error approving buyer:", err));
+  };
 
   useEffect(() => {
     const handleEsc = (e) => {
@@ -188,6 +232,14 @@ export default function ApproveSellerTable() {
   const handleFilterClick = (type) => {
     setIsFilterOpen(false);
     navigate(`/${type.toLowerCase()}`);
+  };
+
+  const handleGoToPage = () => {
+    const num = parseInt(gotoPage);
+    if (!isNaN(num) && num >= 1 && num <= totalPages) {
+      setPage(num);
+    }
+    setGotoPage("");
   };
 
   return (
@@ -228,36 +280,41 @@ export default function ApproveSellerTable() {
       </div>
 
       {/* Table */}
-      <div className="max-w-6xl mx-auto rounded-lg p-4" style={{ backgroundColor: "#F6F9EF" }}>
+      <div
+        className="max-w-6xl mx-auto rounded-lg p-4 "
+        style={{ backgroundColor: "#F6F9EF" }}
+      >
         {/* Table Headers */}
-        <div className="p-3 rounded-lg shadow-sm grid grid-cols-9 font-bold text-black text-sm text-center bg-white">
+        <div className="p-4 rounded-lg shadow-sm grid grid-cols-9 font-bold text-black text-sm text-center px-4 bg-white">
           <div>No</div>
           <div>Seller name</div>
           <div>Ph no</div>
           <div>Email</div>
           <div>Licence number</div>
           <div>Company name</div>
-          <div>Buyer/seller</div>
+         
           <div>Edit</div>
           <div>Delete</div>
         </div>
 
         {/* Rows */}
-        <div className="space-y-3 mt-3">
-          {Approvesellers.map((seller, index) => (
+        <div className="space-y-4 mt-3">
+          {sellers.map((seller, index) => (
             <div
-              key={index}
+              key={seller._id}
               className="bg-white p-3 rounded-lg shadow-sm grid grid-cols-9 items-center text-center text-sm"
             >
-              <div>{seller.no}</div>
+              <div>{(page - 1) * 10 + index + 1}</div>
               <div>{seller.sellerName}</div>
               <div>{seller.phone}</div>
               <div>{seller.email}</div>
-              <div>{seller.license}</div>
+              <div>{seller.tradeLicenseNumber}</div>
               <div>{seller.companyName}</div>
-              <div>{seller.type}</div>
               <div>
-                <button className="bg-[#B3DB48] text-white px-4 py-1 rounded-md text-sm">
+                <button
+                  onClick={() => handleApprove(seller._id)}
+                  className="bg-[#B3DB48] text-white px-4 py-1 rounded-md text-sm"
+                >
                   Approve
                 </button>
               </div>
@@ -276,16 +333,43 @@ export default function ApproveSellerTable() {
       <div className="max-w-6xl mx-auto mt-6 flex items-center justify-between text-sm">
         <div></div>
         <div className="flex items-center gap-2">
-          <button className="w-6 h-6 rounded-full bg-white flex items-center justify-center">
+          <button
+            className="w-6 h-6 rounded-full bg-white flex items-center justify-center"
+            onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+          >
             {"<"}
           </button>
-          <button className="w-6 h-6 rounded-full bg-[#B3DB48] text-white">1</button>
-          <button className="w-6 h-6 rounded-full bg-white">2</button>
-          <button className="w-6 h-6 rounded-full bg-white">3</button>
-          <button className="w-6 h-6 rounded-full bg-white">4</button>
-          <span>....</span>
-          <button className="w-6 h-6 rounded-full bg-white">231</button>
-          <button className="w-6 h-6 rounded-full bg-white flex items-center justify-center">
+
+          {Array.from({ length: totalPages }, (_, i) => i + 1)
+            .slice(
+              Math.max(0, page - 3),
+              Math.min(totalPages, page + 2)
+            )
+            .map((p) => (
+              <button
+                key={p}
+                onClick={() => setPage(p)}
+                className={`w-6 h-6 rounded-full ${
+                  page === p ? "bg-[#B3DB48] text-white" : "bg-white"
+                }`}
+              >
+                {p}
+              </button>
+            ))}
+
+          {page < totalPages && <span>....</span>}
+          {page < totalPages && (
+            <button
+              className="w-6 h-6 rounded-full bg-white"
+              onClick={() => setPage(totalPages)}
+            >
+              {totalPages}
+            </button>
+          )}
+          <button
+            className="w-6 h-6 rounded-full bg-white flex items-center justify-center"
+            onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+          >
             {">"}
           </button>
         </div>
@@ -293,6 +377,11 @@ export default function ApproveSellerTable() {
           <span>Go to page</span>
           <input
             type="text"
+            value={gotoPage}
+            onChange={(e) => setGotoPage(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleGoToPage();
+            }}
             placeholder="000"
             className="w-12 px-2 py-1 rounded-md border text-center text-sm"
           />
@@ -301,3 +390,4 @@ export default function ApproveSellerTable() {
     </div>
   );
 }
+
