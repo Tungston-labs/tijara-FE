@@ -1,10 +1,12 @@
 import { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData((prev) => ({
@@ -37,7 +39,7 @@ export default function Login() {
       setLoading(false);
     }
   };
-
+  
   return (
     <div
       className="min-h-screen bg-cover bg-center flex items-center justify-center font-[Nunito]"
@@ -73,11 +75,15 @@ export default function Login() {
         {/* Password */}
         <div className="mb-4">
           <div className="flex justify-between items-center mb-1">
-            <label className="text-black font-bold">Password</label>
-            <a href="#" className="text-[#B3DB48] text-sm hover:underline">
-              Forgot password
-            </a>
-          </div>
+         <label className="text-black font-bold">Password</label>
+        <span
+           onClick={() => navigate("/email")}
+            className="text-[#B3DB48] text-sm hover:underline cursor-pointer"
+             >
+    Forgot password
+  </span>
+</div>
+
           <input
             type="password"
             name="password"

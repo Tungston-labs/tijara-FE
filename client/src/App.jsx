@@ -7,6 +7,7 @@ import Profile from "./Pages/Profile";
 import Confirm from "./Pages/Confirm";
 import Edit from "./Pages/Edit";
 import Transaction from "./Pages/Transaction";
+
 import Otp from "./Pages/Otp";
 import ResetPassword from "./Pages/ResetPassword";
 import Login from "./Pages/Login";
@@ -20,15 +21,19 @@ import Items from "./Pages/Items";
 import ItemSub from "./Pages/ItemSub";
 import SellerProduct from "./Pages/SellProduct";
 import ApprovalForm from "./Pages/ApprovalForm";
-
+import Email from "./Pages/Email";
 
 function App() {
   return (
     <Routes>
+      {/* Default Route - Login shown first */}
+      <Route index element={<Login />} />
+
       {/* Public Routes */}
-      <Route path="/login" element={<Login />} />
+      <Route path="login" element={<Login />} />
       <Route path="/otp" element={<Otp />} />
       <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/email" element={<Email />} />
       <Route path="profile" element={<Profile />} />
       <Route path="edit" element={<Edit />} />
       <Route path="addagent" element={<AddAgent />} />
@@ -36,11 +41,10 @@ function App() {
 
       {/* Protected Layout Routes */}
       <Route path="/" element={<Layout />}>
-        
         <Route path="box" element={<Boxes />} />
         <Route path="sell" element={<Seller />} />
         <Route path="buyer" element={<Buyer />} />
-        <Route path="agent" element={<Agent/>} />
+        <Route path="agent" element={<Agent />} />
         <Route path="confirm" element={<Confirm />} />
         <Route path="tr" element={<Transaction />} />
         <Route path="delete" element={<Delete />} />
@@ -56,5 +60,3 @@ function App() {
 }
 
 export default App;
-
-

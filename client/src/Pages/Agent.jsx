@@ -195,8 +195,8 @@ export default function AgentTable() {
 
       {/* Popup: Add Agent */}
       {showAddPopup && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-          <div className="relative bg-white rounded-2xl shadow-xl max-w-2xl w-full p-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center  bg-opacity-40">
+          <div className="relative  rounded-2xl shadow-xl max-w-2xl w-full p-6">
             <button
               onClick={() => setShowAddPopup(false)}
               className="absolute top-3 right-4 text-gray-600 hover:text-black text-2xl"
