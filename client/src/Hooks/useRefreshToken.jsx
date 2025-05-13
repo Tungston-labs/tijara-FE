@@ -1,14 +1,17 @@
-import { useDispatch, useSelector } from "react-redux";
-import { setAccessToken } from "../Redux/authSlice";
+import { useDispatch } from "react-redux";
+import { setAccessToken, logout } from "../Redux/authSlice";
 import { api } from "../api/api";
-// import useLogout from "./useLogout";
 
 const useRefreshToken = () => {
   const dispatch = useDispatch();
-  const role = useSelector((state) => state.auth?.role); // get role from Redux
 
   const refresh = async () => {
     try {
+      // Try reading role from localStorage (fallback if Redux is empty)
+      let role = localStorage.getItem("role");
+
+      if (!role) throw new Error("User role not found for refresh.");
+
       let refreshUrl = "";
       if (role === "admin") refreshUrl = "/admin/auth/refresh";
       else if (role === "seller") refreshUrl = "/seller/refresh";
@@ -32,7 +35,7 @@ const useRefreshToken = () => {
       return response.data.accessToken;
     } catch (error) {
       console.log("Refresh token failed:", error?.response?.data || error);
-      // await logOut();
+      dispatch(logout()); // clear state if refresh fails
       return null;
     }
   };

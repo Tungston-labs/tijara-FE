@@ -13,7 +13,7 @@ const authSlice = createSlice({
     login: (state, action) => {
       state.userName = action.payload.userName;
       state.accessToken = action.payload.accessToken;
-      state.user = action.payload.user; // optional: save full user object
+      state.user = action.payload.user; 
     },
     logout: (state) => {
       state.userName = null;
@@ -21,8 +21,9 @@ const authSlice = createSlice({
       state.user = null;
     },
     setAccessToken: (state, action) => {
-      state.accessToken = action.payload; // Just payload, not payload.accessToken
-    },
+  state.accessToken = action.payload.accessToken; 
+},
+
     setUser: (state, action) => {
       state.user = action.payload;
     }

@@ -1,11 +1,15 @@
 import { useState } from "react";
 import axios from "axios";
+import { useDispatch } from "react-redux";
+import { login } from "../Redux/authSlice.js";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
+  const dispatch = useDispatch();
+  const navigate=useNavigate();
   const handleChange = (e) => {
     setFormData((prev) => ({
       ...prev,
@@ -15,23 +19,38 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("Form submitted with data:", formData); // DEBUG
+
     setError("");
     setLoading(true);
 
     try {
-      const response = await axios.post("http://localhost:5000/admin/auth/adminlogin", formData, {
-        withCredentials: true, // for sending cookies
-      });
+      const response = await axios.post(
+        "http://localhost:5000/admin/auth/adminlogin",
+        formData,
+        {
+          withCredentials: true, // for sending cookies
+        }
+      );
 
-      const { accessToken, username, role } = response.data;
-      localStorage.setItem("accessToken", accessToken);
-      localStorage.setItem("username", username);
-      localStorage.setItem("role", role);
+      console.log("Login response:", response); // DEBUG
       
-      console.log("gvhsxjwghxjvhxgwhefhx",response.data)
-      // Redirect to dashboard or home
-      window.location.href = "/box";
+      dispatch(
+        login({
+          userName: response.data.user.userName,
+          accessToken: response.data.accessToken,
+          user: response.data.user,
+        })
+      );
+      navigate('/box')
+// After successful login
+   localStorage.setItem("role", response.data.user.role);
+
+      console.log("Dispatched token:", response.data.accessToken); // DEBUG
+
+      // window.location.href = "/box"; // Redirect after login
     } catch (err) {
+      console.error("Login error:", err); // DEBUG
       setError(err.response?.data?.message || "Login failed");
     } finally {
       setLoading(false);
@@ -49,7 +68,11 @@ export default function Login() {
       >
         {/* Logo */}
         <div className="flex justify-center mb-4">
-          <img src="/image 6.png" alt="tijara logo" className="h-12 object-contain" />
+          <img
+            src="/image 6.png"
+            alt="tijara logo"
+            className="h-12 object-contain"
+          />
         </div>
 
         <p className="text-center text-gray-600 mb-8 text-sm">
@@ -95,10 +118,12 @@ export default function Login() {
         {/* Remember Me */}
         <div className="flex items-center mb-6">
           <input type="checkbox" id="remember" className="mr-2" />
-          <label htmlFor="remember" className="text-sm text-black">Remember me</label>
+          <label htmlFor="remember" className="text-sm text-black">
+            Remember me
+          </label>
         </div>
 
-        {/* Login Button */}
+        {/* Submit Button */}
         <button
           type="submit"
           className="w-full bg-[#B3DB48] text-white py-2 rounded-md font-bold"
