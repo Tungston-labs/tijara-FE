@@ -1,11 +1,12 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { fetchUser } from "../services/userServices";
 
 export const fetchUserList = createAsyncThunk(
   "userlist/fetch",
   async ({user}, { rejectWithValue }) => {
     try {
         console.log("here")
-      const response = await fetchUsers(user);
+      const response = await fetchUser(user);
      return response;
     } catch (error) {
       return rejectWithValue(error.message || "Unable to fetch user list");

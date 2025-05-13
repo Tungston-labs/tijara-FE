@@ -27,7 +27,7 @@ export default function SellerTable() {
 console.log("ok",userList)
   useEffect(() => {
 
-    dispatch(fetchUserList({user:"sell"}))
+    dispatch(fetchUserList({user:"seller"}))
     const handleEsc = (e) => {
       if (e.key === "Escape") setIsFilterOpen(false);
     };
