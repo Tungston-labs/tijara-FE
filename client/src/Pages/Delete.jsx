@@ -30,7 +30,7 @@
 
 import React from "react";
 
-export default function DeleteUserModal({ onCancel, onDelete }) {
+export default function DeleteUserModal({onCancel, onDelete }) {
   return (
     <div className="fixed inset-0 bg-white bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-2xl p-8 w-full max-w-md text-center shadow-[0_0_20px_rgba(0,0,0,0.1)]">

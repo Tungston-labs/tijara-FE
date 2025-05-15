@@ -12,5 +12,11 @@ const API  = axios.create({
 
 export const fetchUser = async (user) => {
     const response = API.get(`get-all-users?role=${user}`)
-    return response.data
+    return response
 }
+
+
+export const deleteUserById = async (id) => {
+  const res = await axios.delete(`/api/users/${id}`);
+  return res.data;
+};

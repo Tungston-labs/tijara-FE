@@ -34,7 +34,7 @@ export default function Login() {
       );
 
       console.log("Login response:", response); // DEBUG
-      
+      localStorage.setItem("accessToken",response.data.accessToken)
       dispatch(
         login({
           userName: response.data.user.userName,

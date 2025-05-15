@@ -24,6 +24,8 @@ import ApprovalForm from "./Pages/ApprovalForm";
 import ProtectedRoute from "./Components/ProtectedRoute";
 import PersistLogin from "./Components/PersistLogin"; // ✅ IMPORTANT: Add this line
 import Email from "./Pages/Email";
+import { Modal } from "antd";
+import DemoModal from "./Pages/DemoModal";
 
 function App() {
   return (
@@ -37,7 +39,10 @@ function App() {
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/edit" element={<Edit />} />
-       <Route path="/email" element={<Email />} />
+      <Route path="/email" element={<Email />} />
+      
+      <Route path="/demomodal" element={<DemoModal/>}/>
+       
        
       {/* Protected Layout Routes */}
       <Route path="/" element={<Layout />}>
