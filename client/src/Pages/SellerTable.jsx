@@ -1,0 +1,64 @@
+import React from "react";
+import { Pencil, Trash } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+
+export default function SellerTableContent({sellers, onEditClick, onDeleteClick} ) {
+  const navigate = useNavigate();
+
+  return (
+    <>
+    <div className="max-w-6xl mx-auto rounded-lg p-4" style={{ backgroundColor: "#F6F9EF" }}>
+ 
+      <div className="p-3 rounded-lg shadow-sm grid grid-cols-10 font-[Nunito] font-bold text-black text-center text-sm whitespace-nowrap bg-white">
+        <div>No</div>
+        <div>Manager Name</div>
+        <div>Company Name</div>
+        <div>Seller Name</div>
+        <div>Email.ID</div>
+        <div></div>
+        <div>Ph no</div>
+        <div>Licence number</div>
+        <div>Edit</div>
+        <div>Delete</div>
+      </div>
+
+      {/* Table Rows */}
+      <div className="space-y-3 mt-3">
+        {sellers.map((seller, index) => (
+          <div
+            key={index}
+            className="bg-white p-3 rounded-lg shadow-sm grid grid-cols-10 text-center items-center text-sm whitespace-nowrap"
+          >
+            <div className="text-gray-700 font-[Nunito]">{index + 1}</div>
+            <div
+              className="text-[#B3DB48] font-[Nunito] cursor-pointer hover:underline"
+              onClick={() => navigate(`/profile`)}
+            >
+              {seller.managerName}
+            </div>
+            <div className="text-gray-700">{seller.companyName}</div>
+            <div className="text-gray-700">{seller.sellerName}</div>
+            <div className="text-gray-700">{seller.email}</div>
+            <div></div>
+            <div className="text-gray-700">{seller.phone}</div>
+            <div className="text-gray-700">{seller.tradeLicenseNumber}</div>
+            <div className="flex justify-center">
+              <button onClick={() => (seller)} className="text-[#B3DB48]">
+                <Pencil size={14} />
+              </button>
+            </div>
+            <div className="flex justify-center">
+              <button
+                onClick={() => onDeleteClick(seller)}
+                className="text-red-500 hover:text-red-700"
+              >
+                <Trash size={14} />
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+      </div>
+    </>
+  );
+}

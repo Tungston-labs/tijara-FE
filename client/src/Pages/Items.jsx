@@ -291,35 +291,7 @@ export default function ItemNameList() {
             </div>
           </div>
 
-          {/* Filter Button & Popup */}
-          <div className="relative">
-            <button
-              onClick={() => setIsFilterOpen(!isFilterOpen)}
-              className="bg-[#B3DB48] text-white px-4 py-2 rounded-md flex items-center gap-2"
-            >
-              <Filter size={20} /> Filter
-            </button>
-
-            {isFilterOpen && (
-              <div
-                ref={popupRef}
-                className="absolute right-0 mt-2 bg-[#F0EEEE] rounded-lg shadow-xl w-[180px] z-50"
-              >
-                <button
-                  onClick={() => handleFilterClick("item")}
-                  className="w-full text-left px-4 py-3 text-md hover:bg-[#B3DB48] rounded-t-lg"
-                >
-                  Item Name
-                </button>
-                <button
-                  onClick={() => handleFilterClick("itemsub")}
-                  className="w-full text-left px-4 py-3 text-md hover:bg-[#B3DB48] rounded-b-lg"
-                >
-                  Sub Category
-                </button>
-              </div>
-            )}
-          </div>
+          
         </div>
 
         {/* Table-style box */}

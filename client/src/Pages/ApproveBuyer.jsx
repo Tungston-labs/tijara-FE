@@ -97,7 +97,7 @@ console.log("Sending token to backend:", auth.accessToken);
       <div className="max-w-6xl mx-auto flex items-center justify-between mb-4 relative">
         <div>
           <p className="text-gray-500 text-sm">Approval &gt; Buyer</p>
-          <h2 className="text-2xl font-semibold">Buyer</h2>
+          <h2 className="text-2xl font-[Nunito] font-bold">Buyer</h2>
         </div>
         <div className="relative">
           <button
@@ -148,7 +148,7 @@ console.log("Sending token to backend:", auth.accessToken);
         style={{ backgroundColor: "#F6F9EF" }}
       >
         {/* Table Header */}
-        <div className="p-3 rounded-lg shadow-sm grid grid-cols-5 font-bold text-black text-sm text-left bg-[fff]">
+        <div className="p-3 rounded-lg shadow-sm grid grid-cols-5 font-[Nunito] font-bold text-black text-sm text-left bg-[fff]">
           <div>No</div>
           <div>Buyer name</div>
           <div>Ph no</div>

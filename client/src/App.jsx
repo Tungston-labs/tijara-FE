@@ -37,7 +37,7 @@ function App() {
       <Route path="login" element={<Login />} />
       <Route path="/otp" element={<Otp />} />
       <Route path="/reset-password" element={<ResetPassword />} />
-      <Route path="/profile" element={<Profile />} />
+
       <Route path="/edit" element={<Edit />} />
       <Route path="/email" element={<Email />} />
       
@@ -63,6 +63,7 @@ function App() {
             <Route path="itemsub" element={<ItemSub />} />
             <Route path="sellproducts" element={<SellerProduct />} />
             <Route path="approvalForm" element={<ApprovalForm />} />
+            <Route path="/profile" element={<Profile />} />
           </Route>
         </Route>
       </Route>

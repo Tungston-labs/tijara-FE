@@ -20,7 +20,7 @@ export default function ProfileTransactionCard() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#E9E9E9] flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl w-full max-w-4xl p-6 shadow-[0_0_20px_rgba(0,0,0,0.1)]">
         {/* Top Section */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-start gap-6">

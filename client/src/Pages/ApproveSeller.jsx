@@ -248,7 +248,7 @@ export default function ApproveSellerTable() {
       <div className="max-w-6xl mx-auto flex items-center justify-between mb-4 relative">
         <div>
           <p className="text-gray-500 text-sm">Approval &gt; Seller</p>
-          <h2 className="text-2xl font-semibold">Seller</h2>
+          <h2 className="text-2xl font-[Nunito] font-bold">Seller</h2>
         </div>
         <div className="relative">
           <button
@@ -285,7 +285,7 @@ export default function ApproveSellerTable() {
         style={{ backgroundColor: "#F6F9EF" }}
       >
         {/* Table Headers */}
-        <div className="p-4 rounded-lg shadow-sm grid grid-cols-9 font-bold text-black text-sm text-center px-4 bg-white">
+        <div className="p-4 rounded-lg shadow-sm grid grid-cols-9 font-[Nunito] font-bold text-black text-sm text-center px-4 bg-white">
           <div>No</div>
           <div>Seller name</div>
           <div>Ph no</div>

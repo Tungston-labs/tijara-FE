@@ -6,6 +6,8 @@ import { useDispatch, useSelector } from "react-redux";
 // import DeleteUserModal from "./Delete";
 import { Modal, Input } from "antd";
 import { deleteUser } from "../Redux/userSlice";
+import SellerTableContent from "./SellerTable";
+import BuyerTable from "./BuyerTable";
 
 
 export default function SellerTable() {
@@ -23,6 +25,7 @@ export default function SellerTable() {
   licenceNumber: '',
   email: ''
 });
+  console.log(formData)
 
 
   useEffect(() => {
@@ -43,22 +46,25 @@ export default function SellerTable() {
     };
   }, [dispatch]);
 
-  const handleFilterClick = (type) => {
-    setIsFilterOpen(false);
-    navigate(`/${type.toLowerCase()}`);
-  };
+const handleFilterClick = (type) => {
+  setIsFilterOpen(false);
+  setFilter(type.toLowerCase()); 
+};
+
 
   const handleDeleteUser = () => {
   if (selectedSeller) {
     console.log("Deleting user:", selectedSeller);
     // dispatch(deleteUser(selectedSeller.id)); // optional
   }
+  console.log("here")
   setShowPopup(false);
 };
 
 
 
 const handleDeleteClick = (seller) => {
+  setShowPopup(true)
   Modal.confirm({
     title: `Are you sure you want to delete ${seller.managerName}?`,
     content: "This action cannot be undone.",
@@ -69,7 +75,9 @@ const handleDeleteClick = (seller) => {
       try {
         await dispatch(deleteUser(seller._id)).unwrap(); // assumes seller._id exists
         message.success("Seller deleted successfully");
-        dispatch(fetchUserList({ user: "seller" })); // refresh list
+        
+        dispatch(fetchUserList({ user: "seller" })); 
+       // refresh list
       } catch (error) {
         message.error("Failed to delete seller");
         console.error("Delete error:", error);
@@ -97,6 +105,8 @@ const handleDeleteClick = (seller) => {
   const [editEmail, setEditEmail] = useState('');
   const [editPhone, setEditPhone] = useState('');
   const [editLicense, setEditLicense] = useState('');
+  const [filter,setFilter] = useState('seller')
+  
 
   const handleEditClick = (seller) => {
   setSelectedSeller(seller);
@@ -115,6 +125,7 @@ const handleDeleteClick = (seller) => {
   const handleEditSave = () => {
   console.log("Saved data:", formData);
   setShowEditPopup(false);
+
 };
 
 console.log("showPopup state:", showPopup);
@@ -127,7 +138,7 @@ console.log("showPopup state:", showPopup);
         <div className="max-w-6xl mx-auto flex items-center justify-between mb-4 relative">
           <div>
             <p className="text-gray-500 text-sm">Users &gt; Seller</p>
-            <h2 className="text-2xl font-[Nunito] font-bold">Seller</h2>
+            <h2 className="text-2xl font-[Nunito] font-bold">{filter==="seller"?"Seller":"buyer"}</h2>
           </div>
           <div className="relative">
             <button
@@ -142,7 +153,7 @@ console.log("showPopup state:", showPopup);
                 className="absolute right-0 mt-2 bg-[#F0EEEE] rounded-lg shadow-xl w-[180px] z-50"
               >
                 <button
-                  onClick={() => handleFilterClick("Sell")}
+                  onClick={() => handleFilterClick("Seller")}
                   className="w-full text-left px-4 py-3 text-md hover:bg-[#B3DB48] rounded-t-lg"
                 >
                   Seller
@@ -158,63 +169,9 @@ console.log("showPopup state:", showPopup);
           </div>
         </div>
 
-        <div className="max-w-6xl mx-auto rounded-lg p-4" style={{ backgroundColor: "#F6F9EF" }}>
-          <div className="p-3 rounded-lg shadow-sm grid grid-cols-10 font-[Nunito] font-bold text-black text-center text-sm whitespace-nowrap bg-white">
-            <div>No</div>
-            <div>Manager Name</div>
-            <div>Company Name</div>
-            <div>Seller Name</div>
-            <div>Email.ID</div>
-            <div></div>
-            <div>Ph no</div>
-            <div>Licence number</div>
-            <div>Edit</div>
-            <div>Delete</div>
-          </div>
+     
 
-          <div className="space-y-3 mt-3">
-            {userList.map((seller, index) => (
-              <div
-                key={index}
-                className="bg-white p-3 rounded-lg shadow-sm grid grid-cols-10 text-center items-center text-sm whitespace-nowrap"
-              >
-                <div className="text-gray-700 font-[Nunito] ">{index + 1}</div>
-                <div
-                  className="text-[#B3DB48] font-[Nunito] cursor-pointer hover:underline"
-                  onClick={() => navigate(`/profile`)}
-                >
-                  {seller.managerName}
-                </div>
-                <div className="text-gray-700">{seller.companyName}</div>
-                <div className="text-gray-700">{seller.sellerName}</div>
-                <div className="text-gray-700">{seller.email}</div>
-                <div></div>
-                <div className="text-gray-700">{seller.phone}</div>
-                <div className="text-gray-700">{seller.tradeLicenseNumber}</div>
-                <div className="flex justify-center">
-                  <button
-                    onClick={() => handleEditClick(seller)}
-                    className="text-green-500 hover:text-green-700"
-                  >
-                    <Pencil size={14} />
-                  </button>
-                </div>
-                <div className="flex justify-center">
-  <div className="flex justify-center">
-  <button
-    onClick={() => handleDeleteClick(seller)}
-    className="text-red-500 hover:text-red-700"
-  >
-    <Trash size={14} />
-  </button>
-</div>
-
-
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+     {filter === "seller" ? (<SellerTableContent sellers={userList} onEditClick={handleEditClick}  onDeleteClick={handleDeleteClick} />) : (<BuyerTable buyers={userList}  onEditClick={handleEditToggle} onDeleteClick={handleDeleteClick} />)}
       </div>
 
    {showPopup && (
@@ -249,7 +206,7 @@ console.log("showPopup state:", showPopup);
         okText="Save"
         cancelText="Cancel"
       >
-        
+      
     {/* <div className="min-h-screen bg-white flex items-center justify-center p-4"> */}
       {/* <div className="w-full max-w-2xl bg-white rounded-2xl p-6 shadow-[0_0_20px_rgba(0,0,0,0.1)] flex flex-col items-center"> */}
         {/* Profile Image */}

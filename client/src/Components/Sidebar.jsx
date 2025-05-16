@@ -1,25 +1,26 @@
-
 // import { useState } from "react";
-// import {
-//   LayoutDashboard,
-//   Grid,
-//   Users,
-//   UserCheck,
-//   LogOut,
-// } from "lucide-react";
+// import { LogOut } from "lucide-react";
 // import { useNavigate } from "react-router-dom";
+
+// // New icons from react-icons
+// import { RiDashboardFill } from "react-icons/ri";
+// import { FaUsers } from "react-icons/fa6";
+// import { RiShieldUserLine } from "react-icons/ri";
+// import { FiUserPlus } from "react-icons/fi";
+// import { PiNetworkFill } from "react-icons/pi";
+// import { IoReceiptOutline } from "react-icons/io5";
 
 // export default function Sidebar() {
 //   const [active, setActive] = useState("Category");
 //   const navigate = useNavigate();
 
 //   const menuItems = [
-//     { name: "Dashboard", icon: LayoutDashboard },
-//     { name: "Users", icon: Grid },
-//     { name: "Agents", icon: Users },
-//     { name: "Approval", icon: UserCheck },
-//     { name: "Category", icon: Grid },
-//     { name: "Sell Products", icon: Grid },
+//     { name: "Dashboard", icon: RiDashboardFill },
+//     { name: "Approval", icon: FiUserPlus },
+//     { name: "Users", icon: FaUsers },
+//     { name: "Agents", icon: RiShieldUserLine }, 
+//     { name: "Category", icon: PiNetworkFill },
+//     { name: "Sell Products", icon: IoReceiptOutline },
 //   ];
 
 //   const handleClick = (name) => {
@@ -37,7 +38,6 @@
 //     } else if (name === "Sell Products") {
 //       navigate("/sellproducts");
 //     }
-    
 //   };
 
 //   const handleLogout = () => {
@@ -92,8 +92,6 @@
 // }
 
 
-
-
 import { useState } from "react";
 import { LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -103,19 +101,21 @@ import { RiDashboardFill } from "react-icons/ri";
 import { FaUsers } from "react-icons/fa6";
 import { RiShieldUserLine } from "react-icons/ri";
 import { FiUserPlus } from "react-icons/fi";
+import { MdCategory } from "react-icons/md";
 import { PiNetworkFill } from "react-icons/pi";
 import { IoReceiptOutline } from "react-icons/io5";
 
 export default function Sidebar() {
-  const [active, setActive] = useState("Category");
+  const [active, setActive] = useState("Dashboard"); // Changed from "Category" to "Dashboard"
   const navigate = useNavigate();
 
   const menuItems = [
     { name: "Dashboard", icon: RiDashboardFill },
     { name: "Approval", icon: FiUserPlus },
     { name: "Users", icon: FaUsers },
-    { name: "Agents", icon: RiShieldUserLine }, 
-    { name: "Category", icon: PiNetworkFill },
+    { name: "Agents", icon: RiShieldUserLine },
+    { name: "Category", icon: MdCategory },
+    { name: "Sub Category", icon: PiNetworkFill },
     { name: "Sell Products", icon: IoReceiptOutline },
   ];
 
@@ -131,6 +131,8 @@ export default function Sidebar() {
       navigate("/box");
     } else if (name === "Category") {
       navigate("/item");
+      } else if (name === "Sub Category") {
+      navigate("/itemsub");
     } else if (name === "Sell Products") {
       navigate("/sellproducts");
     }

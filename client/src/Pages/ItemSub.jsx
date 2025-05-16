@@ -48,33 +48,7 @@ export default function ItemNameList() {
               </button>
             </div>
           </div>
-          <div className="relative mt-2">
-            <button
-              onClick={() => setIsFilterOpen(!isFilterOpen)}
-              className="bg-[#B3DB48] px-4 py-2 rounded-md flex items-center gap-2 text-black shadow"
-            >
-              <Filter size={20} /> Filter
-            </button>
-            {isFilterOpen && (
-              <div
-                ref={popupRef}
-                className="absolute right-0 mt-2 bg-[#F0EEEE] rounded-lg shadow-xl w-[180px] z-50"
-              >
-                <button
-                  onClick={() => console.log("item")}
-                  className="w-full text-left px-4 py-3 text-md hover:bg-[#B3DB48] rounded-t-lg font-[Nunito]"
-                >
-                  Item Name
-                </button>
-                <button
-                  onClick={() => console.log("itemsub")}
-                  className="w-full text-left px-4 py-3 text-md hover:bg-[#B3DB48] rounded-b-lg font-[Nunito]"
-                >
-                  Sub Category
-                </button>
-              </div>
-            )}
-          </div>
+          
         </div>
 
         {/* Table */}
