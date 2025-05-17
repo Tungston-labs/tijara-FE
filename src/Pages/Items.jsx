@@ -1,0 +1,101 @@
+import { useState, useEffect, useRef } from "react";
+import { Filter } from "lucide-react";
+
+export default function ItemNameList() {
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const popupRef = useRef(null);
+
+  useEffect(() => {
+    const handleEsc = (e) => {
+      if (e.key === "Escape") setIsFilterOpen(false);
+    };
+    const handleClickOutside = (e) => {
+      if (popupRef.current && !popupRef.current.contains(e.target)) {
+        setIsFilterOpen(false);
+      }
+    };
+    document.addEventListener("keydown", handleEsc);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("keydown", handleEsc);
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const handleFilterClick = (filterType) => {
+    console.log("Filter selected:", filterType);
+    setIsFilterOpen(false); // Close popup after selection
+  };
+
+  const items = Array(10).fill("item 1");
+
+  return (
+    <div className="min-h-screen bg-[#E9E9E9] p-4">
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="flex justify-between items-start mb-4">
+          <div>
+            <p className="text-sm text-gray-600">Category &gt; Item name</p>
+            <h2 className="text-2xl font-[Nunito] font-bold text-black mt-1">Item name</h2>
+            <div className="flex items-center gap-3 mt-4">
+              <input
+                type="text"
+                placeholder="Enter Item name"
+                className="px-4 py-2 rounded-md border border-gray-300 bg-white text-black focus:outline-none w-[250px]"
+              />
+              <button className="bg-[#B3DB48] text-black px-6 py-2 rounded-md font-[Nunito] font-bold">
+                + Add
+              </button>
+            </div>
+          </div>
+
+          
+        </div>
+
+        {/* Table-style box */}
+        <div className="bg-[#F6F9EF] p-4 rounded-md shadow-sm">
+          {/* Table Header */}
+          <div className="bg-white px-4 py-3 rounded-md font-[Nunito] font-bold text-black border border-gray-200 shadow-sm">
+            Item name
+          </div>
+
+          {/* Item Rows */}
+          <div className="mt-4 space-y-3">
+            {items.map((item, idx) => (
+              <div
+                key={idx}
+                className="bg-white px-4 py-3 rounded-md border border-gray-200 text-gray-700 shadow-sm"
+              >
+                {item}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Pagination */}
+        <div className="flex justify-between items-center mt-6">
+          <div className="flex items-center space-x-2 text-gray-700">
+            <button className="text-lg">&lt;</button>
+            <button className="bg-[#B3DB48] text-black w-8 h-8 rounded-full font-[Nunito] font-bold">
+              1
+            </button>
+            <button className="hover:underline">2</button>
+            <button className="hover:underline">3</button>
+            <button className="hover:underline">4</button>
+            <span className="text-gray-500">....</span>
+            <button className="hover:underline">231</button>
+            <button className="text-lg">&gt;</button>
+          </div>
+          <div className="flex items-center gap-2 text-sm text-gray-700">
+            <span>Go to page</span>
+            <input
+              type="number"
+              placeholder="000"
+              className="w-16 px-2 py-1 border border-gray-300 rounded-md text-sm"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

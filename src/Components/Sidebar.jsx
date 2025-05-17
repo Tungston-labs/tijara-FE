@@ -108,7 +108,7 @@ import { IoReceiptOutline } from "react-icons/io5";
 export default function Sidebar() {
   const [active, setActive] = useState("Dashboard"); // Changed from "Category" to "Dashboard"
   const navigate = useNavigate();
-
+console.log("pthname",window.location.pathname)
   const menuItems = [
     { name: "Dashboard", icon: RiDashboardFill },
     { name: "Approval", icon: FiUserPlus },

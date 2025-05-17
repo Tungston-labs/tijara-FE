@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { fetchUser, deleteUserById } from "../services/userServices"; // make sure you have deleteUserById()
+import { fetchUser, deleteUserById , fetchAgents} from "../services/userServices"; // make sure you have deleteUserById()
+
 
 // FETCH USER LIST
 export const fetchUserList = createAsyncThunk(
@@ -7,6 +8,18 @@ export const fetchUserList = createAsyncThunk(
   async ({ user }, { rejectWithValue }) => {
     try {
       const response = await fetchUser(user);
+      return response;
+    } catch (error) {
+      return rejectWithValue(error.message || "Unable to fetch user list");
+    }
+  }
+);
+
+export const fetchAgentList = createAsyncThunk(
+  "agentlist/fetch",
+  async ({ user }, { rejectWithValue }) => {
+    try {
+      const response = await fetchAgents();
       return response;
     } catch (error) {
       return rejectWithValue(error.message || "Unable to fetch user list");
@@ -31,6 +44,7 @@ const UserSlice = createSlice({
   name: "user",
   initialState: {
     userList: [],
+    agentList: [],
     status: "",
     error: ""
   },
@@ -48,7 +62,17 @@ const UserSlice = createSlice({
         state.status = "failed";
         state.error = action.error.message;
       })
-
+      .addCase(fetchAgentList.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchAgentList.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.agentList = action.payload.data.users;
+      })
+      .addCase(fetchAgentList.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message;
+      })
       // Delete User
       .addCase(deleteUser.fulfilled, (state, action) => {
         const deletedId = action.payload.userId;

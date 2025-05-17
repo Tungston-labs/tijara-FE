@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Pencil } from 'lucide-react';
 import { Button, Modal } from 'antd';
+import { useDispatch,useSelector } from 'react-redux';
+import { fetchAgentList } from '../Redux/userSlice';
+
 
 // Sample agent data
 const agents = Array(10).fill({
@@ -12,6 +15,8 @@ const agents = Array(10).fill({
 });
 
 export default function AgentTable() {
+  const dispatch = useDispatch();
+  const { agentList } = useSelector((state) => state.user);
   const [showEditPopup, setShowEditPopup] = useState(false);
   const [showAddPopup, setShowAddPopup] = useState(false);
   const [selectedAgent, setSelectedAgent] = useState(null);
@@ -29,9 +34,23 @@ export default function AgentTable() {
     setEditAddress(agent.address);
     setShowEditPopup(true);
   };
+ 
+// dispatch(fetchAgentList());
+   useEffect(()=>{
+    dispatch(fetchAgentList()).then((action)=> {
+      console.log(action.payload);
+    })
+    .catch((error)=>{
+      console.log(error);
+    })
+
+   },[]);
+
+  
 
   const handleEditOk = () => {
     console.log("Edited data:", { name: editName, email: editEmail, phone: editPhone, address: editAddress });
+      
     setShowEditPopup(false);
   };
 
@@ -41,6 +60,7 @@ export default function AgentTable() {
 
   const handleAddOk = () => {
     console.log("Add Agent clicked");
+
     setShowAddPopup(false);
   };
 
@@ -73,13 +93,13 @@ export default function AgentTable() {
         </div>
 
         <div className="mt-3 space-y-3">
-          {agents.map((agent, index) => (
+          {agentList.map((agent, index) => (
             <div
               key={index}
               className="grid grid-cols-6 bg-white rounded-md shadow-sm py-3 px-4 items-center text-sm text-gray-700"
             >
               <div>{agent.no}</div>
-              <div>{agent.fullName}</div>
+              {/* <div>{agent.fullName}</div> */}
               <div>{agent.email}</div>
               <div>{agent.phone}</div>
               <div className="truncate">{agent.address}</div>
@@ -119,7 +139,6 @@ export default function AgentTable() {
             <label className="block text-sm font-[Nunito] font-bold mb-1">Agent Name</label>
             <input
               type="text"
-              value="Ajay kumar"
               readOnly
               className="w-full bg-gray-100 rounded-md px-3 py-2 text-gray-600"
             />
@@ -181,7 +200,6 @@ export default function AgentTable() {
             <label className="block text-sm font-[Nunito] font-bold mb-1">Agent Name</label>
             <input
               type="text"
-              value="Ajay kumar"
               readOnly
               className="w-full bg-gray-100 rounded-md px-3 py-2 text-gray-600"
             />

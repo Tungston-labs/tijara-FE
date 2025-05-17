@@ -25,11 +25,19 @@ export default function SellerTable() {
   licenceNumber: '',
   email: ''
 });
+ const [showPopup, setShowPopup] = useState(false);
+  const [showEditPopup, setShowEditPopup] = useState(false);
+  const [selectedSeller, setSelectedSeller] = useState(null);
+  const [editName, setEditName] = useState('');
+  const [editEmail, setEditEmail] = useState('');
+  const [editPhone, setEditPhone] = useState('');
+  const [editLicense, setEditLicense] = useState('');
+  const [filter,setFilter] = useState('seller')
   console.log(formData)
 
 
   useEffect(() => {
-    dispatch(fetchUserList({ user: "seller" }));
+    dispatch(fetchUserList({ user: filter }));
     const handleEsc = (e) => {
       if (e.key === "Escape") setIsFilterOpen(false);
     };
@@ -44,7 +52,7 @@ export default function SellerTable() {
       document.removeEventListener("keydown", handleEsc);
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [dispatch]);
+  }, [filter]);
 
 const handleFilterClick = (type) => {
   setIsFilterOpen(false);
@@ -98,14 +106,7 @@ const handleDeleteClick = (seller) => {
 
   const handleEditToggle = () => setIsEditing((prev) => !prev);
 
-  const [showPopup, setShowPopup] = useState(false);
-  const [showEditPopup, setShowEditPopup] = useState(false);
-  const [selectedSeller, setSelectedSeller] = useState(null);
-  const [editName, setEditName] = useState('');
-  const [editEmail, setEditEmail] = useState('');
-  const [editPhone, setEditPhone] = useState('');
-  const [editLicense, setEditLicense] = useState('');
-  const [filter,setFilter] = useState('seller')
+ 
   
 
   const handleEditClick = (seller) => {
