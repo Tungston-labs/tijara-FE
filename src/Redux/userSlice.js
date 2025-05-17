@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { fetchUser, deleteUserById , fetchAgents} from "../services/userServices"; // make sure you have deleteUserById()
+import { fetchUser, deleteUserById , fetchAgents, fetchItems} from "../services/userServices"; // make sure you have deleteUserById()
 
 
 // FETCH USER LIST
@@ -26,6 +26,21 @@ export const fetchAgentList = createAsyncThunk(
     }
   }
 );
+
+
+export const fetchItemList = createAsyncThunk(
+  "itemlist/fetch",
+  async ({ user }, { rejectWithValue }) => {
+    try {
+      const response = await fetchItems();
+      return response;
+    } catch (error) {
+      return rejectWithValue(error.message || "Unable to fetch user list");
+    }
+  }
+);
+
+
 
 // DELETE USER
 export const deleteUser = createAsyncThunk(

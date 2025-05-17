@@ -614,7 +614,7 @@ const ProfileCard = () => {
             </div>
           ))}
         </div>
-
+        
         {/* Submit Button */}
         <div className="bg-gray-100 p-4 rounded-b-2xl border-t border-gray-200">
           <button className="w-full bg-[#B3DB48] text-white py-2 rounded-md font-semibold">

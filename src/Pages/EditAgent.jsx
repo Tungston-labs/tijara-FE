@@ -17,7 +17,7 @@ export default function EditAgentForm() {
             </svg>
           </div>
         </div>
-
+               
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div>
             <label className="block text-sm font-[Nunito] font-bold mb-1">Agent Name</label>

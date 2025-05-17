@@ -10,7 +10,7 @@ export default function BuyerTable({ buyers, onDeleteClick, onEditClick }) {
         <div>Ph no</div>
         <div>Plan Expiring</div>
         <div>Payment type</div>
-        <div>Buyer/seller</div> 
+        {/* <div>Buyer/seller</div>  */}
         <div>Edit</div>
         <div>Delete</div>
       </div>

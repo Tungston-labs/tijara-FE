@@ -1,10 +1,15 @@
 import { useState, useEffect, useRef } from "react";
 import { Filter } from "lucide-react";
+import { fetchItemList } from "../Redux/userSlice";
+import { useDispatch,useSelector } from 'react-redux';
 
 export default function ItemNameList() {
+  const dispatch = useDispatch();
+  const { agentList } = useSelector((state) => state.user);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const popupRef = useRef(null);
-
+  
+  
   useEffect(() => {
     const handleEsc = (e) => {
       if (e.key === "Escape") setIsFilterOpen(false);
@@ -27,6 +32,19 @@ export default function ItemNameList() {
     setIsFilterOpen(false); // Close popup after selection
   };
 
+ 
+useEffect(()=>{
+    dispatch(fetchItemList()).then((action)=> {
+      console.log(action.payload);
+    })
+    .catch((error)=>{
+      console.log(error);
+    })
+
+   },[]);
+
+
+    
   const items = Array(10).fill("item 1");
 
   return (

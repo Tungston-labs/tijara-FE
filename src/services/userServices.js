@@ -7,17 +7,27 @@ const API  = axios.create({
         "Authorization":`Bearer ${localStorage.getItem('accessToken')}`
         
     }
-
+ 
 })
 
 
 export const fetchUser = async (user) => {
-    const response = API.get(`/auth/get-all-users?role=${user}`)
+    const response = API.get(`auth/get-all-users?role=${user}`)
     return response
 }
 
 export const fetchAgents = async () => {
     const response = API.get(`/agent`)
+    return response
+}
+
+export const fetchItems = async () => {
+    const response = API.get(`/product/item-names`)
+    return response
+}
+
+export const fetchSubItems = async () => {
+    const response = API.get(`product/item-sub-category/${itemName}`)
     return response
 }
 

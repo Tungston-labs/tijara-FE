@@ -11,13 +11,13 @@ export default function SellerTableContent({sellers, onEditClick, onDeleteClick}
  
       <div className="p-3 rounded-lg shadow-sm grid grid-cols-10 font-[Nunito] font-bold text-black text-center text-sm whitespace-nowrap bg-white">
         <div>No</div>
-        <div>Manager Name</div>
-        <div>Company Name</div>
         <div>Seller Name</div>
-        <div>Email.ID</div>
-        <div></div>
-        <div>Ph no</div>
-        <div>Licence number</div>
+        <div>Ph no </div>
+        <div>Licence Number</div>
+        <div>Plan Expiring</div>
+        <div>Payment type </div>
+        {/* <div>Ph no</div> */}
+        {/* <div>Licence number</div> */}
         <div>Edit</div>
         <div>Delete</div>
       </div>
