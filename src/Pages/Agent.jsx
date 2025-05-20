@@ -1,18 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { Pencil } from 'lucide-react';
-import { Button, Modal } from 'antd';
-import { useDispatch,useSelector } from 'react-redux';
-import { fetchAgentList } from '../Redux/userSlice';
-
-
-// Sample agent data
-const agents = Array(10).fill({
-  no: "01",
-  fullName: "Full Name",
-  email: "Email",
-  phone: "Ph number",
-  address: "Lorem ipsum dolor sit amet consectetur. Amet nunc varius id at...",
-});
+import React, { useEffect, useState } from "react";
+import { Pencil } from "lucide-react";
+import { Button, Modal } from "antd";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchAgentList } from "../Redux/userSlice";
 
 export default function AgentTable() {
   const dispatch = useDispatch();
@@ -21,10 +11,10 @@ export default function AgentTable() {
   const [showAddPopup, setShowAddPopup] = useState(false);
   const [selectedAgent, setSelectedAgent] = useState(null);
 
-  const [editName, setEditName] = useState('');
-  const [editEmail, setEditEmail] = useState('');
-  const [editPhone, setEditPhone] = useState('');
-  const [editAddress, setEditAddress] = useState('');
+  const [editName, setEditName] = useState("");
+  const [editEmail, setEditEmail] = useState("");
+  const [editPhone, setEditPhone] = useState("");
+  const [editAddress, setEditAddress] = useState("");
 
   const handleEditClick = (agent) => {
     setSelectedAgent(agent);
@@ -34,23 +24,28 @@ export default function AgentTable() {
     setEditAddress(agent.address);
     setShowEditPopup(true);
   };
- 
-// dispatch(fetchAgentList());
-   useEffect(()=>{
-    dispatch(fetchAgentList()).then((action)=> {
-      console.log(action.payload);
-    })
-    .catch((error)=>{
-      console.log(error);
-    })
 
-   },[]);
 
-  
+useEffect(() => {
+  dispatch(fetchAgentList())
+    .unwrap()
+    .then((data) => {
+      console.log("Fetched agents:", data.agent); 
+    })
+    .catch((err) => {
+      console.error("Error fetching agents:", err);
+    });
+}, [dispatch]);
+
 
   const handleEditOk = () => {
-    console.log("Edited data:", { name: editName, email: editEmail, phone: editPhone, address: editAddress });
-      
+    console.log("Edited data:", {
+      name: editName,
+      email: editEmail,
+      phone: editPhone,
+      address: editAddress,
+    });
+
     setShowEditPopup(false);
   };
 
@@ -67,6 +62,7 @@ export default function AgentTable() {
   const handleAddCancel = () => {
     setShowAddPopup(false);
   };
+console.log("Redux agentList:", agentList);
 
   return (
     <div className="min-h-screen bg-[#E9E9E9] p-6 relative overflow-hidden">
@@ -95,11 +91,11 @@ export default function AgentTable() {
         <div className="mt-3 space-y-3">
           {agentList.map((agent, index) => (
             <div
-              key={index}
+              key={agent._id || index}
               className="grid grid-cols-6 bg-white rounded-md shadow-sm py-3 px-4 items-center text-sm text-gray-700"
             >
-              <div>{agent.no}</div>
-              {/* <div>{agent.fullName}</div> */}
+              <div>{index + 1}</div> {/* Serial number */}
+              <div>{agent.agentName}</div>
               <div>{agent.email}</div>
               <div>{agent.phone}</div>
               <div className="truncate">{agent.address}</div>
@@ -126,17 +122,25 @@ export default function AgentTable() {
         okText="Save"
         cancelText="Cancel"
       >
-        <h2 className="text-center text-xl font-[Nunito] font-bold mb-4">Edit Agent</h2>
+        <h2 className="text-center text-xl font-[Nunito] font-bold mb-4">
+          Edit Agent
+        </h2>
         <div className="flex justify-center mb-6">
           <div className="w-24 h-24 bg-gray-300 rounded-full flex items-center justify-center">
-            <svg className="w-12 h-12 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
+            <svg
+              className="w-12 h-12 text-gray-500"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
               <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z" />
             </svg>
           </div>
         </div>
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div>
-            <label className="block text-sm font-[Nunito] font-bold mb-1">Agent Name</label>
+            <label className="block text-sm font-[Nunito] font-bold mb-1">
+              Agent Name
+            </label>
             <input
               type="text"
               readOnly
@@ -144,7 +148,9 @@ export default function AgentTable() {
             />
           </div>
           <div>
-            <label className="block text-sm font-[Nunito] font-bold mb-1">Ph no</label>
+            <label className="block text-sm font-[Nunito] font-bold mb-1">
+              Ph no
+            </label>
             <input
               type="text"
               readOnly
@@ -154,7 +160,9 @@ export default function AgentTable() {
         </div>
         <div className="grid grid-cols-2 gap-4 mb-6">
           <div>
-            <label className="block text-sm font-[Nunito] font-bold mb-1">Email ID</label>
+            <label className="block text-sm font-[Nunito] font-bold mb-1">
+              Email ID
+            </label>
             <input
               type="text"
               value="abc pvt ltd"
@@ -163,7 +171,9 @@ export default function AgentTable() {
             />
           </div>
           <div>
-            <label className="block text-sm font-[Nunito] font-bold mb-1">Address</label>
+            <label className="block text-sm font-[Nunito] font-bold mb-1">
+              Address
+            </label>
             <input
               type="text"
               value="6238945012"
@@ -187,17 +197,25 @@ export default function AgentTable() {
         okText="Save"
         cancelText="Cancel"
       >
-        <h2 className="text-center text-xl font-[Nunito] font-bold mb-4">Add Agent</h2>
+        <h2 className="text-center text-xl font-[Nunito] font-bold mb-4">
+          Add Agent
+        </h2>
         <div className="flex justify-center mb-6">
           <div className="w-24 h-24 bg-gray-300 rounded-full flex items-center justify-center">
-            <svg className="w-12 h-12 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
+            <svg
+              className="w-12 h-12 text-gray-500"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
               <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z" />
             </svg>
           </div>
         </div>
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div>
-            <label className="block text-sm font-[Nunito] font-bold mb-1">Agent Name</label>
+            <label className="block text-sm font-[Nunito] font-bold mb-1">
+              Agent Name
+            </label>
             <input
               type="text"
               readOnly
@@ -205,7 +223,9 @@ export default function AgentTable() {
             />
           </div>
           <div>
-            <label className="block text-sm font-[Nunito] font-bold mb-1">Ph no</label>
+            <label className="block text-sm font-[Nunito] font-bold mb-1">
+              Ph no
+            </label>
             <input
               type="text"
               readOnly
@@ -215,7 +235,9 @@ export default function AgentTable() {
         </div>
         <div className="grid grid-cols-2 gap-4 mb-6">
           <div>
-            <label className="block text-sm font-[Nunito] font-bold mb-1">Email ID</label>
+            <label className="block text-sm font-[Nunito] font-bold mb-1">
+              Email ID
+            </label>
             <input
               type="text"
               value="abc pvt ltd"
@@ -224,7 +246,9 @@ export default function AgentTable() {
             />
           </div>
           <div>
-            <label className="block text-sm font-[Nunito] font-bold mb-1">Address</label>
+            <label className="block text-sm font-[Nunito] font-bold mb-1">
+              Address
+            </label>
             <input
               type="text"
               value="6238945012"
