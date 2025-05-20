@@ -21,11 +21,10 @@ export const fetchAgents = async () => {
     return response
 }
 
-export const fetchItems = async () => {
+export const fetchItems = async ({page}) => {
     console.log("hello")
-    const response = API.get(`product/get-products`)
-    const data = await response.json();
-     return { data: data.items, totalPages: data.totalPages };
+    const response = API.get(`product/get-products?page=${page}`)
+    return response
 }
 
 export const fetchSubItems = async () => {
