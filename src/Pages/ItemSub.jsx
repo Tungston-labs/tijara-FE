@@ -6,7 +6,30 @@ export default function ItemNameList() {
   const dispatch = useDispatch();
   const { itemsubList } = useSelector((state) => state.user);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [itemName , setItemName] = useState('');
+  const [subcategory , setSubCategory] = useState('');
   const popupRef = useRef(null);
+    
+
+const additems = () => {
+   const data = {
+    itemName : itemName,
+    subcategory: subcategory,
+   }
+   dispatch(fetchItemSubList(data))
+   .then ((res) =>{
+
+    if(res.status==201)
+    {
+      dispatch(fetchItemSubList)
+    }
+   })
+   .catch((err)=>{
+    console.log(err);
+   })
+  // console.log("data")
+  }
+   
 
   useEffect(() => {
     const handleEsc = (e) => {
@@ -51,14 +74,20 @@ const fetchItemSubList = (page) => {
               <input
                 type="text"
                 placeholder="Enter Item name"
+                onChange={(e) => {
+                setItemName(e.target.value);
+                }}
                 className="px-4 py-2 rounded-md border border-gray-300 bg-white text-black focus:outline-none w-[250px]"
               />
               <input
                 type="text"
                 placeholder="Enter Sub category"
+                onChange={(e) => {
+                setSubCategory(e.target.value);
+                }}
                 className="px-4 py-2 rounded-md border border-gray-300 bg-white text-black focus:outline-none w-[250px]"
               />
-              <button className="bg-[#B3DB48] text-black px-6 py-2 rounded-md font-[Nunito] font-bold">
+              <button className="bg-[#B3DB48] text-black px-6 py-2 rounded-md font-[Nunito] font-bold" onClick={additems}>
                 + Add
               </button>
             </div>

@@ -2,41 +2,55 @@ import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchItemList } from "../Redux/userSlice";
 
+
 export default function ItemNameList() {
   const dispatch = useDispatch();
   const { itemList } = useSelector((state) => state.user);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const popupRef = useRef(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(231);
+  const [totalPages, setTotalPages] = useState(1);
   const [items, setItems] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
-
+  const [itemName , setItemname] = useState("");
   const categories = ["Vegetables", "Fruits"];
+  
 
-  useEffect(() => {
-    const handleEsc = (e) => {
-      if (e.key === "Escape") setIsFilterOpen(false);
-    };
-    const handleClickOutside = (e) => {
-      if (popupRef.current && !popupRef.current.contains(e.target)) {
-        setIsFilterOpen(false);
-      }
-    };
-    document.addEventListener("keydown", handleEsc);
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("keydown", handleEsc);
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
+  const additems = () => {
+   const data = {
+    itemCategory : selectedCategory,
+    itemName : itemName,
+   }
+  console.log("data")
+ // dispatch(additems(data))
+
+  }
+
+
+  // useEffect(() => {
+  //   const handleEsc = (e) => {
+  //     if (e.key === "Escape") setIsFilterOpen(false);
+  //   };
+  //   const handleClickOutside = (e) => {
+  //     if (popupRef.current && !popupRef.current.contains(e.target)) {
+  //       setIsFilterOpen(false);
+  //     }
+  //   };
+  //   document.addEventListener("keydown", handleEsc);
+  //   document.addEventListener("mousedown", handleClickOutside);
+  //   return () => {
+  //     document.removeEventListener("keydown", handleEsc);
+  //     document.removeEventListener("mousedown", handleClickOutside);
+  //   };
+  // }, []);
 
   const fetchPageItems = (page) => {
     dispatch(fetchItemList({ page }))
       .then((action) => {
+        console.log("====>here",action.payload.data.products)
         if (action.payload?.data) {
-          setItems(action.payload.data);
-          setTotalPages(action.payload.totalPages || 231);
+          setItems(action.payload.data.products);
+          setTotalPages(action.payload.data.totalPages || 1);
         }
       })
       .catch((error) => {
@@ -105,16 +119,20 @@ export default function ItemNameList() {
                   <option key={idx} value={category}>{category}</option>
                 ))}
               </select>
-
+              
               {/* Item Input */}
               <input
                 type="text"
                 placeholder="Enter Item name"
+                onChange={(e) => {
+                setItemname(e.target.value);
+                }}
                 className="px-4 py-2 rounded-md border border-gray-300 bg-white text-black focus:outline-none w-[250px]"
               />
-
+                
               {/* Add Button */}
-              <button className="bg-[#B3DB48] text-black px-6 py-2 rounded-md font-[Nunito] font-bold">
+              <button className="bg-[#B3DB48] text-black px-6 py-2 rounded-md font-[Nunito] font-bold" onClick={additems}>
+                
                 + Add
               </button>
             </div>
@@ -129,14 +147,15 @@ export default function ItemNameList() {
 
           <div className="mt-4 space-y-3">
             {items.length > 0 ? (
-              items.map((item, idx) => (
-                <div
+              items.map((item, idx) => 
+                 { return <> <div
                   key={idx}
                   className="bg-white px-4 py-3 rounded-md border border-gray-200 text-gray-700 shadow-sm"
                 >
-                  {item}
-                </div>
-              ))
+                  {item.itemName}
+                </div></>}
+              
+              )
             ) : (
               <p className="text-center text-gray-500">No items found.</p>
             )}

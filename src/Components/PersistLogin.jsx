@@ -17,6 +17,7 @@ const PersistLogin = () => {
         const newAccessToken = await refresh();
         if (newAccessToken) {
           dispatch(setAccessToken({ accessToken: newAccessToken }));
+          localStorage.setItem("accessToken",newAccessToken)
         }
       }
       setIsLoading(false);

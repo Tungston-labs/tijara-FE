@@ -36,15 +36,30 @@ export const fetchAgentList = createAsyncThunk(
 // FETCH ITEMS LIST
 export const fetchItemList = createAsyncThunk(
   "itemlist/fetch",
-  async (_, { rejectWithValue }) => {
+  async ({page}, { rejectWithValue }) => {
     try {
-      const response = await fetchItems();
+      console.log("data")
+      const response = await fetchItems({page});
       return response;
     } catch (error) {
       return rejectWithValue(error.message || "Unable to fetch user list");
     }
   }
 );
+
+
+// export const fetchAddItemList = createAsyncThunk(
+//   "additemlist/fetch",
+//   async (_, { rejectWithValue }) => {
+//     try {
+//       const response = await fetchAddItems();
+//       return response;
+//     } catch (error) {
+//       return rejectWithValue(error.message || "Unable to fetch user list");
+//     }
+//   }
+// );
+
 
 export const fetchItemSubList = createAsyncThunk(
   "itemsublist/fetch",
