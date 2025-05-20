@@ -22,27 +22,10 @@ export default function ItemNameList() {
     itemName : itemName,
    }
   console.log("data")
- // dispatch(additems(data))
 
   }
 
 
-  // useEffect(() => {
-  //   const handleEsc = (e) => {
-  //     if (e.key === "Escape") setIsFilterOpen(false);
-  //   };
-  //   const handleClickOutside = (e) => {
-  //     if (popupRef.current && !popupRef.current.contains(e.target)) {
-  //       setIsFilterOpen(false);
-  //     }
-  //   };
-  //   document.addEventListener("keydown", handleEsc);
-  //   document.addEventListener("mousedown", handleClickOutside);
-  //   return () => {
-  //     document.removeEventListener("keydown", handleEsc);
-  //     document.removeEventListener("mousedown", handleClickOutside);
-  //   };
-  // }, []);
 
   const fetchPageItems = (page) => {
     dispatch(fetchItemList({ page }))

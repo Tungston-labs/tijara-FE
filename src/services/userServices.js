@@ -29,7 +29,7 @@ export const fetchItems = async ({page}) => {
 
 export const fetchSubItems = async () => {
     const response = API.get(`product/item-sub-category/${itemName}`)
-    console.log(response)
+    console.log("User service data",response)
     const datas = await response.json();
     //  return { data: datas.items, totalPages: datas.totalPages };
 }
