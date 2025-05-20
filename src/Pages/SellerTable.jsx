@@ -16,8 +16,6 @@ export default function SellerTableContent({sellers, onEditClick, onDeleteClick}
         <div>Licence Number</div>
         <div>Plan Expiring</div>
         <div>Payment type </div>
-        {/* <div>Ph no</div> */}
-        {/* <div>Licence number</div> */}
         <div>Edit</div>
         <div>Delete</div>
       </div>

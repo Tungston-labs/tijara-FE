@@ -1,7 +1,7 @@
 import axios from "axios";
 const API  = axios.create({
     withCredentials:true,
-    baseURL:"http://localhost:5000/admin",
+    baseURL:"http://localhost:5000",
     headers:{
         "Content-Type": "application/json",
         "Authorization":`Bearer ${localStorage.getItem('accessToken')}`
@@ -12,27 +12,31 @@ const API  = axios.create({
 
 
 export const fetchUser = async (user) => {
-    const response = API.get(`auth/get-all-users?role=${user}`)
+    const response = API.get(`/admin/auth/get-all-users?role=${user}`)
     return response
 }
 
 export const fetchAgents = async () => {
-    const response = API.get(`/agent`)
+    const response = API.get(`/admin/agent/get-agents`)
     return response
 }
 
 export const fetchItems = async () => {
-    const response = API.get(`/product/item-names`)
-    return response
+    console.log("hello")
+    const response = API.get(`product/get-products`)
+    const data = await response.json();
+     return { data: data.items, totalPages: data.totalPages };
 }
 
 export const fetchSubItems = async () => {
     const response = API.get(`product/item-sub-category/${itemName}`)
-    return response
+    console.log(response)
+    const datas = await response.json();
+    //  return { data: datas.items, totalPages: datas.totalPages };
 }
 
 
 export const deleteUserById = async (id) => {
-  const res = await axios.delete(`/auth/api/users/${id}`);
+  const res = await axios.delete(`/admin/auth/api/users/${id}`);
   return res.data;
 };

@@ -1,7 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { Filter } from "lucide-react";
-
+import { fetchItemSubList } from "../Redux/userSlice";
+import { useDispatch, useSelector } from "react-redux";
 export default function ItemNameList() {
+  const dispatch = useDispatch();
+  const { itemsubList } = useSelector((state) => state.user);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const popupRef = useRef(null);
 
@@ -22,6 +25,18 @@ export default function ItemNameList() {
     };
   }, []);
 
+const fetchItemSubList = (page) => {
+    dispatch(fetchItemSubList({ page }))
+      .then((action) => {
+        if (action.payload?.data) {
+          setItems(action.payload.data);
+          setTotalPages(action.payload.totalPages || 231);
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  };
   const items = Array(10).fill({ subCategory: "item 1", item: "item 1" });
 
   return (
