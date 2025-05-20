@@ -1,18 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { Pencil } from 'lucide-react';
-import { Button, Modal } from 'antd';
-import { useDispatch,useSelector } from 'react-redux';
-import { fetchAgentList } from '../Redux/userSlice';
-
-
-// Sample agent data
-const agents = Array(10).fill({
-  no: "01",
-  fullName: "Full Name",
-  email: "Email",
-  phone: "Ph number",
-  address: "Lorem ipsum dolor sit amet consectetur. Amet nunc varius id at...",
-});
+import React, { useEffect, useState } from "react";
+import { Pencil } from "lucide-react";
+import { Button, Modal } from "antd";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchAgentList } from "../Redux/userSlice";
 
 export default function AgentTable() {
   const dispatch = useDispatch();
@@ -20,11 +10,13 @@ export default function AgentTable() {
   const [showEditPopup, setShowEditPopup] = useState(false);
   const [showAddPopup, setShowAddPopup] = useState(false);
   const [selectedAgent, setSelectedAgent] = useState(null);
+const [currentPage, setCurrentPage] = useState(1);
+const [totalPages, setTotalPages] = useState(1);
 
-  const [editName, setEditName] = useState('');
-  const [editEmail, setEditEmail] = useState('');
-  const [editPhone, setEditPhone] = useState('');
-  const [editAddress, setEditAddress] = useState('');
+  const [editName, setEditName] = useState("");
+  const [editEmail, setEditEmail] = useState("");
+  const [editPhone, setEditPhone] = useState("");
+  const [editAddress, setEditAddress] = useState("");
 
   const handleEditClick = (agent) => {
     setSelectedAgent(agent);
@@ -34,23 +26,29 @@ export default function AgentTable() {
     setEditAddress(agent.address);
     setShowEditPopup(true);
   };
- 
-// dispatch(fetchAgentList());
-   useEffect(()=>{
-    dispatch(fetchAgentList()).then((action)=> {
-      console.log(action.payload);
-    })
-    .catch((error)=>{
-      console.log(error);
-    })
 
-   },[]);
+useEffect(() => {
+  dispatch(fetchAgentList(currentPage))
+    .unwrap()
+    .then((res) => {
+      console.log("Fetched agents:", res);
+      setTotalPages(res.totalPages); // Ensure your backend returns this
+    })
+    .catch((err) => {
+      console.error("Error fetching agents:", err);
+    });
+}, [dispatch, currentPage]);
 
-  
+
 
   const handleEditOk = () => {
-    console.log("Edited data:", { name: editName, email: editEmail, phone: editPhone, address: editAddress });
-      
+    console.log("Edited data:", {
+      name: editName,
+      email: editEmail,
+      phone: editPhone,
+      address: editAddress,
+    });
+
     setShowEditPopup(false);
   };
 
@@ -66,6 +64,43 @@ export default function AgentTable() {
 
   const handleAddCancel = () => {
     setShowAddPopup(false);
+  };
+const handlePrev = () => {
+  if (currentPage > 1) setCurrentPage(currentPage - 1);
+};
+
+const handleNext = () => {
+  if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+};
+
+const handlePageClick = (pageNum) => {
+  setCurrentPage(pageNum);
+};
+
+const handleGoToPage = (e) => {
+  const page = Number(e.target.value);
+  if (page >= 1 && page <= totalPages) {
+    setCurrentPage(page);
+    e.target.value = ""; // Clear input
+  }
+}
+
+  const getPaginationNumbers = () => {
+    const pages = [];
+    const visibleCount = 5;
+    let start = Math.max(1, currentPage - Math.floor(visibleCount / 2));
+    let end = start + visibleCount - 1;
+
+    if (end > totalPages) {
+      end = totalPages;
+      start = Math.max(1, end - visibleCount + 1);
+    }
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+
+    return pages;
   };
 
   return (
@@ -95,11 +130,11 @@ export default function AgentTable() {
         <div className="mt-3 space-y-3">
           {agentList.map((agent, index) => (
             <div
-              key={index}
+              key={agent._id || index}
               className="grid grid-cols-6 bg-white rounded-md shadow-sm py-3 px-4 items-center text-sm text-gray-700"
             >
-              <div>{agent.no}</div>
-              {/* <div>{agent.fullName}</div> */}
+              <div>{index + 1}</div> {/* Serial number */}
+              <div>{agent.agentName}</div>
               <div>{agent.email}</div>
               <div>{agent.phone}</div>
               <div className="truncate">{agent.address}</div>
@@ -114,8 +149,56 @@ export default function AgentTable() {
             </div>
           ))}
         </div>
+        
       </div>
+         {/* Pagination */}
+        <div className="flex justify-between items-center mt-6">
+          <div className="flex items-center space-x-2 text-gray-700">
+            <button
+              onClick={handlePrev}
+              className="text-lg"
+              disabled={currentPage === 1}
+            >
+              &lt;
+            </button>
 
+            {getPaginationNumbers().map((num) => (
+              <button
+                key={num}
+                className={`w-8 h-8 rounded-full font-[Nunito] font-bold ${
+                  currentPage === num
+                    ? "bg-[#B3DB48] text-black"
+                    : "hover:underline"
+                }`}
+                onClick={() => handlePageClick(num)}
+              >
+                {num}
+              </button>
+            ))}
+
+            <button
+              onClick={handleNext}
+              className="text-lg"
+              disabled={currentPage === totalPages}
+            >
+              &gt;
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2 text-sm text-gray-700">
+            <span>Go to page</span>
+            <input
+              type="number"
+              placeholder="000"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleGoToPage(e);
+              }}
+              className="w-16 px-2 py-1 border border-gray-300 rounded-md text-sm"
+              min={1}
+              max={totalPages}
+            />
+          </div>
+        </div>
       {/* Edit Agent Modal */}
       <Modal
         title=""
@@ -126,17 +209,25 @@ export default function AgentTable() {
         okText="Save"
         cancelText="Cancel"
       >
-        <h2 className="text-center text-xl font-[Nunito] font-bold mb-4">Edit Agent</h2>
+        <h2 className="text-center text-xl font-[Nunito] font-bold mb-4">
+          Edit Agent
+        </h2>
         <div className="flex justify-center mb-6">
           <div className="w-24 h-24 bg-gray-300 rounded-full flex items-center justify-center">
-            <svg className="w-12 h-12 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
+            <svg
+              className="w-12 h-12 text-gray-500"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
               <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z" />
             </svg>
           </div>
         </div>
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div>
-            <label className="block text-sm font-[Nunito] font-bold mb-1">Agent Name</label>
+            <label className="block text-sm font-[Nunito] font-bold mb-1">
+              Agent Name
+            </label>
             <input
               type="text"
               readOnly
@@ -144,7 +235,9 @@ export default function AgentTable() {
             />
           </div>
           <div>
-            <label className="block text-sm font-[Nunito] font-bold mb-1">Ph no</label>
+            <label className="block text-sm font-[Nunito] font-bold mb-1">
+              Ph no
+            </label>
             <input
               type="text"
               readOnly
@@ -154,7 +247,9 @@ export default function AgentTable() {
         </div>
         <div className="grid grid-cols-2 gap-4 mb-6">
           <div>
-            <label className="block text-sm font-[Nunito] font-bold mb-1">Email ID</label>
+            <label className="block text-sm font-[Nunito] font-bold mb-1">
+              Email ID
+            </label>
             <input
               type="text"
               value="abc pvt ltd"
@@ -163,7 +258,9 @@ export default function AgentTable() {
             />
           </div>
           <div>
-            <label className="block text-sm font-[Nunito] font-bold mb-1">Address</label>
+            <label className="block text-sm font-[Nunito] font-bold mb-1">
+              Address
+            </label>
             <input
               type="text"
               value="6238945012"
@@ -187,17 +284,25 @@ export default function AgentTable() {
         okText="Save"
         cancelText="Cancel"
       >
-        <h2 className="text-center text-xl font-[Nunito] font-bold mb-4">Add Agent</h2>
+        <h2 className="text-center text-xl font-[Nunito] font-bold mb-4">
+          Add Agent
+        </h2>
         <div className="flex justify-center mb-6">
           <div className="w-24 h-24 bg-gray-300 rounded-full flex items-center justify-center">
-            <svg className="w-12 h-12 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
+            <svg
+              className="w-12 h-12 text-gray-500"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
               <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z" />
             </svg>
           </div>
         </div>
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div>
-            <label className="block text-sm font-[Nunito] font-bold mb-1">Agent Name</label>
+            <label className="block text-sm font-[Nunito] font-bold mb-1">
+              Agent Name
+            </label>
             <input
               type="text"
               readOnly
@@ -205,7 +310,9 @@ export default function AgentTable() {
             />
           </div>
           <div>
-            <label className="block text-sm font-[Nunito] font-bold mb-1">Ph no</label>
+            <label className="block text-sm font-[Nunito] font-bold mb-1">
+              Ph no
+            </label>
             <input
               type="text"
               readOnly
@@ -215,7 +322,9 @@ export default function AgentTable() {
         </div>
         <div className="grid grid-cols-2 gap-4 mb-6">
           <div>
-            <label className="block text-sm font-[Nunito] font-bold mb-1">Email ID</label>
+            <label className="block text-sm font-[Nunito] font-bold mb-1">
+              Email ID
+            </label>
             <input
               type="text"
               value="abc pvt ltd"
@@ -224,7 +333,9 @@ export default function AgentTable() {
             />
           </div>
           <div>
-            <label className="block text-sm font-[Nunito] font-bold mb-1">Address</label>
+            <label className="block text-sm font-[Nunito] font-bold mb-1">
+              Address
+            </label>
             <input
               type="text"
               value="6238945012"
@@ -232,11 +343,15 @@ export default function AgentTable() {
               className="w-full bg-gray-100 rounded-md px-3 py-2 text-gray-600"
             />
           </div>
+          
         </div>
         <button className="w-full bg-[#B3DB48] text-white py-2 rounded-md font-[Nunito] font-bold">
           save
         </button>
       </Modal>
+      
     </div>
+    
   );
 }
+
