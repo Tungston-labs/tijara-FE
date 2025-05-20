@@ -10,6 +10,8 @@ export default function AgentTable() {
   const [showEditPopup, setShowEditPopup] = useState(false);
   const [showAddPopup, setShowAddPopup] = useState(false);
   const [selectedAgent, setSelectedAgent] = useState(null);
+const [currentPage, setCurrentPage] = useState(1);
+const [totalPages, setTotalPages] = useState(1);
 
   const [editName, setEditName] = useState("");
   const [editEmail, setEditEmail] = useState("");
@@ -25,17 +27,18 @@ export default function AgentTable() {
     setShowEditPopup(true);
   };
 
-
 useEffect(() => {
-  dispatch(fetchAgentList())
+  dispatch(fetchAgentList(currentPage))
     .unwrap()
-    .then((data) => {
-      console.log("Fetched agents:", data.agent); 
+    .then((res) => {
+      console.log("Fetched agents:", res);
+      setTotalPages(res.totalPages); // Ensure your backend returns this
     })
     .catch((err) => {
       console.error("Error fetching agents:", err);
     });
-}, [dispatch]);
+}, [dispatch, currentPage]);
+
 
 
   const handleEditOk = () => {
@@ -62,7 +65,43 @@ useEffect(() => {
   const handleAddCancel = () => {
     setShowAddPopup(false);
   };
-console.log("Redux agentList:", agentList);
+const handlePrev = () => {
+  if (currentPage > 1) setCurrentPage(currentPage - 1);
+};
+
+const handleNext = () => {
+  if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+};
+
+const handlePageClick = (pageNum) => {
+  setCurrentPage(pageNum);
+};
+
+const handleGoToPage = (e) => {
+  const page = Number(e.target.value);
+  if (page >= 1 && page <= totalPages) {
+    setCurrentPage(page);
+    e.target.value = ""; // Clear input
+  }
+}
+
+  const getPaginationNumbers = () => {
+    const pages = [];
+    const visibleCount = 5;
+    let start = Math.max(1, currentPage - Math.floor(visibleCount / 2));
+    let end = start + visibleCount - 1;
+
+    if (end > totalPages) {
+      end = totalPages;
+      start = Math.max(1, end - visibleCount + 1);
+    }
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+
+    return pages;
+  };
 
   return (
     <div className="min-h-screen bg-[#E9E9E9] p-6 relative overflow-hidden">
@@ -110,8 +149,56 @@ console.log("Redux agentList:", agentList);
             </div>
           ))}
         </div>
+        
       </div>
+         {/* Pagination */}
+        <div className="flex justify-between items-center mt-6">
+          <div className="flex items-center space-x-2 text-gray-700">
+            <button
+              onClick={handlePrev}
+              className="text-lg"
+              disabled={currentPage === 1}
+            >
+              &lt;
+            </button>
 
+            {getPaginationNumbers().map((num) => (
+              <button
+                key={num}
+                className={`w-8 h-8 rounded-full font-[Nunito] font-bold ${
+                  currentPage === num
+                    ? "bg-[#B3DB48] text-black"
+                    : "hover:underline"
+                }`}
+                onClick={() => handlePageClick(num)}
+              >
+                {num}
+              </button>
+            ))}
+
+            <button
+              onClick={handleNext}
+              className="text-lg"
+              disabled={currentPage === totalPages}
+            >
+              &gt;
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2 text-sm text-gray-700">
+            <span>Go to page</span>
+            <input
+              type="number"
+              placeholder="000"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleGoToPage(e);
+              }}
+              className="w-16 px-2 py-1 border border-gray-300 rounded-md text-sm"
+              min={1}
+              max={totalPages}
+            />
+          </div>
+        </div>
       {/* Edit Agent Modal */}
       <Modal
         title=""
@@ -256,11 +343,15 @@ console.log("Redux agentList:", agentList);
               className="w-full bg-gray-100 rounded-md px-3 py-2 text-gray-600"
             />
           </div>
+          
         </div>
         <button className="w-full bg-[#B3DB48] text-white py-2 rounded-md font-[Nunito] font-bold">
           save
         </button>
       </Modal>
+      
     </div>
+    
   );
 }
+

@@ -23,15 +23,16 @@ export const fetchUserList = createAsyncThunk(
 // FETCH AGENT LIST
 export const fetchAgentList = createAsyncThunk(
   "agentlist/fetch",
-  async (_, { rejectWithValue }) => {
+  async (page, { rejectWithValue }) => {
     try {
-      const response = await fetchAgents(); 
+      const response = await fetchAgents({ page }); 
       return response.data; 
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
+
 
 // FETCH ITEMS LIST
 export const fetchItemList = createAsyncThunk(
@@ -85,6 +86,17 @@ export const deleteUser = createAsyncThunk(
     }
   }
 );
+export const addAgent=createAsyncThunk(
+  "agent/add",
+  async(agentData, {rejectWithValue})=>{
+    try {
+      const response=await addAgent(agentData)
+      return response;
+    } catch (error) {
+      return rejectWithValue(error.message||"Unable to add agents")
+    }
+  }
+)
 
 const UserSlice = createSlice({
   name: "user",
@@ -112,7 +124,6 @@ const UserSlice = createSlice({
         state.status = "loading";
       })
       .addCase(fetchAgentList.fulfilled, (state, action) => {
-         console.log("Payload in fulfilled:", action.payload); 
         state.status = "succeeded";
         state.agentList = action.payload.agents;
       })
@@ -153,6 +164,7 @@ const UserSlice = createSlice({
           (user) => user._id !== deletedId
         );
       });
+
   },
 });
 
