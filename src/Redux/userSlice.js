@@ -97,6 +97,16 @@ export const addAgent=createAsyncThunk(
     }
   }
 )
+// Inside userSlice.js
+export const fetchItemOptions = createAsyncThunk(
+  "user/fetchItemOptions",
+  async () => {
+    const response = await axios.get("/api/items"); // Replace with actual API
+    return response.data;
+  }
+);
+
+
 
 const UserSlice = createSlice({
   name: "user",

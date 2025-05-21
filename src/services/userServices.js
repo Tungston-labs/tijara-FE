@@ -24,15 +24,12 @@ export const fetchItems = async ({page}) => {
     return response
 }
 
-<<<<<<< HEAD
-export const fetchSubItems = async () => {
-    const response = API.get(`product/item-sub-category/${itemName}`)
-    console.log("User service data",response)
-    const datas = await response.json();
-    //  return { data: datas.items, totalPages: datas.totalPages };
+
+export const fetchsellproducts = async ({page}) => {
+    console.log("hello")
+    const response = API.get(`product/get-products?page=${page}`)
+    return response
 }
-=======
->>>>>>> 0a8764fffbc22754496318d5e20797d9f3fbc8e9
 
 
 export const fetchSubItems = async (itemName) => {
@@ -41,6 +38,9 @@ export const fetchSubItems = async (itemName) => {
   const datas = await response.json();
   return { data: datas.items, totalPages: datas.totalPages };
 };
+
+
+
 
 export const deleteUserById = async (id) => {
   const res = await axios.delete(`/admin/auth/api/users/${id}`);
