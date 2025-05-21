@@ -13,7 +13,6 @@ import ResetPassword from "./Pages/ResetPassword";
 import Login from "./Pages/Login";
 import Delete from "./Pages/Delete";
 import Agent from "./Pages/Agent";
-import AddAgent from "./Pages/AddAgent";
 import EditAgent from "./Pages/EditAgent";
 import ApproveSeller from "./Pages/ApproveSeller";
 import ApproveBuyer from "./Pages/ApproveBuyer";
@@ -48,7 +47,7 @@ function App() {
       <Route path="/" element={<Layout />}>
         <Route element={<PersistLogin />}> {/* ✅ Wrap refresh logic */}
           <Route element={<ProtectedRoute />}> {/* ✅ Wrap auth logic */}
-            <Route path="addagent" element={<AddAgent />} />
+        
             <Route path="editagent" element={<EditAgent />} />
             <Route path="box" element={<Boxes />} />
             <Route path="sell" element={<Seller />} />
