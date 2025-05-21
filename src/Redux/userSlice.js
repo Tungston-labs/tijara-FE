@@ -5,6 +5,7 @@ import {
   fetchAgents,
   fetchItems,
   fetchSubItems,
+  addAgentAPI,
 } from "../services/userServices"; // make sure you have deleteUserById()
 
 // FETCH USER LIST
@@ -23,9 +24,9 @@ export const fetchUserList = createAsyncThunk(
 // FETCH AGENT LIST
 export const fetchAgentList = createAsyncThunk(
   "agentlist/fetch",
-  async (page, { rejectWithValue }) => {
+  async ({page,limit}, { rejectWithValue }) => {
     try {
-      const response = await fetchAgents({ page }); 
+      const response = await fetchAgents({ page ,limit}); 
       return response.data; 
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -90,7 +91,7 @@ export const addAgent=createAsyncThunk(
   "agent/add",
   async(agentData, {rejectWithValue})=>{
     try {
-      const response=await addAgent(agentData)
+      const response=await addAgentAPI(agentData)
       return response;
     } catch (error) {
       return rejectWithValue(error.message||"Unable to add agents")
@@ -155,6 +156,20 @@ const UserSlice = createSlice({
       .addCase(fetchItemSubList.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message;
+      })
+      .addCase(addAgent.pending,(state)=>{
+        state.loading=true;
+        state.error=null;
+        state.successMessage=null;
+      })
+      .addCase(addAgent.fulfilled,(state, action)=>{
+        state.loading=false;
+        state.successMessage="Agent Added Successfully";
+        state.agentList.push(action.payload)
+      })
+      .addCase(addAgent.rejected,(state,action)=>{
+        state.loading=true;
+        state.error=action.payload
       })
 
       // Delete User

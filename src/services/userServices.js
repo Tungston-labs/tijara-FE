@@ -13,8 +13,8 @@ export const fetchUser = async (user) => {
   return response;
 };
 
-export const fetchAgents = async ({page}) => {
-  const response = await API.get(`/admin/agent/get-agents?page=${page}`);
+export const fetchAgents = async ({page, limit}) => {
+  const response = await API.get(`/admin/agent/get-agents?page=${page}&limit=${limit}`);
   return response;
 };
 
@@ -37,7 +37,7 @@ export const deleteUserById = async (id) => {
   const res = await axios.delete(`/admin/auth/api/users/${id}`);
   return res.data;
 };
-export const addAgents=async(agentData)=>{
-    const response=await axios.post(`/admin/agent/add-agent`,agentData)
+export const addAgentAPI=async(agentData)=>{
+    const response=API.post(`/admin/agent/add-agent`,agentData)
     return response.data;
 }

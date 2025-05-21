@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Pencil } from "lucide-react";
 import { Button, Modal } from "antd";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAgentList } from "../Redux/userSlice";
+import { addAgent, fetchAgentList } from "../Redux/userSlice";
 
 export default function AgentTable() {
   const dispatch = useDispatch();
@@ -10,13 +10,20 @@ export default function AgentTable() {
   const [showEditPopup, setShowEditPopup] = useState(false);
   const [showAddPopup, setShowAddPopup] = useState(false);
   const [selectedAgent, setSelectedAgent] = useState(null);
-const [currentPage, setCurrentPage] = useState(1);
-const [totalPages, setTotalPages] = useState(1);
-
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+ const limit = 10;
   const [editName, setEditName] = useState("");
   const [editEmail, setEditEmail] = useState("");
   const [editPhone, setEditPhone] = useState("");
   const [editAddress, setEditAddress] = useState("");
+
+  const [addFormData, setAddFormData] = useState({
+    agentName: "",
+    phone: "",
+    email: "",
+    address: "",
+  });
 
   const handleEditClick = (agent) => {
     setSelectedAgent(agent);
@@ -27,19 +34,16 @@ const [totalPages, setTotalPages] = useState(1);
     setShowEditPopup(true);
   };
 
-useEffect(() => {
-  dispatch(fetchAgentList(currentPage))
-    .unwrap()
-    .then((res) => {
-      console.log("Fetched agents:", res);
-      setTotalPages(res.totalPages); // Ensure your backend returns this
-    })
-    .catch((err) => {
-      console.error("Error fetching agents:", err);
-    });
-}, [dispatch, currentPage]);
-
-
+  useEffect(() => {
+dispatch(fetchAgentList({ page: currentPage, limit }))
+      .unwrap()
+      .then((res) => {
+        setTotalPages(res.totalPages); // Ensure your backend returns this
+      })
+      .catch((err) => {
+        console.error("Error fetching agents:", err);
+      });
+  }, [dispatch, currentPage]);
 
   const handleEditOk = () => {
     console.log("Edited data:", {
@@ -55,35 +59,46 @@ useEffect(() => {
   const handleEditCancel = () => {
     setShowEditPopup(false);
   };
+  const handleAddOk = async () => {
+    console.log("Save button clicked");
 
-  const handleAddOk = () => {
-    console.log("Add Agent clicked");
+    try {
+      const res = await dispatch(addAgent(addFormData)).unwrap();
+      console.log("Agent added:", res);
 
-    setShowAddPopup(false);
+      // Clear and close modal
+      setAddFormData({ agentName: "", phone: "", email: "", address: "" });
+      setShowAddPopup(false);
+
+      const listRes = await dispatch(fetchAgentList(currentPage)).unwrap();
+      console.log("Updated agent list:", listRes);
+    } catch (err) {
+      console.error("Error adding agent:", err);
+    }
   };
 
   const handleAddCancel = () => {
     setShowAddPopup(false);
   };
-const handlePrev = () => {
-  if (currentPage > 1) setCurrentPage(currentPage - 1);
-};
+  const handlePrev = () => {
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
+  };
 
-const handleNext = () => {
-  if (currentPage < totalPages) setCurrentPage(currentPage + 1);
-};
+  const handleNext = () => {
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  };
 
-const handlePageClick = (pageNum) => {
-  setCurrentPage(pageNum);
-};
+  const handlePageClick = (pageNum) => {
+    setCurrentPage(pageNum);
+  };
 
-const handleGoToPage = (e) => {
-  const page = Number(e.target.value);
-  if (page >= 1 && page <= totalPages) {
-    setCurrentPage(page);
-    e.target.value = ""; // Clear input
-  }
-}
+  const handleGoToPage = (e) => {
+    const page = Number(e.target.value);
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+      e.target.value = ""; // Clear input
+    }
+  };
 
   const getPaginationNumbers = () => {
     const pages = [];
@@ -128,77 +143,80 @@ const handleGoToPage = (e) => {
         </div>
 
         <div className="mt-3 space-y-3">
-          {agentList.map((agent, index) => (
-            <div
-              key={agent._id || index}
-              className="grid grid-cols-6 bg-white rounded-md shadow-sm py-3 px-4 items-center text-sm text-gray-700"
-            >
-              <div>{index + 1}</div> {/* Serial number */}
-              <div>{agent.agentName}</div>
-              <div>{agent.email}</div>
-              <div>{agent.phone}</div>
-              <div className="truncate">{agent.address}</div>
-              <div className="flex justify-center">
-                <button
-                  onClick={() => handleEditClick(agent)}
-                  className="text-[#B3DB48] hover:text-green-600"
-                >
-                  <Pencil size={18} />
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-        
-      </div>
-         {/* Pagination */}
-        <div className="flex justify-between items-center mt-6">
-          <div className="flex items-center space-x-2 text-gray-700">
-            <button
-              onClick={handlePrev}
-              className="text-lg"
-              disabled={currentPage === 1}
-            >
-              &lt;
-            </button>
-
-            {getPaginationNumbers().map((num) => (
-              <button
-                key={num}
-                className={`w-8 h-8 rounded-full font-[Nunito] font-bold ${
-                  currentPage === num
-                    ? "bg-[#B3DB48] text-black"
-                    : "hover:underline"
-                }`}
-                onClick={() => handlePageClick(num)}
+          {agentList && agentList.length > 0 ? (
+            agentList.map((agent, index) => (
+              <div
+                key={agent?._id || index}
+                className="grid grid-cols-6 bg-white rounded-md shadow-sm py-3 px-4 items-center text-sm text-gray-700"
               >
-                {num}
-              </button>
-            ))}
-
-            <button
-              onClick={handleNext}
-              className="text-lg"
-              disabled={currentPage === totalPages}
-            >
-              &gt;
-            </button>
-          </div>
-
-          <div className="flex items-center gap-2 text-sm text-gray-700">
-            <span>Go to page</span>
-            <input
-              type="number"
-              placeholder="000"
-              onKeyDown={(e) => {
-                if (e.key === "Enter") handleGoToPage(e);
-              }}
-              className="w-16 px-2 py-1 border border-gray-300 rounded-md text-sm"
-              min={1}
-              max={totalPages}
-            />
-          </div>
+                <div>{index + 1 + (currentPage-1)*limit}</div> {/* Serial number */}
+                <div>{agent?.agentName}</div>
+                <div>{agent?.email}</div>
+                <div>{agent?.phone}</div>
+                <div className="truncate">{agent?.address}</div>
+                <div className="flex justify-center">
+                  <button
+                    onClick={() => handleEditClick(agent)}
+                    className="text-[#B3DB48] hover:text-green-600"
+                  >
+                    <Pencil size={18} />
+                  </button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className="text-center py-4 text-gray-500">No agents found.</p>
+          )}
         </div>
+      </div>
+      {/* Pagination */}
+      <div className="flex justify-between items-center mt-6">
+        <div className="flex items-center space-x-2 text-gray-700">
+          <button
+            onClick={handlePrev}
+            className="text-lg"
+            disabled={currentPage === 1}
+          >
+            &lt;
+          </button>
+
+          {getPaginationNumbers().map((num) => (
+            <button
+              key={num}
+              className={`w-8 h-8 rounded-full font-[Nunito] font-bold ${
+                currentPage === num
+                  ? "bg-[#B3DB48] text-black"
+                  : "hover:underline"
+              }`}
+              onClick={() => handlePageClick(num)}
+            >
+              {num}
+            </button>
+          ))}
+
+          <button
+            onClick={handleNext}
+            className="text-lg"
+            disabled={currentPage === totalPages}
+          >
+            &gt;
+          </button>
+        </div>
+
+        <div className="flex items-center gap-2 text-sm text-gray-700">
+          <span>Go to page</span>
+          <input
+            type="number"
+            placeholder="000"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleGoToPage(e);
+            }}
+            className="w-16 px-2 py-1 border border-gray-300 rounded-md text-sm"
+            min={1}
+            max={totalPages}
+          />
+        </div>
+      </div>
       {/* Edit Agent Modal */}
       <Modal
         title=""
@@ -269,9 +287,6 @@ const handleGoToPage = (e) => {
             />
           </div>
         </div>
-        <button className="w-full bg-[#B3DB48] text-white py-2 rounded-md font-[Nunito] font-bold">
-          save
-        </button>
       </Modal>
 
       {/* Add Agent Modal */}
@@ -305,7 +320,11 @@ const handleGoToPage = (e) => {
             </label>
             <input
               type="text"
-              readOnly
+              name="agentName"
+              value={addFormData.agentName}
+              onChange={(e) =>
+                setAddFormData({ ...addFormData, agentName: e.target.value })
+              }
               className="w-full bg-gray-100 rounded-md px-3 py-2 text-gray-600"
             />
           </div>
@@ -315,7 +334,11 @@ const handleGoToPage = (e) => {
             </label>
             <input
               type="text"
-              readOnly
+              name="phone"
+              value={addFormData.phone}
+              onChange={(e) =>
+                setAddFormData({ ...addFormData, phone: e.target.value })
+              }
               className="w-full bg-gray-100 rounded-md px-3 py-2 text-gray-600"
             />
           </div>
@@ -326,9 +349,12 @@ const handleGoToPage = (e) => {
               Email ID
             </label>
             <input
-              type="text"
-              value="abc pvt ltd"
-              readOnly
+              type="email"
+              name="email"
+              value={addFormData.email}
+              onChange={(e) =>
+                setAddFormData({ ...addFormData, email: e.target.value })
+              }
               className="w-full bg-gray-100 rounded-md px-3 py-2 text-gray-600"
             />
           </div>
@@ -338,20 +364,16 @@ const handleGoToPage = (e) => {
             </label>
             <input
               type="text"
-              value="6238945012"
-              readOnly
+              name="address"
+              value={addFormData.address}
+              onChange={(e) =>
+                setAddFormData({ ...addFormData, address: e.target.value })
+              }
               className="w-full bg-gray-100 rounded-md px-3 py-2 text-gray-600"
             />
           </div>
-          
         </div>
-        <button className="w-full bg-[#B3DB48] text-white py-2 rounded-md font-[Nunito] font-bold">
-          save
-        </button>
       </Modal>
-      
     </div>
-    
   );
 }
-
