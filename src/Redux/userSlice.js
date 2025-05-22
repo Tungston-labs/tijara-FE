@@ -42,8 +42,8 @@ export const fetchUnapprovedUserList = createAsyncThunk(
   "unapprovedList/fetch",
   async (page, { rejectWithValue }) => {
     try {
-      const response = await fetchUnapprovedUsers({ page }); 
-      return response.data; 
+      const response = await fetchUnapprovedUsers({ page });
+      return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
     }
@@ -88,7 +88,6 @@ export const fetchItemSubList = createAsyncThunk(
   }
 );
 
-
 // DELETE USER
 export const deleteUser = createAsyncThunk(
   "user/delete",
@@ -113,18 +112,21 @@ export const addAgent = createAsyncThunk(
       return rejectWithValue(error.message || "Unable to add agents");
     }
   }
-)
+);
 
 export const fetchProductsList = createAsyncThunk(
   "productslist/fetch",
-  async ({page}, { rejectWithValue }) => {
+  async ({ page }, { rejectWithValue }) => {
     try {
-      console.log("data")
-      const response = await fetchProducts({page});
+      console.log("data");
+      const response = await fetchProducts({ page });
       return response;
     } catch (error) {
       return rejectWithValue(error.message || "Unable to fetch user list");
+    }
+  }
 );
+
 export const editAgent = createAsyncThunk(
   "agent/edit",
   async ({ id, editData }, { rejectWithValue }) => {
@@ -153,33 +155,39 @@ export const fetchUserList = createAsyncThunk(
   }
 );
 
-
-
 const UserSlice = createSlice({
   name: "user",
   initialState: {
-      sellers : {
-    list: [],
-    loading: false,
-    error: null,
-    total: 0,
-    page: 1,
-    totalPages: 1,
-  },
-  buyers: {
-    list: [],
-    loading: false,
-    error: null,
-    total: 0,
-    page: 1,
-    totalPages: 1,
-  },
-  itemsubList: [],
+    sellers: {
+      list: [],
+      loading: false,
+      error: null,
+      total: 0,
+      page: 1,
+      totalPages: 1,
+    },
+    buyers: {
+      list: [],
+      loading: false,
+      error: null,
+      total: 0,
+      page: 1,
+      totalPages: 1,
+    },
+    itemsubList: [],
     agentList: [],
-    loading:false,
+    loading: false,
     status: "",
     error: "",
+    products: {
+    items: [],
+    loading: false,
+    error: null,
+    currentPage: 1,
+    totalPages: 1,
   },
+  },
+  
   reducers: {},
   extraReducers: (builder) => {
     builder
@@ -220,39 +228,30 @@ const UserSlice = createSlice({
       })
 
       .addCase(fetchItemSubList.pending, (state) => {
-      state.status = "loading";
-    })
-    .addCase(fetchItemSubList.fulfilled, (state, action) => {
-      state.status = "succeeded";
-      state.itemsubList = action.payload.data; 
-      state.totalPages = action.payload.totalPages || 1; 
-    })
-    .addCase(fetchItemSubList.rejected, (state, action) => {
-      state.status = "failed";
-      state.error = action.error.message;
-    })
-
-      
-     .addCase(fetchProductsList.pending, (state) => {
-      state.status = "loading";
-    })
-    .addCase(fetchProductsList.fulfilled, (state, action) => {
-      state.status = "succeeded";
-      state.productslist = action.payload.data; 
-      state.totalPages = action.payload.totalPages || 1; 
-    })
-    .addCase(fetchProductsList.rejected, (state, action) => {
-      state.status = "failed";
-      state.error = action.error.message;
         state.status = "loading";
       })
       .addCase(fetchItemSubList.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.itemsubList = action.payload.data.users;
+        state.itemsubList = action.payload.data;
+        state.totalPages = action.payload.totalPages || 1;
       })
       .addCase(fetchItemSubList.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message;
+      })
+
+      .addCase(fetchProductsList.pending, (state) => {
+        state.products.loading = true;
+      })
+      .addCase(fetchProductsList.fulfilled, (state, action) => {
+        state.products.loading = false;
+        state.products.items = action.payload.data.products;
+        state.products.currentPage = action.payload.page;
+        state.products.totalPages = action.payload.totalPages;
+      })
+      .addCase(fetchProductsList.rejected, (state, action) => {
+        state.products.loading = false;
+        state.products.error = action.payload || "Failed to fetch products";
       })
       .addCase(addAgent.pending, (state) => {
         state.loading = true;
@@ -288,35 +287,35 @@ const UserSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-       .addCase(fetchUserList.pending, (state, action) => {
-      const role = action.meta.arg.role;
-      if (state[role + "s"]) {
-        state[role + "s"].loading = true;
-        state[role + "s"].error = null;
-      }
-    })
- .addCase(fetchUserList.fulfilled, (state, action) => {
-  const { role, data } = action.payload;
-  const { users, total, page, totalPages } = data;
+      .addCase(fetchUserList.pending, (state, action) => {
+        const role = action.meta.arg.role;
+        if (state[role + "s"]) {
+          state[role + "s"].loading = true;
+          state[role + "s"].error = null;
+        }
+      })
+      .addCase(fetchUserList.fulfilled, (state, action) => {
+        const { role, data } = action.payload;
+        const { users, total, page, totalPages } = data;
 
-  state[role + "s"] = {
-    ...state[role + "s"],
-    list: users,
-    total,
-    page,
-    totalPages,
-    loading: false,
-    error: null,
-  };
-})
+        state[role + "s"] = {
+          ...state[role + "s"],
+          list: users,
+          total,
+          page,
+          totalPages,
+          loading: false,
+          error: null,
+        };
+      })
 
-    .addCase(fetchUserList.rejected, (state, action) => {
-      const role = action.meta.arg.role;
-      if (state[role + "s"]) {
-        state[role + "s"].loading = false;
-        state[role + "s"].error = action.payload;
-      }
-    })
+      .addCase(fetchUserList.rejected, (state, action) => {
+        const role = action.meta.arg.role;
+        if (state[role + "s"]) {
+          state[role + "s"].loading = false;
+          state[role + "s"].error = action.payload;
+        }
+      })
 
       // Delete User
       .addCase(deleteUser.fulfilled, (state, action) => {

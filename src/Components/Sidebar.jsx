@@ -122,7 +122,7 @@ console.log("pthname",window.location.pathname)
   const handleClick = (name) => {
     setActive(name);
     if (name === "Users") {
-      navigate("/sell");
+      navigate("/user");
     } else if (name === "Agents") {
       navigate("/agent");
     } else if (name === "Approval") {
