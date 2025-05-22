@@ -1,5 +1,5 @@
 import { Pencil, Trash } from "lucide-react";
-export default function BuyerTable({ buyers, onDeleteClick, onEditClick }) {
+export default function BuyerTableContent({ buyers, onDeleteClick, onEditClick }) {
 
   return (
     <div className="max-w-6xl mx-auto rounded-lg p-4" style={{ backgroundColor: "#F6F9EF" }}>
@@ -17,7 +17,7 @@ export default function BuyerTable({ buyers, onDeleteClick, onEditClick }) {
 
       {/* Table Body */}
       <div className="space-y-3 mt-3">
-        {buyers.map((buyer, index) => (
+        {/* {buyers.map((buyer, index) => (
           <div
             key={index}
             className="bg-white p-3 rounded-lg shadow-sm grid grid-cols-8 text-center items-center text-sm whitespace-nowrap"
@@ -45,7 +45,7 @@ export default function BuyerTable({ buyers, onDeleteClick, onEditClick }) {
               </button>
             </div>
           </div>
-        ))}
+        ))} */}
       </div>
     </div>
   );

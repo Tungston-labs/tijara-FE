@@ -8,10 +8,10 @@ const API = axios.create({
   },
 });
 
-export const fetchUser = async (user) => {
-  const response = API.get(`/admin/auth/get-all-users?role=${user}`);
-  return response;
-};
+// export const fetchUser = async (user) => {
+//   const response = API.get(`/admin/auth/get-all-users?role=${user}`);
+//   return response;
+// };
 
 export const fetchApproveBuyerList = async (buyer) => {
   const response = API.get(`/admin/auth/unapproved-users=${buyer}`);
@@ -41,7 +41,7 @@ export const fetchSubItems = async (page = 1, search = "") => {
     totalPages: response.data.totalPages,
   };
 };
-
+console.log("Selected code is empty");
 
 export const fetchProducts = async ({page}) => {
     console.log("hello")
@@ -53,7 +53,20 @@ export const deleteUserById = async (id) => {
   const res = await axios.delete(`/admin/auth/api/users/${id}`);
   return res.data;
 };
-export const addAgents=async(agentData)=>{
-    const response=await axios.post(`/admin/agent/add-agent`,agentData)
+
+export const addAgentAPI=async(agentData)=>{
+    const response=API.post(`/admin/agent/add-agent`,agentData)
     return response.data;
 }
+
+export const editAgentAPI = async (id, editData) => {
+  const response = await API.put(`/admin/agent/update-agent/${id}`, editData);
+  return response.data;
+};
+
+export const fetchUsersAPI = async ({ role, search = "", page = 1, status = "" }) => {
+  const response = await API.get(
+        `/admin/auth/get-all-users?role=${role}&search=${search}&page=${page}&status=${status}`
+      );
+  return response.data;
+};

@@ -11,24 +11,27 @@ export default function SellerTableContent({
 
   return (
     <>
-      <div
-        className="max-w-6xl mx-auto rounded-lg p-4"
-        style={{ backgroundColor: "#F6F9EF" }}
-      >
-        <div className="p-3 rounded-lg shadow-sm grid grid-cols-10 font-[Nunito] font-bold text-black text-center text-sm whitespace-nowrap bg-white">
-          <div>No</div>
-          <div>Seller Name</div>
-          <div>Ph no </div>
-          <div>Licence Number</div>
-          <div>Plan Expiring</div>
-          <div>Payment type </div>
-          <div>Edit</div>
-          <div>Delete</div>
-        </div>
-
-        {/* Table Rows */}
-        <div className="space-y-3 mt-3">
-          {sellers.map((seller, index) => (
+    <div className="max-w-6xl mx-auto rounded-lg p-4" style={{ backgroundColor: "#F6F9EF" }}>
+ 
+      <div className="p-3 rounded-lg shadow-sm grid grid-cols-10 font-[Nunito] font-bold text-black text-center text-sm whitespace-nowrap bg-white">
+        <div>No</div>
+        <div>Seller Name</div>
+        <div>Ph no </div>
+        <div>Licence Number</div>
+        <div>Plan Expiring</div>
+        <div>Payment type </div>
+        <div>Edit</div>
+        <div>Delete</div>
+      </div>
+      
+      {/* Table Rows */}
+      <div className="space-y-3 mt-3">
+        {/* {sellers.map((seller, index) => (
+          <div
+            key={index}
+            className="bg-white p-3 rounded-lg shadow-sm grid grid-cols-10 text-center items-center text-sm whitespace-nowrap"
+          >
+            <div className="text-gray-700 font-[Nunito]">{index + 1}</div>
             <div
               key={index}
               className="bg-white p-3 rounded-lg shadow-sm grid grid-cols-10 text-center items-center text-sm whitespace-nowrap"
@@ -62,8 +65,9 @@ export default function SellerTableContent({
                 </button>
               </div>
             </div>
-          ))}
-        </div>
+          </div>
+        ))} */}
+      </div>
       </div>
     </>
   );
