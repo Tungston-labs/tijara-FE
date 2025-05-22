@@ -24,12 +24,23 @@ export const fetchItems = async ({page}) => {
     return response
 }
 
+
+export const fetchsellproducts = async ({page}) => {
+    console.log("hello")
+    const response = API.get(`product/get-products?page=${page}`)
+    return response
+}
+
+
 export const fetchSubItems = async (itemName) => {
   const response = API.get(`product/item-sub-category/${itemName}`);
   console.log(response);
   const datas = await response.json();
   return { data: datas.items, totalPages: datas.totalPages };
 };
+
+
+
 
 export const deleteUserById = async (id) => {
   const res = await axios.delete(`/admin/auth/api/users/${id}`);
