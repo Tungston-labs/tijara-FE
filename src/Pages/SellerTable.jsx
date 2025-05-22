@@ -34,7 +34,6 @@ export default function SellerTableContent({
               className="bg-white p-3 rounded-lg shadow-sm grid grid-cols-10 text-center items-center text-sm whitespace-nowrap"
             >
               <div className="text-gray-700 font-[Nunito]">{index + 1}</div>
-
               <div
                 className="text-[#B3DB48] font-[Nunito] cursor-pointer hover:underline"
                 onClick={() => navigate(`/profile`)}

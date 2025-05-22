@@ -23,7 +23,7 @@ useEffect(() => {
   const fetchData = async () => {
     try {
       const response = await dispatch(fetchPendingUsers({ role: filter }));
-      
+
     } catch (err) {
       console.error("Failed to fetch pending users:", err);
     }

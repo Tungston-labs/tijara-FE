@@ -5,6 +5,8 @@ import {
   fetchAgents,
   fetchItems,
   fetchSubItems,
+  fetchUnapprovedUsers,
+  fetchProducts,
   addAgentAPI,
   editAgentAPI,
   fetchUsersAPI,
@@ -30,6 +32,18 @@ export const fetchAgentList = createAsyncThunk(
   async ({ page, limit }, { rejectWithValue }) => {
     try {
       const response = await fetchAgents({ page, limit });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
+
+export const fetchUnapprovedUserList = createAsyncThunk(
+  "unapprovedList/fetch",
+  async (page, { rejectWithValue }) => {
+    try {
+      const response = await fetchUnapprovedUsers({ page });
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -65,12 +79,12 @@ export const fetchItemList = createAsyncThunk(
 
 export const fetchItemSubList = createAsyncThunk(
   "itemsublist/fetch",
-  async (_, { rejectWithValue }) => {
+  async ({ page = 1, search = "" }, { rejectWithValue }) => {
     try {
-      const response = await fetchSubItems();
+      const response = await fetchSubItems(page, search);
       return response;
     } catch (error) {
-      return rejectWithValue(error.message || "Unable to fetch user list");
+      return rejectWithValue(error.message || "Unable to fetch item sub list");
     }
   }
 );
@@ -100,6 +114,20 @@ export const addAgent = createAsyncThunk(
     }
   }
 );
+
+export const fetchProductsList = createAsyncThunk(
+  "productslist/fetch",
+  async ({ page }, { rejectWithValue }) => {
+    try {
+      console.log("data");
+      const response = await fetchProducts({ page });
+      return response;
+    } catch (error) {
+      return rejectWithValue(error.message || "Unable to fetch user list");
+    }
+  }
+);
+
 export const editAgent = createAsyncThunk(
   "agent/edit",
   async ({ id, editData }, { rejectWithValue }) => {
@@ -168,10 +196,19 @@ const UserSlice = createSlice({
       sellers: [],
     },
 
+    itemsubList: [],
     loading: false,
     status: "",
     error: "",
+    products: {
+    items: [],
+    loading: false,
+    error: null,
+    currentPage: 1,
+    totalPages: 1,
   },
+  },
+  
   reducers: {},
   extraReducers: (builder) => {
     builder
@@ -216,11 +253,26 @@ const UserSlice = createSlice({
       })
       .addCase(fetchItemSubList.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.itemsubList = action.payload.data.users;
+        state.itemsubList = action.payload.data;
+        state.totalPages = action.payload.totalPages || 1;
       })
       .addCase(fetchItemSubList.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message;
+      })
+
+      .addCase(fetchProductsList.pending, (state) => {
+        state.products.loading = true;
+      })
+      .addCase(fetchProductsList.fulfilled, (state, action) => {
+        state.products.loading = false;
+        state.products.items = action.payload.data.products;
+        state.products.currentPage = action.payload.page;
+        state.products.totalPages = action.payload.totalPages;
+      })
+      .addCase(fetchProductsList.rejected, (state, action) => {
+        state.products.loading = false;
+        state.products.error = action.payload || "Failed to fetch products";
       })
       .addCase(addAgent.pending, (state) => {
         state.loading = true;

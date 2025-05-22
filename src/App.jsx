@@ -31,6 +31,8 @@ function App() {
           <Route element={<ProtectedRoute />}> 
         
             <Route path="box" element={<Boxes />} />
+            
+           
             <Route path="user" element={<User />} />
             <Route path="agent" element={<Agent />} />
             <Route path="approveseller" element={<ApproveSeller />} />

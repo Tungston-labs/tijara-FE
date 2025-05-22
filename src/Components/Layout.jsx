@@ -1,8 +1,11 @@
 import Sidebar from "./Sidebar";
 import Search from "./Search";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 
 function Layout() {
+  const location = useLocation()
+  
+
   return (
     <div className="flex h-screen">
       {/* Sidebar on the left */}
@@ -10,7 +13,9 @@ function Layout() {
 
       {/* Main content area */}
       <div className="flex-1 p-4">
-        <Search />
+       {  location.pathname!=="/box"&&
+<Search />
+       }
         <Outlet />
       </div>
     </div>

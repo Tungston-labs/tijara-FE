@@ -1,6 +1,4 @@
-
 import { useState, useEffect, useRef } from "react";
-import { Filter } from "lucide-react";
 import { fetchItemSubList } from "../Redux/userSlice";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
@@ -8,24 +6,21 @@ import axios from "axios";
 export default function ItemNameList() {
   const dispatch = useDispatch();
   const { itemsubList } = useSelector((state) => state.user);
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [totalPages, setTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemName, setItemName] = useState("");
   const [subcategory, setSubCategory] = useState("");
-  const [items, setItems] = useState([]);
+  const [items, setItems] = useState([]);   
   const [existingItems, setExistingItems] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
-  const popupRef = useRef(null);
 
-  const fetchPageItems = (page) => {
-    dispatch(fetchItemSubList({ page }))
+  const fetchPageItems = (page, itemNameFilter = "") => {
+    dispatch(fetchItemSubList({ page, itemName: itemNameFilter }))
       .then((action) => {
         if (action.payload?.data) {
           setItems(action.payload.data);
           setTotalPages(action.payload.totalPages || 1);
 
-          // Extract unique item names for suggestions
           const uniqueItems = Array.from(
             new Set(action.payload.data.map((item) => item.item))
           );
@@ -38,8 +33,13 @@ export default function ItemNameList() {
   };
 
   useEffect(() => {
-    fetchPageItems(currentPage);
+    fetchPageItems(currentPage, itemName);
   }, [currentPage]);
+
+  const handleSearch = () => {
+    setCurrentPage(1);
+    fetchPageItems(1, itemName);
+  };
 
   const additems = async () => {
     if (!itemName || !subcategory) return alert("Fill all fields");
@@ -53,10 +53,7 @@ export default function ItemNameList() {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      // Refresh the list after adding
-      fetchPageItems(currentPage);
-
-      // Clear inputs
+      fetchPageItems(currentPage, itemName);
       setItemName("");
       setSubCategory("");
       setSuggestions([]);
@@ -80,22 +77,32 @@ export default function ItemNameList() {
     }
   };
 
+  const handlePageClick = (page) => {
+    setCurrentPage(page);
+    fetchPageItems(page, itemName);
+  };
+
   const handlePrev = () => {
-    if (currentPage > 1) setCurrentPage((prev) => prev - 1);
+    if (currentPage > 1) {
+      const newPage = currentPage - 1;
+      setCurrentPage(newPage);
+      fetchPageItems(newPage, itemName);
+    }
   };
 
   const handleNext = () => {
-    if (currentPage < totalPages) setCurrentPage((prev) => prev + 1);
-  };
-
-  const handlePageClick = (page) => {
-    setCurrentPage(page);
+    if (currentPage < totalPages) {
+      const newPage = currentPage + 1;
+      setCurrentPage(newPage);
+      fetchPageItems(newPage, itemName);
+    }
   };
 
   const handleGoToPage = (e) => {
     const value = parseInt(e.target.value, 10);
     if (!isNaN(value) && value >= 1 && value <= totalPages) {
       setCurrentPage(value);
+      fetchPageItems(value, itemName);
     }
   };
 
@@ -134,6 +141,7 @@ export default function ItemNameList() {
                   placeholder="Enter Item name"
                   value={itemName}
                   onChange={handleItemInput}
+                  onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                   className="px-4 py-2 rounded-md border border-gray-300 bg-white text-black focus:outline-none w-[250px]"
                 />
                 {suggestions.length > 0 && (
@@ -145,6 +153,7 @@ export default function ItemNameList() {
                         onClick={() => {
                           setItemName(suggestion);
                           setSuggestions([]);
+                          handleSearch();
                         }}
                       >
                         {suggestion}
@@ -195,14 +204,9 @@ export default function ItemNameList() {
         {/* Pagination */}
         <div className="flex justify-between items-center mt-6">
           <div className="flex items-center space-x-2 text-gray-700">
-            <button
-              onClick={handlePrev}
-              className="text-lg"
-              disabled={currentPage === 1}
-            >
+            <button onClick={handlePrev} className="text-lg" disabled={currentPage === 1}>
               &lt;
             </button>
-
             {getPaginationNumbers().map((num) => (
               <button
                 key={num}
@@ -216,7 +220,6 @@ export default function ItemNameList() {
                 {num}
               </button>
             ))}
-
             <button
               onClick={handleNext}
               className="text-lg"
