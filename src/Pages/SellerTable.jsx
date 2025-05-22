@@ -19,10 +19,10 @@ export default function SellerTableContent({sellers, onEditClick, onDeleteClick}
         <div>Edit</div>
         <div>Delete</div>
       </div>
-
+      
       {/* Table Rows */}
       <div className="space-y-3 mt-3">
-        {sellers.map((seller, index) => (
+        {/* {sellers.map((seller, index) => (
           <div
             key={index}
             className="bg-white p-3 rounded-lg shadow-sm grid grid-cols-10 text-center items-center text-sm whitespace-nowrap"
@@ -54,7 +54,7 @@ export default function SellerTableContent({sellers, onEditClick, onDeleteClick}
               </button>
             </div>
           </div>
-        ))}
+        ))} */}
       </div>
       </div>
     </>

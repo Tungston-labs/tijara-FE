@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Pencil } from "lucide-react";
-import { Button, Modal } from "antd";
+import { Button, Modal, Form, Input } from "antd";
 import { useDispatch, useSelector } from "react-redux";
-import { addAgent, fetchAgentList } from "../Redux/userSlice";
+import { addAgent, editAgent, fetchAgentList } from "../Redux/userSlice";
+import Swal from 'sweetalert2';
+
+const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+const isValidPhone = (phone) => /^[0-9]{10}$/.test(phone); // Change based on your locale/format
 
 export default function AgentTable() {
   const dispatch = useDispatch();
@@ -12,7 +16,7 @@ export default function AgentTable() {
   const [selectedAgent, setSelectedAgent] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
- const limit = 10;
+  const limit = 10;
   const [editName, setEditName] = useState("");
   const [editEmail, setEditEmail] = useState("");
   const [editPhone, setEditPhone] = useState("");
@@ -27,15 +31,15 @@ export default function AgentTable() {
 
   const handleEditClick = (agent) => {
     setSelectedAgent(agent);
-    setEditName(agent.fullName);
-    setEditEmail(agent.email);
-    setEditPhone(agent.phone);
-    setEditAddress(agent.address);
+    setEditName(agent?.agentName);
+    setEditEmail(agent?.email);
+    setEditPhone(agent?.phone);
+    setEditAddress(agent?.address);
     setShowEditPopup(true);
   };
 
   useEffect(() => {
-dispatch(fetchAgentList({ page: currentPage, limit }))
+    dispatch(fetchAgentList({ page: currentPage, limit }))
       .unwrap()
       .then((res) => {
         setTotalPages(res.totalPages); // Ensure your backend returns this
@@ -46,26 +50,65 @@ dispatch(fetchAgentList({ page: currentPage, limit }))
   }, [dispatch, currentPage]);
 
   const handleEditOk = () => {
-    console.log("Edited data:", {
-      name: editName,
-      email: editEmail,
-      phone: editPhone,
-      address: editAddress,
-    });
+    if (!selectedAgent) return;
+     if (!editName || !editEmail || !editPhone || !editAddress) {
+    return alert("All fields are required");
+  }
 
-    setShowEditPopup(false);
+  if (!isValidEmail(editEmail)) {
+    return alert("Invalid email format");
+  }
+
+  if (!isValidPhone(editPhone)) {
+    return alert("Phone number must be 10 digits");
+  }
+
+    dispatch(
+      editAgent({
+        id: selectedAgent._id,
+        editData: {
+          agentName: editName,
+          email: editEmail,
+          phone: editPhone,
+          address: editAddress,
+        },
+      })
+    )
+      .unwrap()
+      Swal.fire("Success", "Agent updated successfully", "success")
+      .then(() => {
+        setShowEditPopup(false);
+      })
+      .catch((err) => {
+        console.error("Failed to edit agent:", err);
+            Swal.fire("Error", "Failed to update agent", "error");
+
+      });
   };
 
   const handleEditCancel = () => {
     setShowEditPopup(false);
   };
-  const handleAddOk = async () => {
-    console.log("Save button clicked");
 
+  const handleAddOk = async () => {
+    const { agentName, phone, email, address } = addFormData;
+
+    if (!agentName || !phone || !email || !address) {
+      return alert("All fields are required");
+    }
+
+    if (!isValidEmail(email)) {
+      return alert("Invalid email format");
+    }
+
+    if (!isValidPhone(phone)) {
+      return alert("Phone number must be 10 digits");
+    }
+  
     try {
       const res = await dispatch(addAgent(addFormData)).unwrap();
-      console.log("Agent added:", res);
-
+    
+       Swal.fire("Success", "Agent added successfully", "success");
       // Clear and close modal
       setAddFormData({ agentName: "", phone: "", email: "", address: "" });
       setShowAddPopup(false);
@@ -74,6 +117,7 @@ dispatch(fetchAgentList({ page: currentPage, limit }))
       console.log("Updated agent list:", listRes);
     } catch (err) {
       console.error("Error adding agent:", err);
+      Swal.fire("Error", "Failed to add agent", "error");
     }
   };
 
@@ -149,7 +193,8 @@ dispatch(fetchAgentList({ page: currentPage, limit }))
                 key={agent?._id || index}
                 className="grid grid-cols-6 bg-white rounded-md shadow-sm py-3 px-4 items-center text-sm text-gray-700"
               >
-                <div>{index + 1 + (currentPage-1)*limit}</div> {/* Serial number */}
+                <div>{index + 1 + (currentPage - 1) * limit}</div>{" "}
+                {/* Serial number */}
                 <div>{agent?.agentName}</div>
                 <div>{agent?.email}</div>
                 <div>{agent?.phone}</div>
@@ -241,6 +286,7 @@ dispatch(fetchAgentList({ page: currentPage, limit }))
             </svg>
           </div>
         </div>
+
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div>
             <label className="block text-sm font-[Nunito] font-bold mb-1">
@@ -248,21 +294,24 @@ dispatch(fetchAgentList({ page: currentPage, limit }))
             </label>
             <input
               type="text"
-              readOnly
-              className="w-full bg-gray-100 rounded-md px-3 py-2 text-gray-600"
+              value={editName}
+              onChange={(e) => setEditName(e.target.value)}
+              className="w-full bg-white rounded-md px-3 py-2 border"
             />
           </div>
           <div>
             <label className="block text-sm font-[Nunito] font-bold mb-1">
-              Ph no
+              Phone Number
             </label>
             <input
               type="text"
-              readOnly
-              className="w-full bg-gray-100 rounded-md px-3 py-2 text-gray-600"
+              value={editPhone}
+              onChange={(e) => setEditPhone(e.target.value)}
+              className="w-full bg-white rounded-md px-3 py-2 border"
             />
           </div>
         </div>
+
         <div className="grid grid-cols-2 gap-4 mb-6">
           <div>
             <label className="block text-sm font-[Nunito] font-bold mb-1">
@@ -270,9 +319,9 @@ dispatch(fetchAgentList({ page: currentPage, limit }))
             </label>
             <input
               type="text"
-              value="abc pvt ltd"
-              readOnly
-              className="w-full bg-gray-100 rounded-md px-3 py-2 text-gray-600"
+              value={editEmail}
+              onChange={(e) => setEditEmail(e.target.value)}
+              className="w-full bg-white rounded-md px-3 py-2 border"
             />
           </div>
           <div>
@@ -281,9 +330,9 @@ dispatch(fetchAgentList({ page: currentPage, limit }))
             </label>
             <input
               type="text"
-              value="6238945012"
-              readOnly
-              className="w-full bg-gray-100 rounded-md px-3 py-2 text-gray-600"
+              value={editAddress}
+              onChange={(e) => setEditAddress(e.target.value)}
+              className="w-full bg-white rounded-md px-3 py-2 border"
             />
           </div>
         </div>

@@ -8,10 +8,10 @@ const API = axios.create({
   },
 });
 
-export const fetchUser = async (user) => {
-  const response = API.get(`/admin/auth/get-all-users?role=${user}`);
-  return response;
-};
+// export const fetchUser = async (user) => {
+//   const response = API.get(`/admin/auth/get-all-users?role=${user}`);
+//   return response;
+// };
 
 export const fetchAgents = async ({page, limit}) => {
   const response = await API.get(`/admin/agent/get-agents?page=${page}&limit=${limit}`);
@@ -24,17 +24,6 @@ export const fetchItems = async ({page}) => {
     return response
 }
 
-<<<<<<< HEAD
-export const fetchSubItems = async () => {
-    const response = API.get(`product/item-sub-category/${itemName}`)
-    console.log("User service data",response)
-    const datas = await response.json();
-    //  return { data: datas.items, totalPages: datas.totalPages };
-}
-=======
->>>>>>> 0a8764fffbc22754496318d5e20797d9f3fbc8e9
-
-
 export const fetchSubItems = async (itemName) => {
   const response = API.get(`product/item-sub-category/${itemName}`);
   console.log(response);
@@ -46,7 +35,20 @@ export const deleteUserById = async (id) => {
   const res = await axios.delete(`/admin/auth/api/users/${id}`);
   return res.data;
 };
+
 export const addAgentAPI=async(agentData)=>{
     const response=API.post(`/admin/agent/add-agent`,agentData)
     return response.data;
 }
+
+export const editAgentAPI = async (id, editData) => {
+  const response = await API.put(`/admin/agent/update-agent/${id}`, editData);
+  return response.data;
+};
+
+export const fetchUsersAPI = async ({ role, search = "", page = 1, status = "" }) => {
+  const response = await API.get(
+        `/admin/auth/get-all-users?role=${role}&search=${search}&page=${page}&status=${status}`
+      );
+  return response.data;
+};

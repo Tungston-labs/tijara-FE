@@ -45,8 +45,8 @@ function App() {
        
       {/* Protected Layout Routes */}
       <Route path="/" element={<Layout />}>
-        <Route element={<PersistLogin />}> {/* ✅ Wrap refresh logic */}
-          <Route element={<ProtectedRoute />}> {/* ✅ Wrap auth logic */}
+        <Route element={<PersistLogin />}>
+          <Route element={<ProtectedRoute />}> 
         
             <Route path="editagent" element={<EditAgent />} />
             <Route path="box" element={<Boxes />} />
