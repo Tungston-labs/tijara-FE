@@ -2,7 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import Layout from "./Components/Layout";
 import Boxes from "./Pages/Boxes";
 import Seller from "./Pages/Seller";
-import Buyer from "./Pages/Buyer";
+
 import Profile from "./Pages/Profile";
 import Confirm from "./Pages/Confirm";
 import Edit from "./Pages/Edit";
@@ -51,7 +51,7 @@ function App() {
             <Route path="editagent" element={<EditAgent />} />
             <Route path="box" element={<Boxes />} />
             <Route path="sell" element={<Seller />} />
-            <Route path="buyer" element={<Buyer />} />
+           
             <Route path="agent" element={<Agent />} />
             <Route path="confirm" element={<Confirm />} />
             <Route path="tr" element={<Transaction />} />

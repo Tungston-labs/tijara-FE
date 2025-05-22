@@ -1,21 +1,65 @@
-import { useState } from "react";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchProductsList } from "../Redux/userSlice";
 
 export default function SellerProducts() {
-  const [currentPage, setCurrentPage] = useState(1);
-  const items = Array(10).fill({
-    sellerName: "Ajay kumar",
-    itemName: "Apple",
-    subCategory: "Kashmir Apples",
-    country: "India",
-  });
+  const dispatch = useDispatch();
+
+  // ✅ Provide defaults in case state is not yet populated
+  const {
+    items = [],
+    currentPage = 1,
+    totalPages = 1,
+    loading = false,
+  } = useSelector((state) => state.products || {});
+
+  useEffect(() => {
+    dispatch(fetchProductsList({ page: currentPage }));
+  }, [dispatch, currentPage]);
+
+  const handlePageClick = (page) => {
+    dispatch(fetchProductsList({ page }));
+  };
+
+  const handlePrev = () => {
+    if (currentPage > 1) {
+      dispatch(fetchProductsList({ page: currentPage - 1 }));
+    }
+  };
+
+  const handleNext = () => {
+    if (currentPage < totalPages) {
+      dispatch(fetchProductsList({ page: currentPage + 1 }));
+    }
+  };
+
+  const handleGoToPage = (e) => {
+    const value = parseInt(e.target.value, 10);
+    if (!isNaN(value) && value >= 1 && value <= totalPages) {
+      dispatch(fetchProductsList({ page: value }));
+    }
+  };
+
+  const getPaginationNumbers = () => {
+    const visibleCount = 2;
+    const pages = [];
+    let start = Math.max(1, currentPage - Math.floor(visibleCount / 2));
+    let end = start + visibleCount - 1;
+    if (end > totalPages) {
+      end = totalPages;
+      start = Math.max(1, end - visibleCount + 1);
+    }
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    return pages;
+  };
 
   return (
     <div className="min-h-screen bg-[#E9E9E9] p-6">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
         <h1 className="text-2xl font-bold font-[Nunito] mb-4">Seller products</h1>
 
-        {/* Search Bar */}
         <div className="flex items-center gap-3 mb-6">
           <input
             type="text"
@@ -27,9 +71,7 @@ export default function SellerProducts() {
           </button>
         </div>
 
-        {/* Table */}
         <div className="bg-[#F6F9EF] p-4 rounded-md shadow-sm">
-          {/* Table Header */}
           <div className="grid grid-cols-4 bg-white font-bold font-[Nunito] text-black px-4 py-3 rounded-md border border-gray-200 shadow-sm">
             <div>Seller name</div>
             <div>Item name</div>
@@ -37,45 +79,67 @@ export default function SellerProducts() {
             <div>Country</div>
           </div>
 
-          {/* Table Rows */}
           <div className="mt-4 space-y-3">
-            {items.map((item, idx) => (
-              <div
-                key={idx}
-                className="grid grid-cols-4 bg-white px-4 py-3 rounded-md border border-gray-200 text-black shadow-sm"
-              >
-                <div>{item.sellerName}</div>
-                <div>{item.itemName}</div>
-                <div>{item.subCategory}</div>
-                <div>{item.country}</div>
-              </div>
-            ))}
+            {loading ? (
+              <div className="text-center py-4">Loading...</div>
+            ) : (
+              items.map((item, idx) => (
+                <div
+                  key={idx}
+                  className="grid grid-cols-4 bg-white px-4 py-3 rounded-md border border-gray-200 text-black shadow-sm"
+                >
+                  <div>{item.sellerName}</div>
+                  <div>{item.itemName}</div>
+                  <div>{item.subCategory}</div>
+                  <div>{item.country}</div>
+                </div>
+              ))
+            )}
           </div>
         </div>
 
-        {/* Pagination */}
         <div className="flex justify-between items-center mt-6 text-sm">
-          {/* Page numbers */}
           <div className="flex items-center space-x-2 text-gray-700">
-            <button className="text-xl text-black font-bold">&lt;</button>
-            <button className="bg-[#B3DB48] text-black w-8 h-8 rounded-full font-bold font-[Nunito]">
-              1
+            <button
+              onClick={handlePrev}
+              className="text-xl text-black font-bold"
+              disabled={currentPage === 1}
+            >
+              &lt;
             </button>
-            <button className="hover:underline">2</button>
-            <button className="hover:underline">3</button>
-            <button className="hover:underline">4</button>
-            <span className="text-gray-500">....</span>
-            <button className="hover:underline">231</button>
-            <button className="text-xl text-black font-bold">&gt;</button>
+            {getPaginationNumbers().map((num) => (
+              <button
+                key={num}
+                className={`w-8 h-8 rounded-full font-[Nunito] font-bold ${
+                  currentPage === num
+                    ? "bg-[#B3DB48] text-black"
+                    : "hover:underline"
+                }`}
+                onClick={() => handlePageClick(num)}
+              >
+                {num}
+              </button>
+            ))}
+            <button
+              onClick={handleNext}
+              className="text-xl text-black font-bold"
+              disabled={currentPage === totalPages}
+            >
+              &gt;
+            </button>
           </div>
 
-          {/* Go to page */}
           <div className="flex items-center gap-2 text-gray-700">
             <span>Go to page</span>
             <input
               type="number"
               placeholder="000"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleGoToPage(e);
+              }}
               className="w-16 px-2 py-1 border border-gray-300 rounded-md text-sm"
+              min={1}
+              max={totalPages}
             />
           </div>
         </div>

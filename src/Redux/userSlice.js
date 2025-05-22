@@ -5,7 +5,8 @@ import {
   fetchAgents,
   fetchItems,
   fetchSubItems,
-  addAgentAPI,
+  fetchUnapprovedUsers,
+  fetchProducts,
 } from "../services/userServices"; // make sure you have deleteUserById()
 
 // FETCH USER LIST
@@ -24,9 +25,9 @@ export const fetchUserList = createAsyncThunk(
 // FETCH AGENT LIST
 export const fetchAgentList = createAsyncThunk(
   "agentlist/fetch",
-  async ({page,limit}, { rejectWithValue }) => {
+  async (page, { rejectWithValue }) => {
     try {
-      const response = await fetchAgents({ page ,limit}); 
+      const response = await fetchAgents({ page }); 
       return response.data; 
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -34,6 +35,17 @@ export const fetchAgentList = createAsyncThunk(
   }
 );
 
+export const fetchUnapprovedUserList = createAsyncThunk(
+  "unapprovedList/fetch",
+  async (page, { rejectWithValue }) => {
+    try {
+      const response = await fetchUnapprovedUsers({ page }); 
+      return response.data; 
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
 
 // FETCH ITEMS LIST
 export const fetchItemList = createAsyncThunk(
@@ -50,30 +62,18 @@ export const fetchItemList = createAsyncThunk(
 );
 
 
-// export const fetchAddItemList = createAsyncThunk(
-//   "additemlist/fetch",
-//   async (_, { rejectWithValue }) => {
-//     try {
-//       const response = await fetchAddItems();
-//       return response;
-//     } catch (error) {
-//       return rejectWithValue(error.message || "Unable to fetch user list");
-//     }
-//   }
-// );
-
-
 export const fetchItemSubList = createAsyncThunk(
   "itemsublist/fetch",
-  async (_, { rejectWithValue }) => {
+  async ({ page = 1, search = "" }, { rejectWithValue }) => {
     try {
-      const response = await fetchSubItems();
+      const response = await fetchSubItems(page, search);
       return response;
     } catch (error) {
-      return rejectWithValue(error.message || "Unable to fetch user list");
+      return rejectWithValue(error.message || "Unable to fetch item sub list");
     }
   }
 );
+
 
 // DELETE USER
 export const deleteUser = createAsyncThunk(
@@ -91,32 +91,41 @@ export const addAgent=createAsyncThunk(
   "agent/add",
   async(agentData, {rejectWithValue})=>{
     try {
-      const response=await addAgentAPI(agentData)
+      const response=await addAgent(agentData)
       return response;
     } catch (error) {
       return rejectWithValue(error.message||"Unable to add agents")
     }
   }
 )
-// Inside userSlice.js
-export const fetchItemOptions = createAsyncThunk(
-  "user/fetchItemOptions",
-  async () => {
-    const response = await axios.get("/api/items"); // Replace with actual API
-    return response.data;
+
+export const fetchProductsList = createAsyncThunk(
+  "productslist/fetch",
+  async ({page}, { rejectWithValue }) => {
+    try {
+      console.log("data")
+      const response = await fetchProducts({page});
+      return response;
+    } catch (error) {
+      return rejectWithValue(error.message || "Unable to fetch user list");
+    }
   }
 );
+
+
 
 
 
 const UserSlice = createSlice({
   name: "user",
   initialState: {
-    userList: [],
-    agentList: [],
-    status: "",
-    error: "",
-  },
+  userList: [],
+  agentList: [],
+  itemsubList: [],
+  totalPages: 1,
+  status: "",
+  error: "",
+},
   reducers: {},
   extraReducers: (builder) => {
     builder
@@ -157,30 +166,31 @@ const UserSlice = createSlice({
       })
 
       .addCase(fetchItemSubList.pending, (state) => {
-        state.status = "loading";
-      })
-      .addCase(fetchItemSubList.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        state.itemsubList = action.payload.data.users;
-      })
-      .addCase(fetchItemSubList.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.error.message;
-      })
-      .addCase(addAgent.pending,(state)=>{
-        state.loading=true;
-        state.error=null;
-        state.successMessage=null;
-      })
-      .addCase(addAgent.fulfilled,(state, action)=>{
-        state.loading=false;
-        state.successMessage="Agent Added Successfully";
-        state.agentList.push(action.payload)
-      })
-      .addCase(addAgent.rejected,(state,action)=>{
-        state.loading=true;
-        state.error=action.payload
-      })
+      state.status = "loading";
+    })
+    .addCase(fetchItemSubList.fulfilled, (state, action) => {
+      state.status = "succeeded";
+      state.itemsubList = action.payload.data; 
+      state.totalPages = action.payload.totalPages || 1; 
+    })
+    .addCase(fetchItemSubList.rejected, (state, action) => {
+      state.status = "failed";
+      state.error = action.error.message;
+    })
+
+      
+     .addCase(fetchProductsList.pending, (state) => {
+      state.status = "loading";
+    })
+    .addCase(fetchProductsList.fulfilled, (state, action) => {
+      state.status = "succeeded";
+      state.productslist = action.payload.data; 
+      state.totalPages = action.payload.totalPages || 1; 
+    })
+    .addCase(fetchProductsList.rejected, (state, action) => {
+      state.status = "failed";
+      state.error = action.error.message;
+    })
 
       // Delete User
       .addCase(deleteUser.fulfilled, (state, action) => {

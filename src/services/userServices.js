@@ -13,8 +13,17 @@ export const fetchUser = async (user) => {
   return response;
 };
 
-export const fetchAgents = async ({page, limit}) => {
-  const response = await API.get(`/admin/agent/get-agents?page=${page}&limit=${limit}`);
+export const fetchApproveBuyerList = async (buyer) => {
+  const response = API.get(`/admin/auth/unapproved-users=${buyer}`);
+  return response;
+};
+
+export const fetchAgents = async ({page}) => {
+  const response = await API.get(`/admin/agent/get-agents?page=${page}`);
+  return response;
+};
+export const fetchUnapprovedUsers = async ({page}) => {
+  const response = await API.get(`admin/auth/unapproved-users?page=${page}`);
   return response;
 };
 
@@ -25,28 +34,26 @@ export const fetchItems = async ({page}) => {
 }
 
 
-export const fetchsellproducts = async ({page}) => {
-    console.log("hello")
-    const response = API.get(`product/get-products?page=${page}`)
-    return response
-}
-
-
-export const fetchSubItems = async (itemName) => {
-  const response = API.get(`product/item-sub-category/${itemName}`);
-  console.log(response);
-  const datas = await response.json();
-  return { data: datas.items, totalPages: datas.totalPages };
+export const fetchSubItems = async (page = 1, search = "") => {
+  const response = await API.get(`/items/get-subcategories?page=${page}&search=${search}`);
+  return {
+    data: response.data.items, // adjust based on actual response
+    totalPages: response.data.totalPages,
+  };
 };
 
 
-
+export const fetchProducts = async ({page}) => {
+    console.log("hello")
+    const response = API.get(`/product/get-products`)
+    return response
+}
 
 export const deleteUserById = async (id) => {
   const res = await axios.delete(`/admin/auth/api/users/${id}`);
   return res.data;
 };
-export const addAgentAPI=async(agentData)=>{
-    const response=API.post(`/admin/agent/add-agent`,agentData)
+export const addAgents=async(agentData)=>{
+    const response=await axios.post(`/admin/agent/add-agent`,agentData)
     return response.data;
 }
