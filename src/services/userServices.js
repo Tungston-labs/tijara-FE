@@ -38,7 +38,7 @@ export const fetchSubItems = async (itemName) => {
   const datas = await response.json();
   return { data: datas.items, totalPages: datas.totalPages };
 };
-
+console.log("Selected code is empty");
 
 
 

@@ -6,7 +6,7 @@ import { Modal, Input, message } from "antd";
 import SellerTableContent from "./SellerTable";
 import BuyerTable from "./BuyerTable";
 
-export default function SellerTable() {
+export default function UserTable() {
   const dispatch = useDispatch();
   const popupRef = useRef(null);
   const [formData, setFormData] = useState({
@@ -26,7 +26,7 @@ export default function SellerTable() {
   const [selectedSeller, setSelectedSeller] = useState(null);
   const [filter, setFilter] = useState("seller");
   const [isEditing, setIsEditing] = useState(false);
-  
+
   const { user, loading, error } = useSelector(
     (state) => state.user[filter + "s"]
   );
