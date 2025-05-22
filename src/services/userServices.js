@@ -63,3 +63,11 @@ export const fetchUsersAPI = async ({ role, search = "", page = 1, status = "" }
       );
   return response.data;
 };
+
+export const fetchPendingUsersAPI=async({role, search = "", page = 1, status = ""}) => {
+const response= await API.get(`/admin/auth/unapproved-users?role=${role}&search=${search}&page=${page}&status=${status}`
+  ); 
+  console.log("8888888",response)
+  return response.data;
+  
+}

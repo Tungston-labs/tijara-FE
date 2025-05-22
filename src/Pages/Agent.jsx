@@ -176,7 +176,7 @@ export default function AgentTable() {
       </div>
 
       {/* Table */}
-      <div className="max-w-6xl mx-auto bg-[#F6F9EF] rounded-lg p-4">
+      <div className="max-w-6xl mx-auto bg-[#F6F9EF] rounded-lg p-2 relative -left-40">
         <div className="grid grid-cols-6 font-[Nunito] font-bold text-black text-sm bg-white rounded-md shadow-sm py-3 px-4">
           <div>No</div>
           <div>Full Name</div>

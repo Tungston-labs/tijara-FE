@@ -8,6 +8,7 @@ import {
   addAgentAPI,
   editAgentAPI,
   fetchUsersAPI,
+  fetchPendingUsersAPI,
 } from "../services/userServices"; // make sure you have deleteUserById()
 
 // FETCH USER LIST
@@ -127,27 +128,47 @@ export const fetchUserList = createAsyncThunk(
   }
 );
 
+export const fetchPendingUsers = createAsyncThunk(
+  "users/pendingList",
+  async ({ role, search = "", page = 1, status = "" }, { rejectWithValue }) => {
+    try {
+      const data = await fetchPendingUsersAPI({ role, search, page, status });
+      console.log("sfhfsaffbhkajhafghfgjhkfbh", data);
+      return { role, data };
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data?.message || "Error fetching pending users"
+      );
+    }
+  }
+);
+
 const UserSlice = createSlice({
   name: "user",
   initialState: {
-      sellers : {
-    list: [],
-    loading: false,
-    error: null,
-    total: 0,
-    page: 1,
-    totalPages: 1,
-  },
-  buyers: {
-    list: [],
-    loading: false,
-    error: null,
-    total: 0,
-    page: 1,
-    totalPages: 1,
-  },
+    sellers: {
+      list: [],
+      loading: false,
+      error: null,
+      total: 0,
+      page: 1,
+      totalPages: 1,
+    },
+    buyers: {
+      list: [],
+      loading: false,
+      error: null,
+      total: 0,
+      page: 1,
+      totalPages: 1,
+    },
     agentList: [],
-    loading:false,
+    pending: {
+      buyers: [],
+      sellers: [],
+    },
+
+    loading: false,
     status: "",
     error: "",
   },
@@ -235,34 +256,49 @@ const UserSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-       .addCase(fetchUserList.pending, (state, action) => {
-      const role = action.meta.arg.role;
-      if (state[role + "s"]) {
-        state[role + "s"].loading = true;
-        state[role + "s"].error = null;
-      }
+      .addCase(fetchUserList.pending, (state, action) => {
+        const role = action.meta.arg.role;
+        if (state[role + "s"]) {
+          state[role + "s"].loading = true;
+          state[role + "s"].error = null;
+        }
+      })
+      .addCase(fetchUserList.fulfilled, (state, action) => {
+        const { role, data } = action.payload;
+        const { users, total, page, totalPages } = data;
+
+        state[role + "s"] = {
+          ...state[role + "s"],
+          list: users,
+          total,
+          page,
+          totalPages,
+          loading: false,
+          error: null,
+        };
+      })
+
+      .addCase(fetchUserList.rejected, (state, action) => {
+        const role = action.meta.arg.role;
+        if (state[role + "s"]) {
+          state[role + "s"].loading = false;
+          state[role + "s"].error = action.payload;
+        }
+      })
+     
+    .addCase(fetchPendingUsers.fulfilled, (state, action) => {
+      const role = action.meta.arg.role; // "seller" or "buyer"
+      const users = action.payload.data.data; // <-- The actual array
+      state.pending[`${role}s`] = users;
+      state.loading = false;
+      state.error = null;
     })
- .addCase(fetchUserList.fulfilled, (state, action) => {
-  const { role, data } = action.payload;
-  const { users, total, page, totalPages } = data;
-
-  state[role + "s"] = {
-    ...state[role + "s"],
-    list: users,
-    total,
-    page,
-    totalPages,
-    loading: false,
-    error: null,
-  };
-})
-
-    .addCase(fetchUserList.rejected, (state, action) => {
-      const role = action.meta.arg.role;
-      if (state[role + "s"]) {
-        state[role + "s"].loading = false;
-        state[role + "s"].error = action.payload;
-      }
+    .addCase(fetchPendingUsers.pending, (state) => {
+      state.loading = true;
+    })
+    .addCase(fetchPendingUsers.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.error.message;
     })
 
       // Delete User

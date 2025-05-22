@@ -1,73 +1,50 @@
 import { useState, useEffect, useRef } from "react";
 import { Filter } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
-// import useAxiosPrivate from "../Hooks/useAxiosPrivate";
-import { useSelector } from "react-redux";
+
+import { useDispatch, useSelector } from "react-redux";
+import { fetchPendingUsers } from "../Redux/userSlice";
 
 export default function ApproveBuyerTable() {
-  const navigate = useNavigate();
+  const dispatch=useDispatch()
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [buyers, setBuyers] = useState([]);
   const popupRef = useRef(null);
   const [search, setSearch] = useState("");
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+     const navigate = useNavigate();
 
-  // const[error, setError]=useState("")
-  const auth = useSelector((state) => state.auth); // ⬅️ Access auth state
-  console.log("Access Token from Redux:", auth.accessToken);
+  const [filter,setFilter]=useState("buyer")
 
-  //  const axiosPrivate = useAxiosPrivate();
-
-  useEffect(() => {
-    if (!auth.accessToken) return;
-
-    const fetchBuyers = async () => {
-      try {
-        const response = await axios.get(
-          "http://localhost:5000/admin/auth/unapproved-users",
-          
-          {
-            params: { role: "buyer", search, page, limit: 10 },
-            headers: { Authorization: `Bearer ${auth.accessToken}` },
-          }
-        );
-        setBuyers(response.data.data);
-        setTotalPages(response.data.totalPages);
-      } catch (error) {
-        console.error(
-          "Error fetching buyers data:",
-          error.response?.data || error.message
-        );
-      }
-    };
-
-    fetchBuyers();
-  }, [auth.accessToken, search, page]);
-console.log("Sending token to backend:", auth.accessToken);
-
-  const handleApprove = (userId) => {
-    axios
-      .post(
-        "http://localhost:5000/admin/auth/verify-user",
-        {
-          userId,
-          role: "buyer",
-          status: "approved",
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${auth.accessToken}`,
-          },
-          withCredentials: true,
-        }
-      )
-      .then(() => {
-        setBuyers((prev) => prev.filter((user) => user._id !== userId));
-      })
-      .catch((err) => console.error("Error approving buyer:", err));
+const { loading, error, pending } = useSelector((state) => state.user);
+const buyers = pending[filter + "s"];
+console.log(("buyerssrssdsdddsd",buyers))
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const response = await dispatch(fetchPendingUsers({ role: filter }));
+    console.log("Fetched users",response)
+      // console.log("Fetched data:", response); // <-- This will now show the actual result
+    } catch (err) {
+      console.error("Failed to fetch pending users:", err);
+    }
   };
+
+  fetchData();
+
+  const handleEsc = (e) => e.key === "Escape" && setIsFilterOpen(false);
+  const handleClickOutside = (e) => {
+    if (popupRef.current && !popupRef.current.contains(e.target)) {
+      setIsFilterOpen(false);
+    }
+  };
+
+  document.addEventListener("keydown", handleEsc);
+  document.addEventListener("mousedown", handleClickOutside);
+  return () => {
+    document.removeEventListener("keydown", handleEsc);
+    document.removeEventListener("mousedown", handleClickOutside);
+  };
+}, [filter, dispatch]);
+
 
   const handleFilterClick = (type) => {
     setIsFilterOpen(false);
@@ -164,7 +141,7 @@ console.log("Sending token to backend:", auth.accessToken);
               className="bg-white p-3 rounded-lg shadow-sm grid grid-cols-5 items-center text-sm"
             >
               <div>{index + 1}</div>
-              <div>{buyer.buyerName}</div>
+              <div>{buyer.name}</div>
               <div>{buyer.phone}</div>
               <div>{buyer.email}</div>
               <div className="text-right">
@@ -181,64 +158,7 @@ console.log("Sending token to backend:", auth.accessToken);
       </div>
 
       {/* Pagination */}
-  <div className="max-w-6xl mx-auto mt-6 flex items-center justify-between text-sm">
-  <div></div>
 
-  {/* Pagination Buttons */}
-  <div className="flex items-center gap-2">
-    {/* Previous */}
-    <button
-      onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-      disabled={page === 1}
-      className="w-6 h-6 rounded-full bg-white flex items-center justify-center"
-    >
-      {"<"}
-    </button>
-
-    {/* Page Numbers */}
-    {Array.from({ length: totalPages }, (_, i) => (
-      <button
-        key={i}
-        onClick={() => setPage(i + 1)}
-        className={`w-6 h-6 rounded-full ${
-          page === i + 1 ? "bg-[#B3DB48] text-white" : "bg-white"
-        }`}
-      >
-        {i + 1}
-      </button>
-    ))}
-
-    {/* Next */}
-    <button
-      onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
-      disabled={page === totalPages}
-      className="w-6 h-6 rounded-full bg-white flex items-center justify-center"
-    >
-      {">"}
-    </button>
-  </div>
-
-  {/* Go to page input */}
-  <div className="flex items-center gap-2">
-    <span>Go to page</span>
-    <input
-      type="number"
-      min="1"
-      max={totalPages}
-      onKeyDown={(e) => {
-        if (e.key === "Enter") {
-          const value = parseInt(e.target.value);
-          if (!isNaN(value) && value >= 1 && value <= totalPages) {
-            setPage(value);
-            e.target.value = "";
-          }
-        }
-      }}
-      placeholder="000"
-      className="w-12 px-2 py-1 rounded-md border text-center text-sm"
-    />
-  </div>
-</div>
 
     </div>
   );
