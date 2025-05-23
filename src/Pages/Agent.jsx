@@ -6,7 +6,7 @@ import { addAgent, editAgent, fetchAgentList } from "../Redux/userSlice";
 import Swal from 'sweetalert2';
 
 const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-const isValidPhone = (phone) => /^[0-9]{10}$/.test(phone); // Change based on your locale/format
+const isValidPhone = (phone) => /^[0-9]{10}$/.test(phone); 
 
 export default function AgentTable() {
   const dispatch = useDispatch();

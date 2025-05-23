@@ -12,20 +12,9 @@ import {
   fetchUsersAPI,
   fetchPendingUsersAPI,
   approveUsersAPI,
-} from "../services/userServices"; // make sure you have deleteUserById()
-
-// FETCH USER LIST
-// export const fetchUserList = createAsyncThunk(
-//   "userlist/fetch",
-//   async ({ user }, { rejectWithValue }) => {
-//     try {
-//       const response = await fetchUser(user);
-//       return response;
-//     } catch (error) {
-//       return rejectWithValue(error.message || "Unable to fetch user list");
-//     }
-//   }
-// );
+  editUserAPI,
+  addSubCategoryAPI,
+} from "../services/userServices";
 
 // FETCH AGENT LIST
 export const fetchAgentList = createAsyncThunk(
@@ -90,6 +79,18 @@ export const fetchItemSubList = createAsyncThunk(
   }
 );
 
+export const addSubCategory = createAsyncThunk(
+  "itemsub/addSubCategory",
+  async ({ name, itemNameId }, { rejectWithValue }) => {
+    try {
+      const response = await addSubCategoryAPI({ name, itemNameId });
+      return response.subCategory; // return only the subCategory part
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
 // DELETE USER
 export const deleteUser = createAsyncThunk(
   "user/delete",
@@ -98,7 +99,9 @@ export const deleteUser = createAsyncThunk(
       await deleteUserById({ role, id });
       return { id, role }; // returning both for reducer filtering if needed
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || "Unable to delete user");
+      return rejectWithValue(
+        error.response?.data?.message || "Unable to delete user"
+      );
     }
   }
 );
@@ -138,6 +141,20 @@ export const editAgent = createAsyncThunk(
     } catch (err) {
       return rejectWithValue(
         err.response?.data?.message || "Unable to edit agent"
+      );
+    }
+  }
+);
+
+export const editUser = createAsyncThunk(
+  "user/edit",
+  async ({ id, editData }, { rejectWithValue }) => {
+    try {
+      const data = await editUserAPI(id, editData);
+      return data;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data?.message || "Unable to edit user"
       );
     }
   }
@@ -205,13 +222,15 @@ const UserSlice = createSlice({
       page: 1,
       totalPages: 1,
     },
+    editedUser: null,
     agentList: [],
     pending: {
       buyers: [],
       sellers: [],
     },
-
+   
     itemsubList: [],
+    addSubCategoryStatus:'',
     loading: false,
     status: "",
     error: "",
@@ -227,17 +246,7 @@ const UserSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      // .addCase(fetchUserList.pending, (state) => {
-      //   state.status = "loading";
-      // })
-      // .addCase(fetchUserList.fulfilled, (state, action) => {
-      //   state.status = "succeeded";
-      //   state.userList = action.payload.data.users;
-      // })
-      // .addCase(fetchUserList.rejected, (state, action) => {
-      //   state.status = "failed";
-      //   state.error = action.error.message;
-      // })
+
       .addCase(fetchAgentList.pending, (state) => {
         state.status = "loading";
       })
@@ -267,14 +276,24 @@ const UserSlice = createSlice({
         state.status = "loading";
       })
       .addCase(fetchItemSubList.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        state.itemsubList = action.payload.data;
+        state.itemsubList = action.payload.data.subCategories;
         state.totalPages = action.payload.totalPages || 1;
       })
       .addCase(fetchItemSubList.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.error.message;
+        state.error = action.payload || "Something went wrong";
       })
+      .addCase(addSubCategory.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    })
+    .addCase(addSubCategory.fulfilled, (state, action) => {
+      state.loading = false;
+      state.itemsubList.push(action.payload);
+    })
+    .addCase(addSubCategory.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+    })
 
       .addCase(fetchProductsList.pending, (state) => {
         state.products.loading = true;
@@ -369,31 +388,50 @@ const UserSlice = createSlice({
       })
 
       .addCase(approveUsers.pending, (state) => {
-      state.loading = true;
-      state.status = "";
-      state.error = "";
-    })
-    .addCase(approveUsers.fulfilled, (state, action) => {
-      state.loading = false;
-      state.status = "success";
-      const { userId, role } = action.meta.arg;
+        state.loading = true;
+        state.status = "";
+        state.error = "";
+      })
+      .addCase(approveUsers.fulfilled, (state, action) => {
+        state.loading = false;
+        state.status = "success";
+        const { userId, role } = action.meta.arg;
 
-      if (role === "buyer") {
-        state.pending.buyers = state.pending.buyers.filter(user => user._id !== userId);
-      } else if (role === "seller") {
-        state.pending.sellers = state.pending.sellers.filter(user => user._id !== userId);
-      }
-    })
-    .addCase(approveUsers.rejected, (state, action) => {
-      state.loading = false;
-      state.status = "failed";
-      state.error = action.payload || "Failed to approve user.";
-    })
+        if (role === "buyer") {
+          state.pending.buyers = state.pending.buyers.filter(
+            (user) => user._id !== userId
+          );
+        } else if (role === "seller") {
+          state.pending.sellers = state.pending.sellers.filter(
+            (user) => user._id !== userId
+          );
+        }
+      })
+      .addCase(approveUsers.rejected, (state, action) => {
+        state.loading = false;
+        state.status = "failed";
+        state.error = action.payload || "Failed to approve user.";
+      })
+      .addCase(editUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(editUser.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        state.editedUser = action.payload;
+      })
+      .addCase(editUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || "Failed to edit user";
+      })
 
       // Delete User
-   .addCase(deleteUser.fulfilled, (state, action) => {
+      .addCase(deleteUser.fulfilled, (state, action) => {
         const { id, role } = action.payload;
-        state.pending[`${role}s`] = state.pending[`${role}s`].filter(user => user._id !== id);
+        state.pending[`${role}s`] = state.pending[`${role}s`].filter(
+          (user) => user._id !== id
+        );
       })
 
       .addCase(deleteUser.rejected, (state, action) => {

@@ -13,12 +13,7 @@ export default function ApproveSellerTable() {
   const popupRef = useRef(null);
   const [search, setSearch] = useState("");
 const [selectedSeller, setSelectedSeller] = useState(null);
-const [editName, setEditName] = useState("");
-const [editEmail, setEditEmail] = useState("");
-const [editPhone, setEditPhone] = useState("");
-const [editCompanyName, setEditCompanyName] = useState("");
-const [editTradeLicenseNumber, setEditTradeLicenseNumber] = useState("");
-const [showEditPopup, setShowEditPopup] = useState(false);
+
 
   const [filter,setFilter]=useState("seller")
 
@@ -31,7 +26,7 @@ useEffect(() => {
   const fetchData = async () => {
     try {
       const response = await dispatch(fetchPendingUsers({ role: filter }));
-
+     return response;
     } catch (err) {
       console.error("Failed to fetch pending users:", err);
     }
@@ -54,15 +49,6 @@ useEffect(() => {
   };
 }, [filter, dispatch]);
 
-const handleEditClick = (seller) => {
-  setSelectedSeller(seller);
-  setEditName(seller?.name || "");
-  setEditEmail(seller?.email || "");
-  setEditPhone(seller?.phone || "");
-  setEditCompanyName(seller?.companyName || "");
-  setEditTradeLicenseNumber(seller?.tradeLicenseNumber || "");
-  setShowEditPopup(true);
-};
 
   const handleFilterClick = (type) => {
     setIsFilterOpen(false);
@@ -84,7 +70,6 @@ const handleApprove = async (userId) => {
         payload: updatedBuyers,
       });
 
-      navigate("/user"); 
     } else {
       console.error("Failed to approve user:", resultAction.payload);
     }
@@ -159,8 +144,7 @@ const onDeleteClick = async (seller) => {
           <div>Licence number</div>
           <div>Company name</div>
          
-          <div>Edit</div>
-          <div>Delete</div>
+         
         </div>
 
         {/* Rows */}
@@ -178,37 +162,25 @@ const onDeleteClick = async (seller) => {
       <div>{seller.tradeLicenseNumber}</div>
       <div>{seller.companyName}</div>
 
-      {/* Edit Button */}
-      <div className="flex justify-center">
-        <button
-          onClick={() => handleEditClick(seller)}
-          className="text-[#B3DB48] hover:text-green-600"
-        >
-          <Pencil size={18} />
-        </button>
-      </div>
+    
        
-      {/* Delete Button */}
-      <div className="flex justify-center">
-        <button
-          onClick={() => onDeleteClick(seller)}
-          className="text-red-500 hover:text-red-700"
-        >
-          <Trash size={14} />
-        </button>
-      </div>
+     
       {/* View + Approve Button */}
       <div className="flex flex-col gap-2 items-center">
         <Eye
           className="text-[#B3DB48] w-5 h-5 cursor-pointer"
           onClick={() => navigate("/approvalForm")}
         />
+        </div>
+              <div className="flex flex-col gap-4 items-center">
+
         <button
           onClick={() => handleApprove(seller._id)}
-          className="bg-[#B3DB48] text-white px-4 py-1 rounded-md text-sm"
+          className="bg-[#B3DB48] text-white px-14 py-1 rounded-md text-sm"
         >
           Approve
         </button>
+        
       </div>
 
      

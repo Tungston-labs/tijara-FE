@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Pencil, Trash, Filter } from "lucide-react";
-import { fetchUserList, deleteUser } from "../Redux/userSlice";
+import { fetchUserList, deleteUser,  editUser } from "../Redux/userSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { Modal, Input, message } from "antd";
 import SellerTableContent from "./SellerTable";
@@ -9,33 +9,36 @@ import BuyerTable from "./BuyerTable";
 export default function UserTable() {
   const dispatch = useDispatch();
   const popupRef = useRef(null);
-  const [formData, setFormData] = useState({
-    managerName: "",
-    name: "",
-    companyName: "",
-    phone: "",
-    tradeLicenceNumber: "",
-    endDate: "",
-    paymentType: "",
-    email: "",
-  });
 
+  // Common fields + seller-only fields
+  const initialFormData = {
+    name: "",
+    phone: "",
+    email: "",
+    password: "",
+    profileImage: "",
+    // seller-only fields
+    managerName: "",
+    tradeLicenseNumber: "",
+    tradeLicenseCopy: "",
+    companyName: "",
+  };
+
+  const [formData, setFormData] = useState(initialFormData);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [showPopup, setShowPopup] = useState(false);
   const [showEditPopup, setShowEditPopup] = useState(false);
-  const [selectedSeller, setSelectedSeller] = useState(null);
-  const [filter, setFilter] = useState("seller");
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [filter, setFilter] = useState("seller"); // 'seller' or 'buyer'
   const [isEditing, setIsEditing] = useState(false);
 
-  const { user, loading, error } = useSelector(
-    (state) => state.user[filter + "s"]
-  );
+  // Get sellers and buyers from redux state
+  const sellers = useSelector((state) => state.user.sellers);
+  const buyers = useSelector((state) => state.user.buyers);
 
-  // Fetch data on filter change
+  // Fetch data when filter changes
   useEffect(() => {
-    const response = dispatch(fetchUserList({ role: filter }));
-
-    console.log(response);
+    dispatch(fetchUserList({ role: filter }));
+    
     const handleEsc = (e) => e.key === "Escape" && setIsFilterOpen(false);
     const handleClickOutside = (e) => {
       if (popupRef.current && !popupRef.current.contains(e.target)) {
@@ -51,51 +54,94 @@ export default function UserTable() {
     };
   }, [filter, dispatch]);
 
-  // Select from state based on filter
-  const sellers = useSelector((state) => state.user.sellers);
-  const buyers = useSelector((state) => state.user.buyers);
   // Delete Handler
-  const handleDeleteClick = (seller) => {
-    setShowPopup(true);
+  const handleDeleteClick = (user) => {
     Modal.confirm({
-      title: `Are you sure you want to delete ${seller.managerName}?`,
+      title: `Are you sure you want to delete ${user.name || user.managerName}?`,
       content: "This action cannot be undone.",
       okText: "Delete",
       cancelText: "Cancel",
       okButtonProps: { className: "bg-red-500 text-white hover:bg-red-600" },
       onOk: async () => {
         try {
-          await dispatch(deleteUser(seller._id)).unwrap();
+          await dispatch(deleteUser(user._id)).unwrap();
           message.success("User deleted successfully");
-          dispatch(fetchUserList({ user: filter }));
-        } catch(error) {
+          dispatch(fetchUserList({ role: filter }));
+        } catch (error) {
           message.error("Failed to delete user");
         }
       },
     });
   };
 
-  // Edit popup handler
-  const handleEditClick = (seller) => {
-    setSelectedSeller(seller);
-    setFormData({
-      managerName: seller.managerName || "",
-      sellerName: seller.sellerName || "",
-      companyName: seller.companyName || "",
-      phone: seller.phone || "",
-      licenceNumber: seller.tradeLicenseNumber || "",
-      email: seller.email || "",
-    });
+  // Edit Handler - load form data depending on role
+  const handleEditClick = (user) => {
+    setSelectedUser(user);
+    // Reset form data to initial, then overwrite
+    const baseData = {
+      name: user.name || "",
+      phone: user.phone || "",
+      email: user.email || "",
+      password: "", // leave blank on edit
+      profileImage: user.profileImage || "",
+    };
+
+    if (filter === "seller") {
+      setFormData({
+        ...baseData,
+        managerName: user.managerName || "",
+        tradeLicenseNumber: user.tradeLicenseNumber || "",
+        tradeLicenseCopy: user.tradeLicenseCopy || "",
+        companyName: user.companyName || "",
+      });
+    } else {
+      // buyer: only common fields
+      setFormData(baseData);
+    }
+
+    setIsEditing(true);
     setShowEditPopup(true);
   };
 
-  const handleEditToggle = () => setIsEditing((prev) => !prev);
-
-  const handleEditSave = () => {
-    console.log("Saved data:", formData);
-    setShowEditPopup(false);
+  // Toggle edit/save on modal button
+  const handleEditToggle = () => {
+    if (isEditing) {
+      // Save action
+      handleEditSave();
+    } else {
+      setIsEditing(true);
+    }
   };
 
+  // Save edited data to backend
+  const handleEditSave = async () => {
+    try {
+      // Prepare data to send
+      const updateData = { ...formData };
+      if (!updateData.password) {
+        delete updateData.password; // if password blank, don't send
+      }
+     console.log("Edit payload:", formData);
+      // Dispatch update action
+      await dispatch(
+        editUser({
+          id: selectedUser._id,
+          data: updateData,
+          role: filter,
+        })
+      ).unwrap();
+
+      message.success("User updated successfully");
+      setShowEditPopup(false);
+      setIsEditing(false);
+      setSelectedUser(null);
+      dispatch(fetchUserList({ role: filter })); // refresh list
+    } catch (error) {
+      message.error("Failed to update user");
+    }
+  };
+
+  // Form input change handler
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -104,6 +150,7 @@ export default function UserTable() {
     }));
   };
 
+  // Change filter (seller/buyer)
   const handleFilterClick = (type) => {
     setIsFilterOpen(false);
     setFilter(type.toLowerCase());
@@ -115,9 +162,7 @@ export default function UserTable() {
         <div className="max-w-6xl mx-auto flex items-center justify-between mb-4 relative">
           <div>
             <p className="text-gray-500 text-sm">Users &gt; {filter}</p>
-            <h2 className="text-2xl font-[Nunito] font-bold capitalize">
-              {filter}
-            </h2>
+            <h2 className="text-2xl font-[Nunito] font-bold capitalize">{filter}</h2>
           </div>
           <div className="relative">
             <button
@@ -158,66 +203,136 @@ export default function UserTable() {
         ) : (
           <BuyerTable
             buyers={buyers.list || []}
-            onEditClick={handleEditToggle}
+            onEditClick={handleEditClick}
             onDeleteClick={handleDeleteClick}
           />
         )}
       </div>
 
       {/* Edit Modal */}
-      <Modal
-        title=""
-        open={showEditPopup}
-        onOk={handleEditSave}
-        onCancel={() => setShowEditPopup(false)}
-        okText="Save"
-        cancelText="Cancel"
-      >
-        <div className="flex flex-col items-center mb-6">
-          <img
-            src="https://ui-avatars.com/api/?name=Ajay+Kumar&background=0D8ABC&color=fff&size=128"
-            alt="Profile"
-            className="w-24 h-24 rounded-full mb-3 object-cover"
+     <Modal
+  title=""
+  open={showEditPopup}
+  onCancel={() => {
+    setShowEditPopup(false);
+    setIsEditing(false);
+    setSelectedUser(null);
+  }}
+  footer={null}
+>
+
+
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+    {/* Common Fields */}
+    {[
+      { label: "Name", name: "name" },
+      { label: "Phone", name: "phone" },
+      { label: "Email", name: "email", type: "email" },
+      { label: "Password", name: "password", type: "password" },
+      { label: "Profile Image URL", name: "profileImage" },
+    ].map(({ label, name, type = "text" }) => (
+      <div key={name}>
+        <label className="text-sm font-semibold text-gray-700 block mb-1">
+          {label}
+        </label>
+        <input
+          type="text"
+          name="name"
+          value={formData.name}
+          onChange={handleChange}
+          readOnly={!isEditing}
+          placeholder={label}
+          className="w-full bg-[#F1F1F1] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2"
+        />
+      </div>
+    ))}
+
+    {/* Seller-only Fields */}
+    {filter === "seller" && (
+      <>
+        <div>
+          <label className="text-sm font-semibold text-gray-700 block mb-1">
+            Trade License Number
+          </label>
+          <input
+            type="text"
+            name="tradeLicenseNumber"
+            value={formData.tradeLicenseNumber}
+            onChange={handleChange}
+            readOnly={!isEditing}
+            placeholder="Trade License Number"
+            className="w-full bg-[#F1F1F1] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2"
           />
-          <h2 className="text-lg font-semibold">{formData.managerName}</h2>
-          <p className="text-gray-500 text-sm">{formData.companyName}</p>
         </div>
+        <div>
+          <label className="text-sm font-semibold text-gray-700 block mb-1">
+            Trade License Copy URL
+          </label>
+          <input
+            type="text"
+            name="tradeLicenseCopy"
+            value={formData.tradeLicenseCopy}
+            onChange={handleChange}
+            readOnly={!isEditing}
+            placeholder="Trade License Copy URL"
+            className="w-full bg-[#F1F1F1] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2"
+          />
+        </div>
+        <div>
+          <label className="text-sm font-semibold text-gray-700 block mb-1">
+            Company Name
+          </label>
+          <input
+            type="text"
+            name="companyName"
+            value={formData.companyName}
+            onChange={handleChange}
+            readOnly={!isEditing}
+            placeholder="Company Name"
+            className="w-full bg-[#F1F1F1] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2"
+          />
+        </div>
+        <div>
+          <label className="text-sm font-semibold text-gray-700 block mb-1">
+            Manager Name
+          </label>
+          <input
+            type="text"
+            name="managerName"
+            value={formData.managerName}
+            onChange={handleChange}
+            readOnly={!isEditing}
+            placeholder="Manager Name"
+            className="w-full bg-[#F1F1F1] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2"
+          />
+        </div>
+      </>
+    )}
+  </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-          {[
-            { label: "Manager Name", name: "managerName" },
-            { label: "Seller Name", name: "sellerName" },
-            { label: "Company Name", name: "companyName" },
-            { label: "Phone", name: "phone" },
-            { label: "Licence Number", name: "licenceNumber" },
-            { label: "Email ID", name: "email", type: "email" },
-          ].map(({ label, name, type = "text" }) => (
-            <div key={name}>
-              <label className="text-sm font-semibold text-gray-700 block mb-1">
-                {label}
-              </label>
-              <input
-                type={type}
-                name={name}
-                value={formData[name]}
-                onChange={handleChange}
-                readOnly={!isEditing}
-                className="w-full bg-[#F1F1F1] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2"
-              />
-            </div>
-          ))}
-        </div>
+  <div className="mt-6 w-full flex justify-end gap-4">
+    {isEditing && (
+      <button
+        onClick={() => {
+          setIsEditing(false);
+          setShowEditPopup(false);
+          setSelectedUser(null);
+        }}
+        className="bg-gray-300 text-gray-700 px-4 py-2 rounded-full font-[Nunito] font-bold"
+      >
+        Cancel
+      </button>
+    )}
+    <button
+      onClick={handleEditToggle}
+      className="bg-[#B3DB48] text-[#757575] px-4 py-2 rounded-full flex items-center gap-2 font-[Nunito] font-bold"
+    >
+      <Pencil size={16} />
+      {isEditing ? "Save" : "Edit"}
+    </button>
+  </div>
+</Modal>
 
-        <div className="mt-6 w-full flex justify-end">
-          <button
-            onClick={handleEditToggle}
-            className="bg-[#B3DB48] text-[#757575] px-4 py-2 rounded-full flex items-center gap-2 font-[Nunito] font-bold"
-          >
-            <Pencil size={16} />
-            {isEditing ? "Save" : "Edit"}
-          </button>
-        </div>
-      </Modal>
     </>
   );
 }

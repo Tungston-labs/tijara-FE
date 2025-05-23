@@ -37,7 +37,7 @@ export const fetchItems = async ({page}) => {
 export const fetchSubItems = async (page = 1, search = "") => {
   const response = await API.get(`/items/get-subcategories?page=${page}&search=${search}`);
   return {
-    data: response.data.items, // adjust based on actual response
+    data: response.data.subCategories,
     totalPages: response.data.totalPages,
   };
 };
@@ -83,6 +83,18 @@ export const approveUsersAPI = async ({ userId, role, status }) => {
     userId,
     role,
     status
+  });
+  return response.data;
+};
+export const editUserAPI = async (id, editData) => {
+  const response = await API.put(`/admin/auth/edit-user/${id}`, editData);
+  return response.data;
+};
+
+export const addSubCategoryAPI = async ({ name, itemNameId }) => {
+  const response = await axios.post("/items/add-subcategory", {
+    name,
+    itemNameId,
   });
   return response.data;
 };

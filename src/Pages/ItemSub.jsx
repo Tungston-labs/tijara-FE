@@ -1,7 +1,6 @@
-import { useState, useEffect, useRef } from "react";
-import { fetchItemSubList } from "../Redux/userSlice";
+import { useState, useEffect } from "react";
+import { addSubCategory, fetchItemSubList } from "../Redux/userSlice";
 import { useDispatch, useSelector } from "react-redux";
-import axios from "axios";
 
 export default function ItemNameList() {
   const dispatch = useDispatch();
@@ -10,20 +9,32 @@ export default function ItemNameList() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemName, setItemName] = useState("");
   const [subcategory, setSubCategory] = useState("");
-  const [items, setItems] = useState([]);   
+  const [itemNameId, setItemNameId] = useState("");
+  const [items, setItems] = useState([]);
   const [existingItems, setExistingItems] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
+  const [itemNameMap, setItemNameMap] = useState({}); // To map item name to ID
 
   const fetchPageItems = (page, itemNameFilter = "") => {
-    dispatch(fetchItemSubList({ page, itemName: itemNameFilter }))
+    dispatch(fetchItemSubList({ page, search: itemNameFilter }))
       .then((action) => {
         if (action.payload?.data) {
           setItems(action.payload.data);
           setTotalPages(action.payload.totalPages || 1);
 
-          const uniqueItems = Array.from(
-            new Set(action.payload.data.map((item) => item.item))
-          );
+          const itemMap = {};
+          const uniqueItems = [];
+
+          action.payload.data.forEach((item) => {
+            const name = item.itemName?.name;
+            const id = item.itemName?._id;
+            if (name && id && !itemMap[name]) {
+              itemMap[name] = id;
+              uniqueItems.push(name);
+            }
+          });
+
+          setItemNameMap(itemMap);
           setExistingItems(uniqueItems);
         }
       })
@@ -41,40 +52,16 @@ export default function ItemNameList() {
     fetchPageItems(1, itemName);
   };
 
-  const additems = async () => {
-    if (!itemName || !subcategory) return alert("Fill all fields");
+  const handleAddSubCategory = () => {
+    if (!subcategory || !itemName || !itemNameId) {
+      alert("Please enter a subcategory and make sure an item is selected");
+      return;
+    }
 
-    try {
-      const token = localStorage.getItem("token");
-
-      await axios.post(
-        "/api/item-sub-category",
-        { itemName, subcategory },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      fetchPageItems(currentPage, itemName);
-      setItemName("");
+    dispatch(addSubCategory({ name: subcategory, itemNameId })).then(() => {
       setSubCategory("");
-      setSuggestions([]);
-    } catch (error) {
-      console.error("Failed to add item:", error);
-      alert("Failed to add item");
-    }
-  };
-
-  const handleItemInput = (e) => {
-    const value = e.target.value;
-    setItemName(value);
-
-    if (value.length > 0) {
-      const matches = existingItems.filter((item) =>
-        item.toLowerCase().includes(value.toLowerCase())
-      );
-      setSuggestions(matches);
-    } else {
-      setSuggestions([]);
-    }
+      fetchPageItems(currentPage, itemName);
+    });
   };
 
   const handlePageClick = (page) => {
@@ -140,8 +127,29 @@ export default function ItemNameList() {
                   type="text"
                   placeholder="Enter Item name"
                   value={itemName}
-                  onChange={handleItemInput}
+                  onChange={(e) => {
+                    const input = e.target.value;
+                    setItemName(input);
+
+                    const filtered = existingItems.filter((item) =>
+                      item.toLowerCase().includes(input.toLowerCase())
+                    );
+                    setSuggestions(filtered);
+
+                    const matchedItem = existingItems.find(
+                      (item) => item.toLowerCase() === input.toLowerCase()
+                    );
+
+                    if (matchedItem) {
+                      setItemNameId(itemNameMap[matchedItem]);
+                    } else {
+                      setItemNameId("");
+                    }
+                  }}
                   onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                  onBlur={() => {
+                    setTimeout(() => setSuggestions([]), 100);
+                  }}
                   className="px-4 py-2 rounded-md border border-gray-300 bg-white text-black focus:outline-none w-[250px]"
                 />
                 {suggestions.length > 0 && (
@@ -152,6 +160,7 @@ export default function ItemNameList() {
                         className="px-3 py-2 cursor-pointer hover:bg-gray-100"
                         onClick={() => {
                           setItemName(suggestion);
+                          setItemNameId(itemNameMap[suggestion]);
                           setSuggestions([]);
                           handleSearch();
                         }}
@@ -162,6 +171,7 @@ export default function ItemNameList() {
                   </ul>
                 )}
               </div>
+
               <input
                 type="text"
                 placeholder="Enter Sub category"
@@ -172,8 +182,8 @@ export default function ItemNameList() {
                 className="px-4 py-2 rounded-md border border-gray-300 bg-white text-black focus:outline-none w-[250px]"
               />
               <button
+                onClick={handleAddSubCategory}
                 className="bg-[#B3DB48] text-black px-6 py-2 rounded-md font-[Nunito] font-bold"
-                onClick={additems}
               >
                 + Add
               </button>
@@ -194,8 +204,8 @@ export default function ItemNameList() {
                 key={idx}
                 className="grid grid-cols-2 bg-white px-4 py-3 rounded-md border border-gray-200 text-gray-700 shadow-sm"
               >
-                <div>{item.subCategory}</div>
-                <div>{item.item}</div>
+                <div>{item.name}</div>
+                <div>{item.itemName?.name}</div>
               </div>
             ))}
           </div>
@@ -204,7 +214,11 @@ export default function ItemNameList() {
         {/* Pagination */}
         <div className="flex justify-between items-center mt-6">
           <div className="flex items-center space-x-2 text-gray-700">
-            <button onClick={handlePrev} className="text-lg" disabled={currentPage === 1}>
+            <button
+              onClick={handlePrev}
+              className="text-lg"
+              disabled={currentPage === 1}
+            >
               &lt;
             </button>
             {getPaginationNumbers().map((num) => (

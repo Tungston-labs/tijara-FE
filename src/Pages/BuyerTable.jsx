@@ -1,9 +1,47 @@
 import { Pencil, Trash } from "lucide-react";
+import { useDispatch } from "react-redux";
+import { deleteUser, fetchUserList } from "../Redux/userSlice";
+import Swal from "sweetalert2";
 export default function BuyerTableContent({
   buyers,
-  onDeleteClick,
+
   onEditClick,
 }) {
+  const dispatch=useDispatch();
+  const onDeleteClick = async (buyer) => {
+    if (!window.confirm(`Delete ${buyer.name}?`)) return;
+  
+    try {
+      const result = await dispatch(
+        deleteUser({ role: "buyer", id: buyer._id })
+      );
+  
+      if (deleteUser.fulfilled.match(result)) {
+        Swal.fire({
+          icon: "success",
+          title: "Deleted!",
+          text: `${buyer.name} has been removed.`,
+          timer: 1500,
+          showConfirmButton: false,
+        });
+  
+        // Trigger parent refresh
+        dispatch(fetchUserList({ role: "buyer" }));
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Delete failed",
+          text: result.payload || "Something went wrong",
+        });
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: error.message || "Something went wrong",
+      });
+    }
+  };
   return (
     <div
       className="max-w-6xl mx-auto rounded-lg p-4"
