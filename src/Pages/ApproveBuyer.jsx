@@ -1,76 +1,49 @@
-
-
-
-
 import { useState, useEffect, useRef } from "react";
 import { Filter } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
 import { useDispatch, useSelector } from "react-redux";
 import { approveUsers, fetchPendingUsers } from "../Redux/userSlice";
 
 export default function ApproveBuyerTable() {
-  const dispatch=useDispatch()
+  const dispatch = useDispatch();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const popupRef = useRef(null);
   const [search, setSearch] = useState("");
-     const navigate = useNavigate();
+  const navigate = useNavigate();
+  const [filter, setFilter] = useState("buyer");
 
-  const [filter,setFilter]=useState("buyer")
+  const [page, setPage] = useState(1); // 🧩 Fix: Define `page`
+  const pageSize = 10; // Define how many buyers per page
+  const { loading, error, pending, totalPending } = useSelector((state) => state.user); // Assuming totalPending is from API
+  const buyers = pending[filter + "s"] || [];
 
-const { loading, error, pending } = useSelector((state) => state.user);
-const buyers = pending[filter + "s"];
-console.log(("buyerssrssdsdddsd",buyers))
-useEffect(() => {
-  const fetchData = async () => {
-    try {
-      const response = await dispatch(fetchPendingUsers({ role: filter }));
-    console.log("Fetched users",response)
-      // console.log("Fetched data:", response); // <-- This will now show the actual result
-    } catch (err) {
-      console.error("Failed to fetch pending users:", err);
-    }
-  };
+  const totalPages = Math.ceil((totalPending || buyers.length) / pageSize); // 🧩 Fix: Define totalPages safely
 
-  fetchData();
-
-  const handleEsc = (e) => e.key === "Escape" && setIsFilterOpen(false);
-  const handleClickOutside = (e) => {
-    if (popupRef.current && !popupRef.current.contains(e.target)) {
-      setIsFilterOpen(false);
-    }
-  };
-
-  document.addEventListener("keydown", handleEsc);
-  document.addEventListener("mousedown", handleClickOutside);
-  return () => {
-    document.removeEventListener("keydown", handleEsc);
-    document.removeEventListener("mousedown", handleClickOutside);
-  };
-}, [filter, dispatch]);
-
-
-  const handleFilterClick = (type) => {
-    setIsFilterOpen(false);
-    navigate(`/${type.toLowerCase()}`);
-  };
-
+  // 🧩 Fetch buyers
   useEffect(() => {
-    const handleEsc = (e) => {
-      if (e.key === "Escape") setIsFilterOpen(false);
+    const fetchData = async () => {
+      try {
+        await dispatch(fetchPendingUsers({ role: filter, page, limit: pageSize }));
+      } catch (err) {
+        console.error("Failed to fetch pending users:", err);
+      }
     };
+    fetchData();
+
+    const handleEsc = (e) => e.key === "Escape" && setIsFilterOpen(false);
     const handleClickOutside = (e) => {
       if (popupRef.current && !popupRef.current.contains(e.target)) {
         setIsFilterOpen(false);
       }
     };
+
     document.addEventListener("keydown", handleEsc);
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("keydown", handleEsc);
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
+  }, [filter, dispatch, page]);
 
   const handlePrev = () => {
     if (page > 1) setPage((prev) => prev - 1);
@@ -97,42 +70,39 @@ useEffect(() => {
     const visibleCount = 5;
     let start = Math.max(1, page - Math.floor(visibleCount / 2));
     let end = start + visibleCount - 1;
-
     if (end > totalPages) {
       end = totalPages;
       start = Math.max(1, end - visibleCount + 1);
     }
-
-    for (let i = start; i <= end; i++) {
-      pages.push(i);
-    }
-
+    for (let i = start; i <= end; i++) pages.push(i);
     return pages;
   };
-  
-const handleApprove = async (userId) => {
-  try {
-    const resultAction = await dispatch(
-      approveUsers({ userId, role: "buyer", status: "approved" })
-    );
 
-    if (approveUsers.fulfilled.match(resultAction)) {
-      console.log("User approved successfully:", resultAction.payload);
-
-      const updatedBuyers = buyers.filter((buyer) => buyer._id !== userId);
-      dispatch({
-        type: "user/updatePendingBuyers",
-        payload: updatedBuyers,
-      });
-
-      navigate("/user"); 
-    } else {
-      console.error("Failed to approve user:", resultAction.payload);
+  const handleApprove = async (userId) => {
+    try {
+      const resultAction = await dispatch(
+        approveUsers({ userId, role: "buyer", status: "approved" })
+      );
+      if (approveUsers.fulfilled.match(resultAction)) {
+        console.log("User approved successfully:", resultAction.payload);
+        const updatedBuyers = buyers.filter((buyer) => buyer._id !== userId);
+        dispatch({
+          type: "user/updatePendingBuyers",
+          payload: updatedBuyers,
+        });
+        navigate("/user");
+      } else {
+        console.error("Failed to approve user:", resultAction.payload);
+      }
+    } catch (error) {
+      console.error("Error dispatching approval:", error);
     }
-  } catch (error) {
-    console.error("Error dispatching approval:", error);
-  }
-};
+  };
+
+  const handleFilterClick = (type) => {
+    setIsFilterOpen(false);
+    navigate(`/${type.toLowerCase()}`);
+  };
 
   return (
     <div className="p-6 min-h-screen bg-[#E9E9E9] relative">
@@ -171,26 +141,9 @@ const handleApprove = async (userId) => {
         </div>
       </div>
 
-      {/* Search */}
-      <div className="flex items-center gap-2 mb-4">
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search by name or email"
-          className="px-3 py-2 border rounded-md text-sm"
-        />
-        <button
-          className="bg-[#B3DB48] text-white px-4 py-2 rounded-md"
-          onClick={() => setPage(1)}
-        >
-          Search
-        </button>
-      </div>
-
       {/* Table */}
       <div className="max-w-6xl mx-auto rounded-lg p-4" style={{ backgroundColor: "#F6F9EF" }}>
-        <div className="p-3 rounded-lg shadow-sm grid grid-cols-5 font-[Nunito] font-bold text-black text-sm text-left bg-[fff]">
+        <div className="p-3 rounded-lg shadow-sm grid grid-cols-5 font-[Nunito] font-bold text-black text-sm text-left bg-[#F9FAFB]">
           <div>No</div>
           <div>Buyer name</div>
           <div>Ph no</div>
@@ -203,7 +156,7 @@ const handleApprove = async (userId) => {
               key={buyer._id}
               className="bg-white p-3 rounded-lg shadow-sm grid grid-cols-5 items-center text-sm"
             >
-              <div>{index + 1}</div>
+              <div>{(page - 1) * pageSize + index + 1}</div>
               <div>{buyer.name}</div>
               <div>{buyer.phone}</div>
               <div>{buyer.email}</div>
@@ -223,12 +176,10 @@ const handleApprove = async (userId) => {
       {/* Pagination */}
       <div className="max-w-6xl mx-auto mt-6 flex items-center justify-between text-sm">
         <div></div>
-
         <div className="flex items-center space-x-2 text-gray-700">
           <button onClick={handlePrev} disabled={page === 1} className="text-lg">
             &lt;
           </button>
-
           {getPaginationNumbers().map((num) => (
             <button
               key={num}
@@ -240,12 +191,10 @@ const handleApprove = async (userId) => {
               {num}
             </button>
           ))}
-
           <button onClick={handleNext} disabled={page === totalPages} className="text-lg">
             &gt;
           </button>
         </div>
-
         <div className="flex items-center gap-2 text-sm text-gray-700">
           <span>Go to page</span>
           <input

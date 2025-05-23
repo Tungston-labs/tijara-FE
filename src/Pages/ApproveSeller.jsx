@@ -22,16 +22,17 @@ export default function ApproveSellerTable() {
   const [editCompanyName, setEditCompanyName] = useState("");
   const [editTradeLicenseNumber, setEditTradeLicenseNumber] = useState("");
   const [showEditPopup, setShowEditPopup] = useState(false);
-
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [filter, setFilter] = useState("seller");
 
   const { loading, error, pending } = useSelector((state) => state.user);
-  const sellers = pending[filter + "s"];
+  const sellers = pending[filter + "s"] || [];
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await dispatch(fetchPendingUsers({ role: filter }));
+        const response = await dispatch(fetchPendingUsers({ role: filter, page: currentPage }));
       } catch (err) {
         console.error("Failed to fetch pending users:", err);
       }
@@ -52,7 +53,7 @@ export default function ApproveSellerTable() {
       document.removeEventListener("keydown", handleEsc);
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [filter, dispatch]);
+  }, [filter, dispatch, currentPage]);
 
   const handleEditClick = (seller) => {
     setSelectedSeller(seller);
@@ -76,14 +77,8 @@ export default function ApproveSellerTable() {
       );
 
       if (approveUsers.fulfilled.match(resultAction)) {
-        console.log("User approved successfully:", resultAction.payload);
-
         const updatedBuyers = sellers.filter((buyer) => buyer._id !== userId);
-        dispatch({
-          type: "user/updatePendingBuyers",
-          payload: updatedBuyers,
-        });
-
+        dispatch({ type: "user/updatePendingBuyers", payload: updatedBuyers });
         navigate("/user");
       } else {
         console.error("Failed to approve user:", resultAction.payload);
@@ -92,6 +87,7 @@ export default function ApproveSellerTable() {
       console.error("Error dispatching approval:", error);
     }
   };
+
   const onDeleteClick = async (seller) => {
     if (!window.confirm(`Delete ${seller.name}?`)) return;
 
@@ -109,10 +105,30 @@ export default function ApproveSellerTable() {
     }
   };
 
+  const handlePrev = () => {
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
+  };
+
+  const handleNext = () => {
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  };
+
+  const handlePageClick = (pageNum) => {
+    setCurrentPage(pageNum);
+  };
+
+  const handleGoToPage = (e) => {
+    const page = Number(e.target.value);
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+      e.target.value = "";
+    }
+  };
+
   const getPaginationNumbers = () => {
     const pages = [];
     const visibleCount = 5;
-    let start = Math.max(1, page - Math.floor(visibleCount / 2));
+    let start = Math.max(1, currentPage - Math.floor(visibleCount / 2));
     let end = start + visibleCount - 1;
 
     if (end > totalPages) {
@@ -128,10 +144,9 @@ export default function ApproveSellerTable() {
   };
 
   return (
-    <div className="p-6 min-h-screen bg-[#E9E9E9] relative">
-      {/* Header */}
-      <div className="max-w-6xl mx-auto flex items-center justify-between mb-4 relative">
-        <div>
+    <div className="p-4 sm:p-6 min-h-screen bg-[#E9E9E9]">
+      <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4">
+        <div className="mb-2 sm:mb-0">
           <p className="text-gray-500 text-sm">Approval &gt; Seller</p>
           <h2 className="text-2xl font-[Nunito] font-bold">Seller</h2>
         </div>
@@ -164,12 +179,8 @@ export default function ApproveSellerTable() {
         </div>
       </div>
 
-      {/* Table */}
-      <div
-        className="max-w-6xl mx-auto rounded-lg p-4"
-        style={{ backgroundColor: "#F6F9EF" }}
-      >
-        <div className="p-4 rounded-lg shadow-sm grid grid-cols-9 font-[Nunito] font-bold text-black text-sm text-center px-4 bg-white">
+      <div className="max-w-6xl mx-auto rounded-lg p-2 sm:p-4 bg-[#F6F9EF] overflow-x-auto">
+        <div className="min-w-[768px] p-4 rounded-lg shadow-sm grid grid-cols-9 font-[Nunito] font-bold text-black text-sm text-center bg-[#F9FAFB]">
           <div>No</div>
           <div>Seller name</div>
           <div>Ph no</div>
@@ -180,167 +191,72 @@ export default function ApproveSellerTable() {
           <div>Delete</div>
         </div>
 
-        <div className="space-y-4 mt-3">
+        <div className="space-y-4 mt-3 min-w-[768px]">
           {sellers.map((seller, index) => (
             <div
               key={seller._id}
               className="bg-white p-3 rounded-lg shadow-sm grid grid-cols-9 items-center text-center text-sm"
             >
-              <div>{(page - 1) * 10 + index + 1}</div>
-              <div>{seller.sellerName}</div>
+              <div>{(currentPage - 1) * 10 + index + 1}</div>
+              <div>{seller.name}</div>
               <div>{seller.phone}</div>
               <div>{seller.email}</div>
               <div>{seller.tradeLicenseNumber}</div>
               <div>{seller.companyName}</div>
-              <div>
-                <div className="space-y-4 mt-3">
-                  {sellers.map((seller, index) => (
-                    <div
-                      key={seller._id}
-                      className="bg-white p-3 rounded-lg shadow-sm grid grid-cols-9 items-center text-center text-sm"
-                    >
-                      <div>{index + 1}</div>
-                      <div>{seller.name}</div>
-                      <div>{seller.phone}</div>
-                      <div>{seller.email}</div>
-                      <div>{seller.tradeLicenseNumber}</div>
-                      <div>{seller.companyName}</div>
-
-                      {/* Edit Button */}
-                      <div className="flex justify-center">
-                        <button
-                          onClick={() => handleEditClick(seller)}
-                          className="text-[#B3DB48] hover:text-green-600"
-                        >
-                          <Pencil size={18} />
-                        </button>
-                      </div>
-
-                      {/* Delete Button */}
-                      <div className="flex justify-center">
-                        <button
-                          onClick={() => onDeleteClick(seller)}
-                          className="text-red-500 hover:text-red-700"
-                        >
-                          <Trash size={14} />
-                        </button>
-                      </div>
-                      {/* View + Approve Button */}
-                      <div className="flex flex-col gap-2 items-center">
-                        <Eye
-                          className="text-[#B3DB48] w-5 h-5 cursor-pointer"
-                          onClick={() => navigate("/approvalForm")}
-                        />
-                        <button
-                          onClick={() => handleApprove(seller._id)}
-                          className="bg-[#B3DB48] text-white px-4 py-1 rounded-md text-sm"
-                        >
-                          Approve
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+              <div className="flex justify-center">
+                <button onClick={() => handleEditClick(seller)} className="text-[#B3DB48] hover:text-green-600">
+                  <Pencil size={18} />
+                </button>
+              </div>
+              <div className="flex justify-center">
+                <button onClick={() => onDeleteClick(seller)} className="text-red-500 hover:text-red-700">
+                  <Trash size={14} />
+                </button>
+              </div>
+              <div className="flex flex-col gap-2 items-center">
+                <Eye className="text-[#B3DB48] w-5 h-5 cursor-pointer" onClick={() => navigate("/approvalForm")} />
+                <button onClick={() => handleApprove(seller._id)} className="bg-[#B3DB48] text-white px-4 py-1 rounded-md text-sm">
+                  Approve
+                </button>
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Pagination */}
-      <div className="max-w-6xl mx-auto mt-6 flex items-center justify-between text-sm">
-        <div></div>
-        <div className="flex items-center gap-2">
-          <button
-            className="w-6 h-6 rounded-full bg-white flex items-center justify-center"
-            onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-            disabled={page === 1}
-          >
-            {"<"}
+      <div className="flex flex-col sm:flex-row justify-between items-center mt-6 gap-4">
+        <div className="flex items-center space-x-2 text-gray-700">
+          <button onClick={handlePrev} className="text-lg" disabled={currentPage === 1}>
+            &lt;
           </button>
-
           {getPaginationNumbers().map((num) => (
             <button
               key={num}
-              onClick={() => setPage(num)}
-              className={`w-6 h-6 rounded-full ${
-                page === num ? "bg-[#B3DB48] text-white" : "bg-white"
+              className={`w-8 h-8 rounded-full font-[Nunito] font-bold ${
+                currentPage === num ? "bg-[#B3DB48] text-black" : "hover:underline"
               }`}
+              onClick={() => handlePageClick(num)}
             >
               {num}
             </button>
           ))}
-
-          <button
-            className="w-6 h-6 rounded-full bg-white flex items-center justify-center"
-            onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
-            disabled={page === totalPages}
-          >
-            {">"}
+          <button onClick={handleNext} className="text-lg" disabled={currentPage === totalPages}>
+            &gt;
           </button>
         </div>
-        <div className="flex items-center gap-2">
+
+        <div className="flex items-center gap-2 text-sm text-gray-700">
           <span>Go to page</span>
           <input
-            type="text"
-            value={gotoPage}
-            onChange={(e) => setGotoPage(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") handleGoToPage();
-            }}
+            type="number"
             placeholder="000"
-            className="w-12 px-2 py-1 rounded-md border text-center text-sm"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleGoToPage(e);
+            }}
+            className="w-16 px-2 py-1 border border-gray-300 rounded-md text-sm"
+            min={1}
+            max={totalPages}
           />
-        </div>
-        {/* Rows */}
-        {/* Table Rows */}
-        <div className="space-y-4 mt-3">
-          {sellers.map((seller, index) => (
-            <div
-              key={seller._id}
-              className="bg-white p-3 rounded-lg shadow-sm grid grid-cols-9 items-center text-center text-sm"
-            >
-              <div>{index + 1}</div>
-              <div>{seller.name}</div>
-              <div>{seller.phone}</div>
-              <div>{seller.email}</div>
-              <div>{seller.tradeLicenseNumber}</div>
-              <div>{seller.companyName}</div>
-
-              {/* Edit Button */}
-              <div className="flex justify-center">
-                <button
-                  onClick={() => handleEditClick(seller)}
-                  className="text-[#B3DB48] hover:text-green-600"
-                >
-                  <Pencil size={18} />
-                </button>
-              </div>
-
-              {/* Delete Button */}
-              <div className="flex justify-center">
-                <button
-                  onClick={() => onDeleteClick(seller)}
-                  className="text-red-500 hover:text-red-700"
-                >
-                  <Trash size={14} />
-                </button>
-              </div>
-              {/* View + Approve Button */}
-              <div className="flex flex-col gap-2 items-center">
-                <Eye
-                  className="text-[#B3DB48] w-5 h-5 cursor-pointer"
-                  onClick={() => navigate("/approvalForm")}
-                />
-                <button
-                  onClick={() => handleApprove(seller._id)}
-                  className="bg-[#B3DB48] text-white px-4 py-1 rounded-md text-sm"
-                >
-                  Approve
-                </button>
-              </div>
-            </div>
-          ))}
         </div>
       </div>
     </div>

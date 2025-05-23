@@ -183,7 +183,7 @@ export default function ItemNameList() {
 
         {/* Table */}
         <div className="bg-[#F6F9EF] p-4 rounded-md shadow-sm">
-          <div className="grid grid-cols-2 bg-white px-4 py-3 rounded-md font-[Nunito] font-bold text-black border border-gray-200 shadow-sm">
+          <div className="grid grid-cols-2 bg-[#F9FAFB] px-4 py-3 rounded-md font-[Nunito] font-bold text-black border border-gray-200 shadow-sm">
             <div>Sub Category</div>
             <div>Item</div>
           </div>
