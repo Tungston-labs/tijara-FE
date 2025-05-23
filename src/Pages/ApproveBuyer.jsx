@@ -1,8 +1,11 @@
+
+
+
+
 import { useState, useEffect, useRef } from "react";
 import { Filter } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-// import useAxiosPrivate from "../Hooks/useAxiosPrivate";
 import { useSelector } from "react-redux";
 
 export default function ApproveBuyerTable() {
@@ -14,11 +17,8 @@ export default function ApproveBuyerTable() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  // const[error, setError]=useState("")
-  const auth = useSelector((state) => state.auth); // ⬅️ Access auth state
+  const auth = useSelector((state) => state.auth);
   console.log("Access Token from Redux:", auth.accessToken);
-
-  //  const axiosPrivate = useAxiosPrivate();
 
   useEffect(() => {
     if (!auth.accessToken) return;
@@ -27,7 +27,6 @@ export default function ApproveBuyerTable() {
       try {
         const response = await axios.get(
           "http://localhost:5000/admin/auth/unapproved-users",
-          
           {
             params: { role: "buyer", search, page, limit: 10 },
             headers: { Authorization: `Bearer ${auth.accessToken}` },
@@ -36,16 +35,12 @@ export default function ApproveBuyerTable() {
         setBuyers(response.data.data);
         setTotalPages(response.data.totalPages);
       } catch (error) {
-        console.error(
-          "Error fetching buyers data:",
-          error.response?.data || error.message
-        );
+        console.error("Error fetching buyers data:", error.response?.data || error.message);
       }
     };
 
     fetchBuyers();
   }, [auth.accessToken, search, page]);
-console.log("Sending token to backend:", auth.accessToken);
 
   const handleApprove = (userId) => {
     axios
@@ -57,9 +52,7 @@ console.log("Sending token to backend:", auth.accessToken);
           status: "approved",
         },
         {
-          headers: {
-            Authorization: `Bearer ${auth.accessToken}`,
-          },
+          headers: { Authorization: `Bearer ${auth.accessToken}` },
           withCredentials: true,
         }
       )
@@ -90,6 +83,44 @@ console.log("Sending token to backend:", auth.accessToken);
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  const handlePrev = () => {
+    if (page > 1) setPage((prev) => prev - 1);
+  };
+
+  const handleNext = () => {
+    if (page < totalPages) setPage((prev) => prev + 1);
+  };
+
+  const handlePageClick = (p) => {
+    setPage(p);
+  };
+
+  const handleGoToPage = (e) => {
+    const value = parseInt(e.target.value, 10);
+    if (!isNaN(value) && value >= 1 && value <= totalPages) {
+      setPage(value);
+      e.target.value = "";
+    }
+  };
+
+  const getPaginationNumbers = () => {
+    const pages = [];
+    const visibleCount = 5;
+    let start = Math.max(1, page - Math.floor(visibleCount / 2));
+    let end = start + visibleCount - 1;
+
+    if (end > totalPages) {
+      end = totalPages;
+      start = Math.max(1, end - visibleCount + 1);
+    }
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+
+    return pages;
+  };
 
   return (
     <div className="p-6 min-h-screen bg-[#E9E9E9] relative">
@@ -127,6 +158,8 @@ console.log("Sending token to backend:", auth.accessToken);
           )}
         </div>
       </div>
+
+      {/* Search */}
       <div className="flex items-center gap-2 mb-4">
         <input
           type="text"
@@ -137,17 +170,14 @@ console.log("Sending token to backend:", auth.accessToken);
         />
         <button
           className="bg-[#B3DB48] text-white px-4 py-2 rounded-md"
-          onClick={() => setPage(1)} // Reset to page 1 on new search
+          onClick={() => setPage(1)}
         >
           Search
         </button>
       </div>
+
       {/* Table */}
-      <div
-        className="max-w-6xl  mx-auto rounded-lg p-4"
-        style={{ backgroundColor: "#F6F9EF" }}
-      >
-        {/* Table Header */}
+      <div className="max-w-6xl mx-auto rounded-lg p-4" style={{ backgroundColor: "#F6F9EF" }}>
         <div className="p-3 rounded-lg shadow-sm grid grid-cols-5 font-[Nunito] font-bold text-black text-sm text-left bg-[fff]">
           <div>No</div>
           <div>Buyer name</div>
@@ -155,8 +185,6 @@ console.log("Sending token to backend:", auth.accessToken);
           <div>Email id</div>
           <div></div>
         </div>
-
-        {/* Table Rows */}
         <div className="space-y-3 mt-3">
           {buyers.map((buyer, index) => (
             <div
@@ -181,65 +209,45 @@ console.log("Sending token to backend:", auth.accessToken);
       </div>
 
       {/* Pagination */}
-  <div className="max-w-6xl mx-auto mt-6 flex items-center justify-between text-sm">
-  <div></div>
+      <div className="max-w-6xl mx-auto mt-6 flex items-center justify-between text-sm">
+        <div></div>
 
-  {/* Pagination Buttons */}
-  <div className="flex items-center gap-2">
-    {/* Previous */}
-    <button
-      onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-      disabled={page === 1}
-      className="w-6 h-6 rounded-full bg-white flex items-center justify-center"
-    >
-      {"<"}
-    </button>
+        <div className="flex items-center space-x-2 text-gray-700">
+          <button onClick={handlePrev} disabled={page === 1} className="text-lg">
+            &lt;
+          </button>
 
-    {/* Page Numbers */}
-    {Array.from({ length: totalPages }, (_, i) => (
-      <button
-        key={i}
-        onClick={() => setPage(i + 1)}
-        className={`w-6 h-6 rounded-full ${
-          page === i + 1 ? "bg-[#B3DB48] text-white" : "bg-white"
-        }`}
-      >
-        {i + 1}
-      </button>
-    ))}
+          {getPaginationNumbers().map((num) => (
+            <button
+              key={num}
+              className={`w-8 h-8 rounded-full font-[Nunito] font-bold ${
+                page === num ? "bg-[#B3DB48] text-black" : "hover:underline"
+              }`}
+              onClick={() => handlePageClick(num)}
+            >
+              {num}
+            </button>
+          ))}
 
-    {/* Next */}
-    <button
-      onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
-      disabled={page === totalPages}
-      className="w-6 h-6 rounded-full bg-white flex items-center justify-center"
-    >
-      {">"}
-    </button>
-  </div>
+          <button onClick={handleNext} disabled={page === totalPages} className="text-lg">
+            &gt;
+          </button>
+        </div>
 
-  {/* Go to page input */}
-  <div className="flex items-center gap-2">
-    <span>Go to page</span>
-    <input
-      type="number"
-      min="1"
-      max={totalPages}
-      onKeyDown={(e) => {
-        if (e.key === "Enter") {
-          const value = parseInt(e.target.value);
-          if (!isNaN(value) && value >= 1 && value <= totalPages) {
-            setPage(value);
-            e.target.value = "";
-          }
-        }
-      }}
-      placeholder="000"
-      className="w-12 px-2 py-1 rounded-md border text-center text-sm"
-    />
-  </div>
-</div>
-
+        <div className="flex items-center gap-2 text-sm text-gray-700">
+          <span>Go to page</span>
+          <input
+            type="number"
+            placeholder="000"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleGoToPage(e);
+            }}
+            className="w-16 px-2 py-1 border border-gray-300 rounded-md text-sm"
+            min={1}
+            max={totalPages}
+          />
+        </div>
+      </div>
     </div>
   );
 }
