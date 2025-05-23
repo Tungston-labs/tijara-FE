@@ -5,62 +5,50 @@
 import { useState, useEffect, useRef } from "react";
 import { Filter } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import { useSelector } from "react-redux";
+
+import { useDispatch, useSelector } from "react-redux";
+import { approveUsers, fetchPendingUsers } from "../Redux/userSlice";
 
 export default function ApproveBuyerTable() {
-  const navigate = useNavigate();
+  const dispatch=useDispatch()
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [buyers, setBuyers] = useState([]);
   const popupRef = useRef(null);
   const [search, setSearch] = useState("");
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+     const navigate = useNavigate();
 
-  const auth = useSelector((state) => state.auth);
-  console.log("Access Token from Redux:", auth.accessToken);
+  const [filter,setFilter]=useState("buyer")
 
-  useEffect(() => {
-    if (!auth.accessToken) return;
-
-    const fetchBuyers = async () => {
-      try {
-        const response = await axios.get(
-          "http://localhost:5000/admin/auth/unapproved-users",
-          {
-            params: { role: "buyer", search, page, limit: 10 },
-            headers: { Authorization: `Bearer ${auth.accessToken}` },
-          }
-        );
-        setBuyers(response.data.data);
-        setTotalPages(response.data.totalPages);
-      } catch (error) {
-        console.error("Error fetching buyers data:", error.response?.data || error.message);
-      }
-    };
-
-    fetchBuyers();
-  }, [auth.accessToken, search, page]);
-
-  const handleApprove = (userId) => {
-    axios
-      .post(
-        "http://localhost:5000/admin/auth/verify-user",
-        {
-          userId,
-          role: "buyer",
-          status: "approved",
-        },
-        {
-          headers: { Authorization: `Bearer ${auth.accessToken}` },
-          withCredentials: true,
-        }
-      )
-      .then(() => {
-        setBuyers((prev) => prev.filter((user) => user._id !== userId));
-      })
-      .catch((err) => console.error("Error approving buyer:", err));
+const { loading, error, pending } = useSelector((state) => state.user);
+const buyers = pending[filter + "s"];
+console.log(("buyerssrssdsdddsd",buyers))
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const response = await dispatch(fetchPendingUsers({ role: filter }));
+    console.log("Fetched users",response)
+      // console.log("Fetched data:", response); // <-- This will now show the actual result
+    } catch (err) {
+      console.error("Failed to fetch pending users:", err);
+    }
   };
+
+  fetchData();
+
+  const handleEsc = (e) => e.key === "Escape" && setIsFilterOpen(false);
+  const handleClickOutside = (e) => {
+    if (popupRef.current && !popupRef.current.contains(e.target)) {
+      setIsFilterOpen(false);
+    }
+  };
+
+  document.addEventListener("keydown", handleEsc);
+  document.addEventListener("mousedown", handleClickOutside);
+  return () => {
+    document.removeEventListener("keydown", handleEsc);
+    document.removeEventListener("mousedown", handleClickOutside);
+  };
+}, [filter, dispatch]);
+
 
   const handleFilterClick = (type) => {
     setIsFilterOpen(false);
@@ -121,6 +109,30 @@ export default function ApproveBuyerTable() {
 
     return pages;
   };
+  
+const handleApprove = async (userId) => {
+  try {
+    const resultAction = await dispatch(
+      approveUsers({ userId, role: "buyer", status: "approved" })
+    );
+
+    if (approveUsers.fulfilled.match(resultAction)) {
+      console.log("User approved successfully:", resultAction.payload);
+
+      const updatedBuyers = buyers.filter((buyer) => buyer._id !== userId);
+      dispatch({
+        type: "user/updatePendingBuyers",
+        payload: updatedBuyers,
+      });
+
+      navigate("/user"); 
+    } else {
+      console.error("Failed to approve user:", resultAction.payload);
+    }
+  } catch (error) {
+    console.error("Error dispatching approval:", error);
+  }
+};
 
   return (
     <div className="p-6 min-h-screen bg-[#E9E9E9] relative">
@@ -192,7 +204,7 @@ export default function ApproveBuyerTable() {
               className="bg-white p-3 rounded-lg shadow-sm grid grid-cols-5 items-center text-sm"
             >
               <div>{index + 1}</div>
-              <div>{buyer.buyerName}</div>
+              <div>{buyer.name}</div>
               <div>{buyer.phone}</div>
               <div>{buyer.email}</div>
               <div className="text-right">

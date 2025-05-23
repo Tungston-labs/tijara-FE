@@ -15,9 +15,9 @@ export default function UserTable() {
     companyName: "",
     phone: "",
     tradeLicenceNumber: "",
-    expiryDate: "",
+    endDate: "",
     paymentType: "",
-    mail: "",
+    email: "",
   });
 
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -54,7 +54,6 @@ export default function UserTable() {
   // Select from state based on filter
   const sellers = useSelector((state) => state.user.sellers);
   const buyers = useSelector((state) => state.user.buyers);
-
   // Delete Handler
   const handleDeleteClick = (seller) => {
     setShowPopup(true);
@@ -69,7 +68,7 @@ export default function UserTable() {
           await dispatch(deleteUser(seller._id)).unwrap();
           message.success("User deleted successfully");
           dispatch(fetchUserList({ user: filter }));
-        } catch (error) {
+        } catch(error) {
           message.error("Failed to delete user");
         }
       },
@@ -152,13 +151,13 @@ export default function UserTable() {
         {/* Table content based on filter */}
         {filter === "seller" ? (
           <SellerTableContent
-            sellers={sellers}
+            sellers={sellers.list || []}
             onEditClick={handleEditClick}
             onDeleteClick={handleDeleteClick}
           />
         ) : (
           <BuyerTable
-            buyers={buyers}
+            buyers={buyers.list || []}
             onEditClick={handleEditToggle}
             onDeleteClick={handleDeleteClick}
           />
