@@ -49,8 +49,8 @@ export const fetchProducts = async ({page}) => {
     return response
 }
 
-export const deleteUserById = async (id) => {
-  const res = await axios.delete(`/admin/auth/api/users/${id}`);
+export const deleteUserById = async ({ role, id }) => {
+  const res = API.delete(`/admin/auth/delete-user/${role}/${id}`);
   return res.data;
 };
 
@@ -74,7 +74,15 @@ export const fetchUsersAPI = async ({ role, search = "", page = 1, status = "" }
 export const fetchPendingUsersAPI=async({role, search = "", page = 1, status = ""}) => {
 const response= await API.get(`/admin/auth/unapproved-users?role=${role}&search=${search}&page=${page}&status=${status}`
   ); 
-  console.log("8888888",response)
   return response.data;
   
 }
+
+export const approveUsersAPI = async ({ userId, role, status }) => {
+  const response = await API.post('admin/auth/verify-user', {
+    userId,
+    role,
+    status
+  });
+  return response.data;
+};

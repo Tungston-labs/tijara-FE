@@ -11,6 +11,7 @@ import {
   editAgentAPI,
   fetchUsersAPI,
   fetchPendingUsersAPI,
+  approveUsersAPI,
 } from "../services/userServices"; // make sure you have deleteUserById()
 
 // FETCH USER LIST
@@ -92,12 +93,12 @@ export const fetchItemSubList = createAsyncThunk(
 // DELETE USER
 export const deleteUser = createAsyncThunk(
   "user/delete",
-  async (userId, { rejectWithValue }) => {
+  async ({ role, id }, { rejectWithValue }) => {
     try {
-      const response = await deleteUserById(userId); // calls your API
-      return { userId }; // or response if your API returns more
+      await deleteUserById({ role, id });
+      return { id, role }; // returning both for reducer filtering if needed
     } catch (error) {
-      return rejectWithValue(error.message || "Unable to delete user");
+      return rejectWithValue(error.response?.data?.message || "Unable to delete user");
     }
   }
 );
@@ -171,6 +172,20 @@ export const fetchPendingUsers = createAsyncThunk(
   }
 );
 
+export const approveUsers = createAsyncThunk(
+  "users/approve",
+  async ({ userId, role, status }, { rejectWithValue }) => {
+    try {
+      const data = await approveUsersAPI({ userId, role, status });
+      return data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Error in approving user"
+      );
+    }
+  }
+);
+
 const UserSlice = createSlice({
   name: "user",
   initialState: {
@@ -201,14 +216,14 @@ const UserSlice = createSlice({
     status: "",
     error: "",
     products: {
-    items: [],
-    loading: false,
-    error: null,
-    currentPage: 1,
-    totalPages: 1,
+      items: [],
+      loading: false,
+      error: null,
+      currentPage: 1,
+      totalPages: 1,
+    },
   },
-  },
-  
+
   reducers: {},
   extraReducers: (builder) => {
     builder
@@ -337,28 +352,52 @@ const UserSlice = createSlice({
           state[role + "s"].error = action.payload;
         }
       })
-     
-    .addCase(fetchPendingUsers.fulfilled, (state, action) => {
-      const role = action.meta.arg.role; // "seller" or "buyer"
-      const users = action.payload.data.data; // <-- The actual array
-      state.pending[`${role}s`] = users;
-      state.loading = false;
-      state.error = null;
-    })
-    .addCase(fetchPendingUsers.pending, (state) => {
+
+      .addCase(fetchPendingUsers.fulfilled, (state, action) => {
+        const role = action.meta.arg.role; // "seller" or "buyer"
+        const users = action.payload.data.data; // <-- The actual array
+        state.pending[`${role}s`] = users;
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(fetchPendingUsers.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchPendingUsers.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+
+      .addCase(approveUsers.pending, (state) => {
       state.loading = true;
+      state.status = "";
+      state.error = "";
     })
-    .addCase(fetchPendingUsers.rejected, (state, action) => {
+    .addCase(approveUsers.fulfilled, (state, action) => {
       state.loading = false;
-      state.error = action.error.message;
+      state.status = "success";
+      const { userId, role } = action.meta.arg;
+
+      if (role === "buyer") {
+        state.pending.buyers = state.pending.buyers.filter(user => user._id !== userId);
+      } else if (role === "seller") {
+        state.pending.sellers = state.pending.sellers.filter(user => user._id !== userId);
+      }
+    })
+    .addCase(approveUsers.rejected, (state, action) => {
+      state.loading = false;
+      state.status = "failed";
+      state.error = action.payload || "Failed to approve user.";
     })
 
       // Delete User
-      .addCase(deleteUser.fulfilled, (state, action) => {
-        const deletedId = action.payload.userId;
-        state.userList = state.userList.filter(
-          (user) => user._id !== deletedId
-        );
+   .addCase(deleteUser.fulfilled, (state, action) => {
+        const { id, role } = action.payload;
+        state.pending[`${role}s`] = state.pending[`${role}s`].filter(user => user._id !== id);
+      })
+
+      .addCase(deleteUser.rejected, (state, action) => {
+        state.error = action.payload;
       });
   },
 });

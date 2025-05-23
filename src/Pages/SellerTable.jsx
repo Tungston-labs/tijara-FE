@@ -38,7 +38,7 @@ export default function SellerTableContent({
                 className="text-[#B3DB48] font-[Nunito] cursor-pointer hover:underline"
                 onClick={() => navigate(`/profile`)}
               >
-                {seller.managerName}
+                {seller.name}
               </div>
 
               <div className="text-gray-700">{seller.phone}</div>

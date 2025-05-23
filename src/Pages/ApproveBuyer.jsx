@@ -3,7 +3,7 @@ import { Filter } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 import { useDispatch, useSelector } from "react-redux";
-import { fetchPendingUsers } from "../Redux/userSlice";
+import { approveUsers, fetchPendingUsers } from "../Redux/userSlice";
 
 export default function ApproveBuyerTable() {
   const dispatch=useDispatch()
@@ -67,6 +67,31 @@ useEffect(() => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  
+const handleApprove = async (userId) => {
+  try {
+    const resultAction = await dispatch(
+      approveUsers({ userId, role: "buyer", status: "approved" })
+    );
+
+    if (approveUsers.fulfilled.match(resultAction)) {
+      console.log("User approved successfully:", resultAction.payload);
+
+      const updatedBuyers = buyers.filter((buyer) => buyer._id !== userId);
+      dispatch({
+        type: "user/updatePendingBuyers",
+        payload: updatedBuyers,
+      });
+
+      navigate("/user"); 
+    } else {
+      console.error("Failed to approve user:", resultAction.payload);
+    }
+  } catch (error) {
+    console.error("Error dispatching approval:", error);
+  }
+};
 
   return (
     <div className="p-6 min-h-screen bg-[#E9E9E9] relative">

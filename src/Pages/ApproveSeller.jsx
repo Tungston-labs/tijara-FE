@@ -3,7 +3,8 @@ import { useState, useEffect, useRef } from "react";
 import { Eye, Filter } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchPendingUsers } from "../Redux/userSlice";
+import { approveUsers, deleteUser, fetchPendingUsers } from "../Redux/userSlice";
+import { Pencil, Trash } from "lucide-react";
 
 export default function ApproveSellerTable() {
   const dispatch=useDispatch();
@@ -11,7 +12,14 @@ export default function ApproveSellerTable() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const popupRef = useRef(null);
   const [search, setSearch] = useState("");
- 
+const [selectedSeller, setSelectedSeller] = useState(null);
+const [editName, setEditName] = useState("");
+const [editEmail, setEditEmail] = useState("");
+const [editPhone, setEditPhone] = useState("");
+const [editCompanyName, setEditCompanyName] = useState("");
+const [editTradeLicenseNumber, setEditTradeLicenseNumber] = useState("");
+const [showEditPopup, setShowEditPopup] = useState(false);
+
   const [filter,setFilter]=useState("seller")
 
 const { loading, error, pending } = useSelector((state) => state.user);
@@ -46,11 +54,58 @@ useEffect(() => {
   };
 }, [filter, dispatch]);
 
+const handleEditClick = (seller) => {
+  setSelectedSeller(seller);
+  setEditName(seller?.name || "");
+  setEditEmail(seller?.email || "");
+  setEditPhone(seller?.phone || "");
+  setEditCompanyName(seller?.companyName || "");
+  setEditTradeLicenseNumber(seller?.tradeLicenseNumber || "");
+  setShowEditPopup(true);
+};
 
   const handleFilterClick = (type) => {
     setIsFilterOpen(false);
     navigate(`/${type.toLowerCase()}`);
   };
+
+const handleApprove = async (userId) => {
+  try {
+    const resultAction = await dispatch(
+      approveUsers({ userId, role: "seller", status: "approved" })
+    );
+
+    if (approveUsers.fulfilled.match(resultAction)) {
+      console.log("User approved successfully:", resultAction.payload);
+
+      const updatedBuyers = sellers.filter((buyer) => buyer._id !== userId);
+      dispatch({
+        type: "user/updatePendingBuyers",
+        payload: updatedBuyers,
+      });
+
+      navigate("/user"); 
+    } else {
+      console.error("Failed to approve user:", resultAction.payload);
+    }
+  } catch (error) {
+    console.error("Error dispatching approval:", error);
+  }
+};
+const onDeleteClick = async (seller) => {
+  if (!window.confirm(`Delete ${seller.name}?`)) return;
+
+  try {
+    const result = await dispatch(deleteUser({ role: "seller", id: seller._id }));
+    if (deleteUser.fulfilled.match(result)) {
+      console.log("Deleted successfully:", result.payload);
+    } else {
+      console.error("Delete failed:", result.payload);
+    }
+  } catch (error) {
+    console.error("Error during delete:", error);
+  }
+};
 
 
   return (
@@ -116,13 +171,38 @@ useEffect(() => {
       key={seller._id}
       className="bg-white p-3 rounded-lg shadow-sm grid grid-cols-9 items-center text-center text-sm"
     >
-      <div>{index + 1}</div> {/* No */}
-      <div>{seller.name}</div> {/* Seller name */}
-      <div>{seller.phone}</div> {/* Ph no */}
-      <div>{seller.email}</div> {/* Email */}
-      <div>{seller.tradeLicenseNumber}</div> {/* Licence number */}
-      <div>{seller.companyName}</div> {/* Company name */}
-      <div>
+      <div>{index + 1}</div>
+      <div>{seller.name}</div>
+      <div>{seller.phone}</div>
+      <div>{seller.email}</div>
+      <div>{seller.tradeLicenseNumber}</div>
+      <div>{seller.companyName}</div>
+
+      {/* Edit Button */}
+      <div className="flex justify-center">
+        <button
+          onClick={() => handleEditClick(seller)}
+          className="text-[#B3DB48] hover:text-green-600"
+        >
+          <Pencil size={18} />
+        </button>
+      </div>
+       
+      {/* Delete Button */}
+      <div className="flex justify-center">
+        <button
+          onClick={() => onDeleteClick(seller)}
+          className="text-red-500 hover:text-red-700"
+        >
+          <Trash size={14} />
+        </button>
+      </div>
+      {/* View + Approve Button */}
+      <div className="flex flex-col gap-2 items-center">
+        <Eye
+          className="text-[#B3DB48] w-5 h-5 cursor-pointer"
+          onClick={() => navigate("/approvalForm")}
+        />
         <button
           onClick={() => handleApprove(seller._id)}
           className="bg-[#B3DB48] text-white px-4 py-1 rounded-md text-sm"
@@ -130,15 +210,12 @@ useEffect(() => {
           Approve
         </button>
       </div>
-      <div>
-        <Eye
-          className="text-[#B3DB48] w-5 h-5 mx-auto cursor-pointer"
-          onClick={() => navigate("/approvalForm")}
-        />
-      </div>
+
+     
     </div>
   ))}
 </div>
+
 
       </div>
 
