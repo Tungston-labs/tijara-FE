@@ -45,7 +45,7 @@ console.log("Selected code is empty");
 
 export const fetchProducts = async ({page}) => {
     console.log("hello")
-    const response = API.get(`/product/get-products`)
+    const response = API.get(`/product/get-products/${role}&page=${page}`)
     return response
 }
 

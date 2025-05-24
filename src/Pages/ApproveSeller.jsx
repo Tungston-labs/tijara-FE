@@ -15,10 +15,10 @@ export default function ApproveSellerTable() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const popupRef = useRef(null);
   const [search, setSearch] = useState("");
-  const [selectedSeller, setSelectedSeller] = useState(null);
 
   const [filter, setFilter] = useState("seller");
-
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const { loading, error, pending } = useSelector((state) => state.user);
   const sellers = pending[filter + "s"];
 
@@ -92,11 +92,48 @@ export default function ApproveSellerTable() {
     }
   };
 
+  const handlePrev = () => {
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
+  };
+
+  const handleNext = () => {
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  };
+
+  const handlePageClick = (pageNum) => {
+    setCurrentPage(pageNum);
+  };
+
+  const handleGoToPage = (e) => {
+    const page = Number(e.target.value);
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+      e.target.value = "";
+    }
+  };
+
+  const getPaginationNumbers = () => {
+    const pages = [];
+    const visibleCount = 5;
+    let start = Math.max(1, currentPage - Math.floor(visibleCount / 2));
+    let end = start + visibleCount - 1;
+
+    if (end > totalPages) {
+      end = totalPages;
+      start = Math.max(1, end - visibleCount + 1);
+    }
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+
+    return pages;
+  };
+
   return (
-    <div className="p-6 min-h-screen bg-[#E9E9E9] relative">
-      {/* Header */}
-      <div className="max-w-6xl mx-auto flex items-center justify-between mb-4 relative">
-        <div>
+    <div className="p-4 sm:p-6 min-h-screen bg-[#E9E9E9]">
+      <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4">
+        <div className="mb-2 sm:mb-0">
           <p className="text-gray-500 text-sm">Approval &gt; Seller</p>
           <h2 className="text-2xl font-[Nunito] font-bold">Seller</h2>
         </div>
@@ -129,13 +166,8 @@ export default function ApproveSellerTable() {
         </div>
       </div>
 
-      {/* Table */}
-      <div
-        className="max-w-6xl mx-auto rounded-lg p-4 "
-        style={{ backgroundColor: "#F6F9EF" }}
-      >
-        {/* Table Headers */}
-        <div className="p-4 rounded-lg shadow-sm grid grid-cols-9 font-[Nunito] font-bold text-black text-sm text-center px-4 bg-white">
+      <div className="max-w-6xl mx-auto rounded-lg p-2 sm:p-4 bg-[#F6F9EF] overflow-x-auto">
+        <div className="min-w-[768px] p-4 rounded-lg shadow-sm grid grid-cols-9 font-[Nunito] font-bold text-black text-sm text-center bg-[#F9FAFB]">
           <div>No</div>
           <div>Seller name</div>
           <div>Ph no</div>
@@ -176,6 +208,52 @@ export default function ApproveSellerTable() {
               </div>
             </div>
           ))}
+        </div>
+      </div>
+
+      <div className="flex flex-col sm:flex-row justify-between items-center mt-6 gap-4">
+        <div className="flex items-center space-x-2 text-gray-700">
+          <button
+            onClick={handlePrev}
+            className="text-lg"
+            disabled={currentPage === 1}
+          >
+            &lt;
+          </button>
+          {getPaginationNumbers().map((num) => (
+            <button
+              key={num}
+              className={`w-8 h-8 rounded-full font-[Nunito] font-bold ${
+                currentPage === num
+                  ? "bg-[#B3DB48] text-black"
+                  : "hover:underline"
+              }`}
+              onClick={() => handlePageClick(num)}
+            >
+              {num}
+            </button>
+          ))}
+          <button
+            onClick={handleNext}
+            className="text-lg"
+            disabled={currentPage === totalPages}
+          >
+            &gt;
+          </button>
+        </div>
+
+        <div className="flex items-center gap-2 text-sm text-gray-700">
+          <span>Go to page</span>
+          <input
+            type="number"
+            placeholder="000"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleGoToPage(e);
+            }}
+            className="w-16 px-2 py-1 border border-gray-300 rounded-md text-sm"
+            min={1}
+            max={totalPages}
+          />
         </div>
       </div>
     </div>

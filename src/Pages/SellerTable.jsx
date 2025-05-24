@@ -51,7 +51,7 @@ const onDeleteClick = async (seller) => {
         className="max-w-6xl mx-auto rounded-lg p-4"
         style={{ backgroundColor: "#F6F9EF" }}
       >
-        <div className="p-3 rounded-lg shadow-sm grid grid-cols-10 font-[Nunito] font-bold text-black text-center text-sm whitespace-nowrap bg-white">
+        <div className="p-3 rounded-lg shadow-sm grid grid-cols-10 font-[Nunito] font-bold text-black text-center text-sm whitespace-nowrap bg-[#F9FAFB]">
           <div>No</div>
           <div>Seller Name</div>
           <div>Ph no </div>

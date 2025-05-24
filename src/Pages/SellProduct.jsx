@@ -79,7 +79,7 @@ export default function SellerProducts() {
         </div>
 
         <div className="bg-[#F6F9EF] p-4 rounded-md shadow-sm">
-          <div className="grid grid-cols-4 bg-white font-bold font-[Nunito] text-black px-4 py-3 rounded-md border border-gray-200 shadow-sm">
+          <div className="grid grid-cols-4 bg-[#F9FAFB] font-bold font-[Nunito] text-black px-4 py-3 rounded-md border border-gray-200 shadow-sm">
             <div>Seller name</div>
             <div>Item name</div>
             <div>Item sub category</div>
@@ -109,15 +109,16 @@ export default function SellerProducts() {
           </div>
         </div>
 
-        <div className="flex justify-between items-center mt-6 text-sm">
+       <div className="flex justify-between items-center mt-6">
           <div className="flex items-center space-x-2 text-gray-700">
             <button
               onClick={handlePrev}
-              className="text-xl text-black font-bold"
+              className="text-lg"
               disabled={currentPage === 1}
             >
               &lt;
             </button>
+
             {getPaginationNumbers().map((num) => (
               <button
                 key={num}
@@ -131,16 +132,17 @@ export default function SellerProducts() {
                 {num}
               </button>
             ))}
+
             <button
               onClick={handleNext}
-              className="text-xl text-black font-bold"
+              className="text-lg"
               disabled={currentPage === totalPages}
             >
               &gt;
             </button>
           </div>
 
-          <div className="flex items-center gap-2 text-gray-700">
+          <div className="flex items-center gap-2 text-sm text-gray-700">
             <span>Go to page</span>
             <input
               type="number"

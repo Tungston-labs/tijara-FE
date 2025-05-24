@@ -47,7 +47,7 @@ export default function BuyerTableContent({
       className="max-w-6xl mx-auto rounded-lg p-4"
       style={{ backgroundColor: "#F6F9EF" }}
     >
-      <div className="p-3 rounded-lg shadow-sm grid grid-cols-8 font-[Nunito] font-bold text-black text-center text-sm whitespace-nowrap bg-white">
+      <div className="p-3 rounded-lg shadow-sm grid grid-cols-8 font-[Nunito] font-bold text-black text-center text-sm whitespace-nowrap bg-[#F9FAFB]">
         <div>No</div>
         <div>Buyer name</div>
         <div>Ph no</div>

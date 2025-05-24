@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import {Eye,  Filter } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
 import { useDispatch, useSelector } from "react-redux";
 import { approveUsers, fetchPendingUsers } from "../Redux/userSlice";
 
@@ -11,12 +10,15 @@ export default function ApproveBuyerTable() {
   const popupRef = useRef(null);
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
+   const [filter, setFilter] = useState("buyer");
 
-  const [filter, setFilter] = useState("buyer");
+  const [page, setPage] = useState(1); // 🧩 Fix: Define `page`
+  const pageSize = 10; // Define how many buyers per page
+  const { loading, error, pending, totalPending } = useSelector((state) => state.user); // Assuming totalPending is from API
+  const buyers = pending[filter + "s"] || [];
 
-  const { loading, error, pending } = useSelector((state) => state.user);
-  const buyers = pending[filter + "s"];
-  console.log(("buyerssrssdsdddsd", buyers));
+  const totalPages = Math.ceil((totalPending || buyers.length) / pageSize); 
+ 
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -45,43 +47,78 @@ export default function ApproveBuyerTable() {
     };
   }, [filter, dispatch]);
 
-  const handleFilterClick = (type) => {
-    setIsFilterOpen(false);
-    navigate(`/${type.toLowerCase()}`);
-  };
 
+  // 🧩 Fetch buyers
   useEffect(() => {
-    const handleEsc = (e) => {
-      if (e.key === "Escape") setIsFilterOpen(false);
+    const fetchData = async () => {
+      try {
+        await dispatch(fetchPendingUsers({ role: filter, page, limit: pageSize }));
+      } catch (err) {
+        console.error("Failed to fetch pending users:", err);
+      }
     };
+    fetchData();
+
+    const handleEsc = (e) => e.key === "Escape" && setIsFilterOpen(false);
     const handleClickOutside = (e) => {
       if (popupRef.current && !popupRef.current.contains(e.target)) {
         setIsFilterOpen(false);
       }
     };
+
     document.addEventListener("keydown", handleEsc);
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("keydown", handleEsc);
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
+  }, [filter, dispatch, page]);
+
+  const handlePrev = () => {
+    if (page > 1) setPage((prev) => prev - 1);
+  };
+
+  const handleNext = () => {
+    if (page < totalPages) setPage((prev) => prev + 1);
+  };
+
+  const handlePageClick = (p) => {
+    setPage(p);
+  };
+
+  const handleGoToPage = (e) => {
+    const value = parseInt(e.target.value, 10);
+    if (!isNaN(value) && value >= 1 && value <= totalPages) {
+      setPage(value);
+      e.target.value = "";
+    }
+  };
+
+  const getPaginationNumbers = () => {
+    const pages = [];
+    const visibleCount = 5;
+    let start = Math.max(1, page - Math.floor(visibleCount / 2));
+    let end = start + visibleCount - 1;
+    if (end > totalPages) {
+      end = totalPages;
+      start = Math.max(1, end - visibleCount + 1);
+    }
+    for (let i = start; i <= end; i++) pages.push(i);
+    return pages;
+  };
 
   const handleApprove = async (userId) => {
     try {
       const resultAction = await dispatch(
         approveUsers({ userId, role: "buyer", status: "approved" })
       );
-
       if (approveUsers.fulfilled.match(resultAction)) {
         console.log("User approved successfully:", resultAction.payload);
-
         const updatedBuyers = buyers.filter((buyer) => buyer._id !== userId);
         dispatch({
           type: "user/updatePendingBuyers",
           payload: updatedBuyers,
         });
-
         navigate("/user");
       } else {
         console.error("Failed to approve user:", resultAction.payload);
@@ -89,6 +126,11 @@ export default function ApproveBuyerTable() {
     } catch (error) {
       console.error("Error dispatching approval:", error);
     }
+  };
+
+  const handleFilterClick = (type) => {
+    setIsFilterOpen(false);
+    navigate(`/${type.toLowerCase()}`);
   };
 
   return (
@@ -127,21 +169,7 @@ export default function ApproveBuyerTable() {
           )}
         </div>
       </div>
-      <div className="flex items-center gap-2 mb-4">
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search by name or email"
-          className="px-3 py-2 border rounded-md text-sm"
-        />
-        <button
-          className="bg-[#B3DB48] text-white px-4 py-2 rounded-md"
-          onClick={() => setPage(1)} // Reset to page 1 on new search
-        >
-          Search
-        </button>
-      </div>
+
       {/* Table */}
   <div
   className="max-w-6xl mx-auto rounded-lg p-4"
@@ -190,6 +218,41 @@ export default function ApproveBuyerTable() {
 
 
       {/* Pagination */}
+      <div className="max-w-6xl mx-auto mt-6 flex items-center justify-between text-sm">
+        <div></div>
+        <div className="flex items-center space-x-2 text-gray-700">
+          <button onClick={handlePrev} disabled={page === 1} className="text-lg">
+            &lt;
+          </button>
+          {getPaginationNumbers().map((num) => (
+            <button
+              key={num}
+              className={`w-8 h-8 rounded-full font-[Nunito] font-bold ${
+                page === num ? "bg-[#B3DB48] text-black" : "hover:underline"
+              }`}
+              onClick={() => handlePageClick(num)}
+            >
+              {num}
+            </button>
+          ))}
+          <button onClick={handleNext} disabled={page === totalPages} className="text-lg">
+            &gt;
+          </button>
+        </div>
+        <div className="flex items-center gap-2 text-sm text-gray-700">
+          <span>Go to page</span>
+          <input
+            type="number"
+            placeholder="000"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleGoToPage(e);
+            }}
+            className="w-16 px-2 py-1 border border-gray-300 rounded-md text-sm"
+            min={1}
+            max={totalPages}
+          />
+        </div>
+      </div>
     </div>
   );
 }

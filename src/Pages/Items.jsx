@@ -124,7 +124,7 @@ export default function ItemNameList() {
 
         {/* Table-style box */}
         <div className="bg-[#F6F9EF] p-4 rounded-md shadow-sm">
-          <div className="bg-white px-4 py-3 rounded-md font-[Nunito] font-bold text-black border border-gray-200 shadow-sm">
+          <div className="bg-[#F9FAFB] px-4 py-3 rounded-md font-[Nunito] font-bold text-black border border-gray-200 shadow-sm">
             Item name
           </div>
 
