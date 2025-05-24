@@ -162,9 +162,9 @@ export const editAgent = createAsyncThunk(
 
 export const editUser = createAsyncThunk(
   "user/edit",
-  async ({ id, editData }, { rejectWithValue }) => {
+  async ({ role, id, editData }, { rejectWithValue }) => {
     try {
-      const data = await editUserAPI(id, editData);
+      const data = await editUserAPI(role, id, editData);
       return data;
     } catch (err) {
       return rejectWithValue(
@@ -173,6 +173,7 @@ export const editUser = createAsyncThunk(
     }
   }
 );
+
 
 export const fetchUserList = createAsyncThunk(
   "user/fetchList",

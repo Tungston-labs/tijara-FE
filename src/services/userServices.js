@@ -1,7 +1,7 @@
 import axios from "axios";
 const API = axios.create({
   withCredentials: true,
-  baseURL: "http://localhost:5000",
+  baseURL: "http://178.248.112.16:8080",
   headers: {
     "Content-Type": "application/json",
     Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -18,24 +18,25 @@ export const fetchApproveBuyerList = async (buyer) => {
   return response;
 };
 
-export const fetchAgents = async ({page}) => {
+export const fetchAgents = async ({ page }) => {
   const response = await API.get(`/admin/agent/get-agents?page=${page}`);
   return response;
 };
-export const fetchUnapprovedUsers = async ({page}) => {
+export const fetchUnapprovedUsers = async ({ page }) => {
   const response = await API.get(`admin/auth/unapproved-users?page=${page}`);
   return response;
 };
 
-export const fetchItems = async ({page}) => {
-    console.log("hello")
-    const response = API.get(`product/get-products?page=${page}`)
-    return response
-}
-
+export const fetchItems = async ({ page }) => {
+  console.log("hello");
+  const response = API.get(`product/get-products?page=${page}`);
+  return response;
+};
 
 export const fetchSubItems = async (page = 1, search = "") => {
-  const response = await API.get(`/items/get-subcategories?page=${page}&search=${search}`);
+  const response = await API.get(
+    `/items/get-subcategories?page=${page}&search=${search}`
+  );
   return {
     data: response.data.subCategories,
     totalPages: response.data.totalPages,
@@ -43,63 +44,76 @@ export const fetchSubItems = async (page = 1, search = "") => {
 };
 console.log("Selected code is empty");
 
-export const fetchProducts = async ({page}) => {
-    console.log("hello")
-    const response = API.get(`/product/get-products/${role}&page=${page}`)
-    return response
-}
+export const fetchProducts = async ({ page }) => {
+  console.log("hello");
+  const response = API.get(`/product/get-products/${role}&page=${page}`);
+  return response;
+};
 
 export const deleteUserById = async ({ role, id }) => {
   const res = API.delete(`/admin/auth/delete-user/${role}/${id}`);
   return res.data;
 };
 
-export const addAgentAPI=async(agentData)=>{
-    const response=API.post(`/admin/agent/add-agent`,agentData)
-    return response.data;
-}
+export const addAgentAPI = async (agentData) => {
+  const response = API.post(`/admin/agent/add-agent`, agentData);
+  return response.data;
+};
 
 export const editAgentAPI = async (id, editData) => {
   const response = await API.put(`/admin/agent/update-agent/${id}`, editData);
   return response.data;
 };
 
-export const fetchUsersAPI = async ({ role, search = "", page = 1, status = "" }) => {
+export const fetchUsersAPI = async ({
+  role,
+  search = "",
+  page = 1,
+  status = "",
+}) => {
   const response = await API.get(
-        `/admin/auth/get-all-users?role=${role}&search=${search}&page=${page}&status=${status}`
-      );
+    `/admin/auth/get-all-users?role=${role}&search=${search}&page=${page}&status=${status}`
+  );
   return response.data;
 };
 
-export const fetchPendingUsersAPI=async({role, search = "", page = 1, status = ""}) => {
-const response= await API.get(`/admin/auth/unapproved-users?role=${role}&search=${search}&page=${page}&status=${status}`
-  ); 
+export const fetchPendingUsersAPI = async ({
+  role,
+  search = "",
+  page = 1,
+  status = "",
+}) => {
+  const response = await API.get(
+    `/admin/auth/unapproved-users?role=${role}&search=${search}&page=${page}&status=${status}`
+  );
   return response.data;
-  
-}
+};
 
 export const approveUsersAPI = async ({ userId, role, status }) => {
-  const response = await API.post('admin/auth/verify-user', {
+  const response = await API.post("admin/auth/verify-user", {
     userId,
     role,
-    status
+    status,
   });
   return response.data;
 };
-export const editUserAPI = async (id, editData) => {
-  const response = await API.put(`/admin/auth/edit-user/${id}`, editData);
+export const editUserAPI = async (role, id, editData) => {
+  const response = await API.put(
+    `/admin/auth/edit-user/${role}/${id}`,
+    editData,
+  
+  );
   return response.data;
 };
+
 export const fetchUserByIdAPI = async ({ role, id }) => {
   const response = await API.get(`/admin/auth/get-user/${role}/${id}`);
   return response.data;
 };
 
 export const addSubCategoryAPI = async ({ name, itemNameId }) => {
-  const response = await axios.post("/items/add-subcategory", {
+  const response = await API.post("/items/add-subcategory", {
     name,
     itemNameId,
   });
-
-
 };

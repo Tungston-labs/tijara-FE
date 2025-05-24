@@ -114,32 +114,38 @@ export default function UserTable() {
   };
 
   // Save edited data to backend
-  const handleEditSave = async () => {
-    try {
-      // Prepare data to send
-      const updateData = { ...formData };
-      if (!updateData.password) {
-        delete updateData.password; // if password blank, don't send
-      }
-     console.log("Edit payload:", formData);
-      // Dispatch update action
-      await dispatch(
-        editUser({
-          id: selectedUser._id,
-          data: updateData,
-          role: filter,
-        })
-      ).unwrap();
+ const handleEditSave = async () => {
+  try {
+    const form = new FormData();
 
-      message.success("User updated successfully");
-      setShowEditPopup(false);
-      setIsEditing(false);
-      setSelectedUser(null);
-      dispatch(fetchUserList({ role: filter })); // refresh list
-    } catch (error) {
-      message.error("Failed to update user");
+    for (const key in formData) {
+      if (formData[key]) {
+        form.append(key, formData[key]);
+      }
     }
-  };
+
+    // Only append password if it's filled (not empty)
+    if (formData.password) {
+      form.append("password", formData.password);
+    }
+
+    await dispatch(
+      editUser({
+        id: selectedUser._id,
+        editData: form,
+        role: filter,
+      })
+    ).unwrap();
+
+    message.success("User updated successfully");
+    setShowEditPopup(false);
+    setIsEditing(false);
+    setSelectedUser(null);
+    dispatch(fetchUserList({ role: filter }));
+  } catch (error) {
+    message.error("Failed to update user");
+  }
+};
 
   // Form input change handler
   const handleChange = (e) => {
