@@ -14,7 +14,6 @@ import ProtectedRoute from "./Components/ProtectedRoute";
 import PersistLogin from "./Components/PersistLogin"; // ✅ IMPORTANT: Add this line
 import User from "./Pages/User";
 
-
 function App() {
   return (
     <Routes>
@@ -24,15 +23,12 @@ function App() {
       {/* Public Routes */}
       <Route path="login" element={<Login />} />
 
- 
       {/* Protected Layout Routes */}
       <Route path="/" element={<Layout />}>
         <Route element={<PersistLogin />}>
-          <Route element={<ProtectedRoute />}> 
-        
+          <Route element={<ProtectedRoute />}>
             <Route path="box" element={<Boxes />} />
-            
-           
+
             <Route path="user" element={<User />} />
             <Route path="agent" element={<Agent />} />
             <Route path="approveseller" element={<ApproveSeller />} />
@@ -40,7 +36,7 @@ function App() {
             <Route path="item" element={<Items />} />
             <Route path="itemsub" element={<ItemSub />} />
             <Route path="sellproducts" element={<SellerProduct />} />
-            <Route path="approvalForm" element={<ApprovalForm />} />
+            <Route path="/approval/:role/:id" element={<ApprovalForm />} />
             <Route path="/profile" element={<Profile />} />
           </Route>
         </Route>

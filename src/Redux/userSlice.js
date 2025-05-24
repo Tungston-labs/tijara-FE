@@ -14,6 +14,7 @@ import {
   approveUsersAPI,
   editUserAPI,
   addSubCategoryAPI,
+  fetchUserByIdAPI,
 } from "../services/userServices";
 
 // FETCH AGENT LIST
@@ -85,6 +86,19 @@ export const addSubCategory = createAsyncThunk(
     try {
       const response = await addSubCategoryAPI({ name, itemNameId });
       return response.subCategory; // return only the subCategory part
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
+
+export const getUserById = createAsyncThunk(
+  "user/getById",
+  async ({ role, id }, { rejectWithValue }) => {
+    try {
+      const data = await fetchUserByIdAPI({ role, id });
+      return data; // already data, no .data needed again
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
     }
@@ -424,6 +438,18 @@ const UserSlice = createSlice({
       .addCase(editUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || "Failed to edit user";
+      })
+      .addCase(getUserById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getUserById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload.user; // or action.payload depending on API structure
+      })
+      .addCase(getUserById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || "Something went wrong";
       })
 
       // Delete User

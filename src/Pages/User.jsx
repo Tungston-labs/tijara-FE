@@ -210,7 +210,7 @@ export default function UserTable() {
       </div>
 
       {/* Edit Modal */}
-     <Modal
+ <Modal
   title=""
   open={showEditPopup}
   onCancel={() => {
@@ -220,15 +220,24 @@ export default function UserTable() {
   }}
   footer={null}
 >
+  {/* Profile Header */}
+  <div className="flex flex-col items-center mb-6">
+    <img
+      src={formData.profileImage || "https://ui-avatars.com/api/?name=User&background=0D8ABC&color=fff&size=128"}
+      alt="Profile"
+      className="w-24 h-24 rounded-full mb-3 object-cover"
+    />
+    <h2 className="text-lg font-semibold">{formData.name}</h2>
+    <p className="text-gray-500 text-sm">{formData.email}</p>
+  </div>
 
-
+  {/* Form Fields */}
   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-    {/* Common Fields */}
+    {/* Common for both buyer & seller */}
     {[
-      { label: "Name", name: "name" },
+      { label: "Full Name", name: "name" },
       { label: "Phone", name: "phone" },
       { label: "Email", name: "email", type: "email" },
-      { label: "Password", name: "password", type: "password" },
       { label: "Profile Image URL", name: "profileImage" },
     ].map(({ label, name, type = "text" }) => (
       <div key={name}>
@@ -236,9 +245,9 @@ export default function UserTable() {
           {label}
         </label>
         <input
-          type="text"
-          name="name"
-          value={formData.name}
+          type={type}
+          name={name}
+          value={formData[name] || ""}
           onChange={handleChange}
           readOnly={!isEditing}
           placeholder={label}
@@ -247,69 +256,35 @@ export default function UserTable() {
       </div>
     ))}
 
-    {/* Seller-only Fields */}
+    {/* Seller-only fields */}
     {filter === "seller" && (
       <>
-        <div>
-          <label className="text-sm font-semibold text-gray-700 block mb-1">
-            Trade License Number
-          </label>
-          <input
-            type="text"
-            name="tradeLicenseNumber"
-            value={formData.tradeLicenseNumber}
-            onChange={handleChange}
-            readOnly={!isEditing}
-            placeholder="Trade License Number"
-            className="w-full bg-[#F1F1F1] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2"
-          />
-        </div>
-        <div>
-          <label className="text-sm font-semibold text-gray-700 block mb-1">
-            Trade License Copy URL
-          </label>
-          <input
-            type="text"
-            name="tradeLicenseCopy"
-            value={formData.tradeLicenseCopy}
-            onChange={handleChange}
-            readOnly={!isEditing}
-            placeholder="Trade License Copy URL"
-            className="w-full bg-[#F1F1F1] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2"
-          />
-        </div>
-        <div>
-          <label className="text-sm font-semibold text-gray-700 block mb-1">
-            Company Name
-          </label>
-          <input
-            type="text"
-            name="companyName"
-            value={formData.companyName}
-            onChange={handleChange}
-            readOnly={!isEditing}
-            placeholder="Company Name"
-            className="w-full bg-[#F1F1F1] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2"
-          />
-        </div>
-        <div>
-          <label className="text-sm font-semibold text-gray-700 block mb-1">
-            Manager Name
-          </label>
-          <input
-            type="text"
-            name="managerName"
-            value={formData.managerName}
-            onChange={handleChange}
-            readOnly={!isEditing}
-            placeholder="Manager Name"
-            className="w-full bg-[#F1F1F1] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2"
-          />
-        </div>
+        {[
+          { label: "Company Name", name: "companyName" },
+          { label: "Manager Name", name: "managerName" },
+          { label: "Trade License Number", name: "tradeLicenseNumber" },
+          { label: "Trade License Copy URL", name: "tradeLicenseCopy" },
+        ].map(({ label, name }) => (
+          <div key={name}>
+            <label className="text-sm font-semibold text-gray-700 block mb-1">
+              {label}
+            </label>
+            <input
+              type="text"
+              name={name}
+              value={formData[name] || ""}
+              onChange={handleChange}
+              readOnly={!isEditing}
+              placeholder={label}
+              className="w-full bg-[#F1F1F1] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2"
+            />
+          </div>
+        ))}
       </>
     )}
   </div>
 
+  {/* Action Buttons */}
   <div className="mt-6 w-full flex justify-end gap-4">
     {isEditing && (
       <button
@@ -332,6 +307,7 @@ export default function UserTable() {
     </button>
   </div>
 </Modal>
+
 
     </>
   );

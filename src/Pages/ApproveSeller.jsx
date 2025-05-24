@@ -1,97 +1,96 @@
-
 import { useState, useEffect, useRef } from "react";
 import { Eye, Filter } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { approveUsers, deleteUser, fetchPendingUsers } from "../Redux/userSlice";
+import {
+  approveUsers,
+  deleteUser,
+  fetchPendingUsers,
+} from "../Redux/userSlice";
 import { Pencil, Trash } from "lucide-react";
 
 export default function ApproveSellerTable() {
-  const dispatch=useDispatch();
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const popupRef = useRef(null);
   const [search, setSearch] = useState("");
-const [selectedSeller, setSelectedSeller] = useState(null);
+  const [selectedSeller, setSelectedSeller] = useState(null);
 
+  const [filter, setFilter] = useState("seller");
 
-  const [filter,setFilter]=useState("seller")
+  const { loading, error, pending } = useSelector((state) => state.user);
+  const sellers = pending[filter + "s"];
 
-const { loading, error, pending } = useSelector((state) => state.user);
-const sellers = pending[filter + "s"];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await dispatch(fetchPendingUsers({ role: filter }));
+        return response;
+      } catch (err) {
+        console.error("Failed to fetch pending users:", err);
+      }
+    };
 
+    fetchData();
 
-  
-useEffect(() => {
-  const fetchData = async () => {
-    try {
-      const response = await dispatch(fetchPendingUsers({ role: filter }));
-     return response;
-    } catch (err) {
-      console.error("Failed to fetch pending users:", err);
-    }
-  };
+    const handleEsc = (e) => e.key === "Escape" && setIsFilterOpen(false);
+    const handleClickOutside = (e) => {
+      if (popupRef.current && !popupRef.current.contains(e.target)) {
+        setIsFilterOpen(false);
+      }
+    };
 
-  fetchData();
-
-  const handleEsc = (e) => e.key === "Escape" && setIsFilterOpen(false);
-  const handleClickOutside = (e) => {
-    if (popupRef.current && !popupRef.current.contains(e.target)) {
-      setIsFilterOpen(false);
-    }
-  };
-
-  document.addEventListener("keydown", handleEsc);
-  document.addEventListener("mousedown", handleClickOutside);
-  return () => {
-    document.removeEventListener("keydown", handleEsc);
-    document.removeEventListener("mousedown", handleClickOutside);
-  };
-}, [filter, dispatch]);
-
+    document.addEventListener("keydown", handleEsc);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("keydown", handleEsc);
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [filter, dispatch]);
 
   const handleFilterClick = (type) => {
     setIsFilterOpen(false);
     navigate(`/${type.toLowerCase()}`);
   };
 
-const handleApprove = async (userId) => {
-  try {
-    const resultAction = await dispatch(
-      approveUsers({ userId, role: "seller", status: "approved" })
-    );
+  const handleApprove = async (userId) => {
+    try {
+      const resultAction = await dispatch(
+        approveUsers({ userId, role: "seller", status: "approved" })
+      );
 
-    if (approveUsers.fulfilled.match(resultAction)) {
-      console.log("User approved successfully:", resultAction.payload);
+      if (approveUsers.fulfilled.match(resultAction)) {
+        console.log("User approved successfully:", resultAction.payload);
 
-      const updatedBuyers = sellers.filter((buyer) => buyer._id !== userId);
-      dispatch({
-        type: "user/updatePendingBuyers",
-        payload: updatedBuyers,
-      });
-
-    } else {
-      console.error("Failed to approve user:", resultAction.payload);
+        const updatedBuyers = sellers.filter((buyer) => buyer._id !== userId);
+        dispatch({
+          type: "user/updatePendingBuyers",
+          payload: updatedBuyers,
+        });
+      } else {
+        console.error("Failed to approve user:", resultAction.payload);
+      }
+    } catch (error) {
+      console.error("Error dispatching approval:", error);
     }
-  } catch (error) {
-    console.error("Error dispatching approval:", error);
-  }
-};
-const onDeleteClick = async (seller) => {
-  if (!window.confirm(`Delete ${seller.name}?`)) return;
+  };
+  const onDeleteClick = async (seller) => {
+    if (!window.confirm(`Delete ${seller.name}?`)) return;
 
-  try {
-    const result = await dispatch(deleteUser({ role: "seller", id: seller._id }));
-    if (deleteUser.fulfilled.match(result)) {
-      console.log("Deleted successfully:", result.payload);
-    } else {
-      console.error("Delete failed:", result.payload);
+    try {
+      const result = await dispatch(
+        deleteUser({ role: "seller", id: seller._id })
+      );
+      if (deleteUser.fulfilled.match(result)) {
+        console.log("Deleted successfully:", result.payload);
+      } else {
+        console.error("Delete failed:", result.payload);
+      }
+    } catch (error) {
+      console.error("Error during delete:", error);
     }
-  } catch (error) {
-    console.error("Error during delete:", error);
-  }
-};
-
+  };
 
   return (
     <div className="p-6 min-h-screen bg-[#E9E9E9] relative">
@@ -143,56 +142,42 @@ const onDeleteClick = async (seller) => {
           <div>Email</div>
           <div>Licence number</div>
           <div>Company name</div>
-         
-         
         </div>
 
         {/* Rows */}
-     {/* Table Rows */}
-<div className="space-y-4 mt-3">
-  {sellers.map((seller, index) => (
-    <div
-      key={seller._id}
-      className="bg-white p-3 rounded-lg shadow-sm grid grid-cols-9 items-center text-center text-sm"
-    >
-      <div>{index + 1}</div>
-      <div>{seller.name}</div>
-      <div>{seller.phone}</div>
-      <div>{seller.email}</div>
-      <div>{seller.tradeLicenseNumber}</div>
-      <div>{seller.companyName}</div>
+        {/* Table Rows */}
+        <div className="space-y-4 mt-3">
+          {sellers.map((seller, index) => (
+            <div
+              key={seller._id}
+              className="bg-white p-3 rounded-lg shadow-sm grid grid-cols-9 items-center text-center text-sm"
+            >
+              <div>{index + 1}</div>
+              <div>{seller.name}</div>
+              <div>{seller.phone}</div>
+              <div>{seller.email}</div>
+              <div>{seller.tradeLicenseNumber}</div>
+              <div>{seller.companyName}</div>
 
-    
-       
-     
-      {/* View + Approve Button */}
-      <div className="flex flex-col gap-2 items-center">
-        <Eye
-          className="text-[#B3DB48] w-5 h-5 cursor-pointer"
-          onClick={() => navigate("/approvalForm")}
-        />
-        </div>
+              {/* View + Approve Button */}
+              <div className="flex flex-col gap-2 items-center">
+                <Eye
+                  className="text-[#B3DB48] w-5 h-5 cursor-pointer"
+                  onClick={() => navigate(`/approval/seller/${seller._id}`)}
+                />
+              </div>
               <div className="flex flex-col gap-4 items-center">
-
-        <button
-          onClick={() => handleApprove(seller._id)}
-          className="bg-[#B3DB48] text-white px-14 py-1 rounded-md text-sm"
-        >
-          Approve
-        </button>
-        
+                <button
+                  onClick={() => handleApprove(seller._id)}
+                  className="bg-[#B3DB48] text-white px-14 py-1 rounded-md text-sm"
+                >
+                  Approve
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
-
-     
-    </div>
-  ))}
-</div>
-
-
-      </div>
-
-    
     </div>
   );
 }
-

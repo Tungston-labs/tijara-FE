@@ -1,50 +1,49 @@
 import { useState, useEffect, useRef } from "react";
-import { Filter } from "lucide-react";
+import {Eye,  Filter } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 import { useDispatch, useSelector } from "react-redux";
 import { approveUsers, fetchPendingUsers } from "../Redux/userSlice";
 
 export default function ApproveBuyerTable() {
-  const dispatch=useDispatch()
+  const dispatch = useDispatch();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const popupRef = useRef(null);
   const [search, setSearch] = useState("");
-     const navigate = useNavigate();
+  const navigate = useNavigate();
 
-  const [filter,setFilter]=useState("buyer")
+  const [filter, setFilter] = useState("buyer");
 
-const { loading, error, pending } = useSelector((state) => state.user);
-const buyers = pending[filter + "s"];
-console.log(("buyerssrssdsdddsd",buyers))
-useEffect(() => {
-  const fetchData = async () => {
-    try {
-      const response = await dispatch(fetchPendingUsers({ role: filter }));
-    console.log("Fetched users",response)
-      // console.log("Fetched data:", response); // <-- This will now show the actual result
-    } catch (err) {
-      console.error("Failed to fetch pending users:", err);
-    }
-  };
+  const { loading, error, pending } = useSelector((state) => state.user);
+  const buyers = pending[filter + "s"];
+  console.log(("buyerssrssdsdddsd", buyers));
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await dispatch(fetchPendingUsers({ role: filter }));
+        console.log("Fetched users", response);
+        // console.log("Fetched data:", response); // <-- This will now show the actual result
+      } catch (err) {
+        console.error("Failed to fetch pending users:", err);
+      }
+    };
 
-  fetchData();
+    fetchData();
 
-  const handleEsc = (e) => e.key === "Escape" && setIsFilterOpen(false);
-  const handleClickOutside = (e) => {
-    if (popupRef.current && !popupRef.current.contains(e.target)) {
-      setIsFilterOpen(false);
-    }
-  };
+    const handleEsc = (e) => e.key === "Escape" && setIsFilterOpen(false);
+    const handleClickOutside = (e) => {
+      if (popupRef.current && !popupRef.current.contains(e.target)) {
+        setIsFilterOpen(false);
+      }
+    };
 
-  document.addEventListener("keydown", handleEsc);
-  document.addEventListener("mousedown", handleClickOutside);
-  return () => {
-    document.removeEventListener("keydown", handleEsc);
-    document.removeEventListener("mousedown", handleClickOutside);
-  };
-}, [filter, dispatch]);
-
+    document.addEventListener("keydown", handleEsc);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("keydown", handleEsc);
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [filter, dispatch]);
 
   const handleFilterClick = (type) => {
     setIsFilterOpen(false);
@@ -68,30 +67,29 @@ useEffect(() => {
     };
   }, []);
 
-  
-const handleApprove = async (userId) => {
-  try {
-    const resultAction = await dispatch(
-      approveUsers({ userId, role: "buyer", status: "approved" })
-    );
+  const handleApprove = async (userId) => {
+    try {
+      const resultAction = await dispatch(
+        approveUsers({ userId, role: "buyer", status: "approved" })
+      );
 
-    if (approveUsers.fulfilled.match(resultAction)) {
-      console.log("User approved successfully:", resultAction.payload);
+      if (approveUsers.fulfilled.match(resultAction)) {
+        console.log("User approved successfully:", resultAction.payload);
 
-      const updatedBuyers = buyers.filter((buyer) => buyer._id !== userId);
-      dispatch({
-        type: "user/updatePendingBuyers",
-        payload: updatedBuyers,
-      });
+        const updatedBuyers = buyers.filter((buyer) => buyer._id !== userId);
+        dispatch({
+          type: "user/updatePendingBuyers",
+          payload: updatedBuyers,
+        });
 
-      navigate("/user"); 
-    } else {
-      console.error("Failed to approve user:", resultAction.payload);
+        navigate("/user");
+      } else {
+        console.error("Failed to approve user:", resultAction.payload);
+      }
+    } catch (error) {
+      console.error("Error dispatching approval:", error);
     }
-  } catch (error) {
-    console.error("Error dispatching approval:", error);
-  }
-};
+  };
 
   return (
     <div className="p-6 min-h-screen bg-[#E9E9E9] relative">
@@ -145,46 +143,53 @@ const handleApprove = async (userId) => {
         </button>
       </div>
       {/* Table */}
+  <div
+  className="max-w-6xl mx-auto rounded-lg p-4"
+  style={{ backgroundColor: "#F6F9EF" }}
+>
+  {/* Table Header */}
+  <div className="p-3 rounded-lg shadow-sm grid grid-cols-6 font-[Nunito] font-bold text-black text-sm text-left bg-[fff]">
+    <div>No</div>
+    <div>Buyer name</div>
+    <div>Ph no</div>
+    <div>Email id</div>
+   
+  </div>
+
+  {/* Table Rows */}
+  <div className="space-y-3 mt-3">
+    {buyers.map((buyer, index) => (
       <div
-        className="max-w-6xl  mx-auto rounded-lg p-4"
-        style={{ backgroundColor: "#F6F9EF" }}
+        key={buyer._id}
+        className="bg-white p-3 rounded-lg shadow-sm grid grid-cols-6 items-center text-sm"
       >
-        {/* Table Header */}
-        <div className="p-3 rounded-lg shadow-sm grid grid-cols-5 font-[Nunito] font-bold text-black text-sm text-left bg-[fff]">
-          <div>No</div>
-          <div>Buyer name</div>
-          <div>Ph no</div>
-          <div>Email id</div>
-          <div></div>
+        <div>{index + 1}</div>
+        <div>{buyer.name}</div>
+        <div>{buyer.phone}</div>
+        <div>{buyer.email}</div>
+
+        <div className="flex justify-center">
+          <Eye
+            className="text-[#B3DB48] w-5 h-5 cursor-pointer"
+            onClick={() => navigate(`/approval/buyer/${buyer._id}`)}
+          />
         </div>
 
-        {/* Table Rows */}
-        <div className="space-y-3 mt-3">
-          {buyers.map((buyer, index) => (
-            <div
-              key={buyer._id}
-              className="bg-white p-3 rounded-lg shadow-sm grid grid-cols-5 items-center text-sm"
-            >
-              <div>{index + 1}</div>
-              <div>{buyer.name}</div>
-              <div>{buyer.phone}</div>
-              <div>{buyer.email}</div>
-              <div className="text-right">
-                <button
-                  className="bg-[#B3DB48] text-white px-4 py-1 rounded-md text-sm"
-                  onClick={() => handleApprove(buyer._id)}
-                >
-                  Approve
-                </button>
-              </div>
-            </div>
-          ))}
+        <div className="text-right">
+          <button
+            className="bg-[#B3DB48] text-white px-4 py-1 rounded-md text-sm"
+            onClick={() => handleApprove(buyer._id)}
+          >
+            Approve
+          </button>
         </div>
       </div>
+    ))}
+  </div>
+</div>
+
 
       {/* Pagination */}
-
-
     </div>
   );
 }

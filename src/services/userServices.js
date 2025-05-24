@@ -90,11 +90,16 @@ export const editUserAPI = async (id, editData) => {
   const response = await API.put(`/admin/auth/edit-user/${id}`, editData);
   return response.data;
 };
+export const fetchUserByIdAPI = async ({ role, id }) => {
+  const response = await API.get(`/admin/auth/get-user/${role}/${id}`);
+  return response.data;
+};
 
 export const addSubCategoryAPI = async ({ name, itemNameId }) => {
   const response = await axios.post("/items/add-subcategory", {
     name,
     itemNameId,
   });
-  return response.data;
+
+
 };
