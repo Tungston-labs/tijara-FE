@@ -15,6 +15,7 @@ import {
   editUserAPI,
   addSubCategoryAPI,
   fetchUserByIdAPI,
+  deleteAgentById,
 } from "../services/userServices";
 
 // FETCH AGENT LIST
@@ -119,6 +120,22 @@ export const deleteUser = createAsyncThunk(
     }
   }
 );
+
+
+// DELETE USER
+export const deleteAgent = createAsyncThunk(
+  "agent/delete",
+  async (id, { rejectWithValue }) => {
+    try {
+      await deleteAgentById(id); // pass only id
+      return id; // no need to return role
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || "Unable to delete agent");
+    }
+  }
+);
+
+
 
 // Add Agents
 export const addAgent = createAsyncThunk(

@@ -55,10 +55,16 @@ export const deleteUserById = async ({ role, id }) => {
   return res.data;
 };
 
-export const addAgentAPI = async (agentData) => {
-  const response = API.post(`/admin/agent/add-agent`, agentData);
-  return response.data;
+
+export const deleteAgentById = async ({ id }) => {
+  const res = API.delete(`/admin/auth/delete-agent/${id}`);
+  return res.data;
 };
+
+export const addAgentAPI=async(agentData)=>{
+    const response=API.post(`/admin/agent/add-agent`,agentData)
+    return response.data;
+}
 
 export const editAgentAPI = async (id, editData) => {
   const response = await API.put(`/admin/agent/update-agent/${id}`, editData);
