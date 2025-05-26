@@ -18,36 +18,36 @@ export const fetchApproveBuyerList = async (buyer) => {
   return response;
 };
 
-export const fetchAgents = async ({page}) => {
+export const fetchAgents = async ({ page }) => {
   const response = await API.get(`/admin/agent/get-agents?page=${page}`);
   return response;
 };
-export const fetchUnapprovedUsers = async ({page}) => {
+export const fetchUnapprovedUsers = async ({ page }) => {
   const response = await API.get(`admin/auth/unapproved-users?page=${page}`);
   return response;
 };
 
-export const fetchItems = async ({page}) => {
-    console.log("hello")
-    const response = API.get(`product/get-products?page=${page}`)
-    return response
-}
-
+export const fetchItems = async ({ page }) => {
+  console.log("hello");
+  const response = API.get(`product/get-products?page=${page}`);
+  return response;
+};
 
 export const fetchSubItems = async (page = 1, search = "") => {
   const response = await API.get(`/items/get-subcategories?page=${page}&search=${search}`);
+  console.log("Raw API response:", response);
   return {
     data: response.data.subCategories,
-    totalPages: response.data.totalPages,
+    pagination: response.data.pagination,
   };
 };
-console.log("Selected code is empty");
 
-export const fetchProducts = async ({page}) => {
-    console.log("hello")
-    const response = API.get(`/product/get-products/${role}&page=${page}`)
-    return response
-}
+
+export const fetchProducts = async ({ page }) => {
+  console.log("hello");
+  const response = API.get(`/product/get-products/${role}&page=${page}`);
+  return response;
+};
 
 export const deleteUserById = async ({ role, id }) => {
   const res = API.delete(`/admin/auth/delete-user/${role}/${id}`);
@@ -70,32 +70,47 @@ export const editAgentAPI = async (id, editData) => {
   return response.data;
 };
 
-export const fetchUsersAPI = async ({ role, search = "", page = 1, status = "" }) => {
+export const fetchUsersAPI = async ({
+  role,
+  search = "",
+  page ,
+  status = "",
+}) => {
   const response = await API.get(
-        `/admin/auth/get-all-users?role=${role}&search=${search}&page=${page}&status=${status}`
-      );
+    `/admin/auth/get-all-users?role=${role}&search=${search}&page=${page}&status=${status}`
+  );
   return response.data;
 };
 
-export const fetchPendingUsersAPI=async({role, search = "", page = 1, status = ""}) => {
-const response= await API.get(`/admin/auth/unapproved-users?role=${role}&search=${search}&page=${page}&status=${status}`
-  ); 
+export const fetchPendingUsersAPI = async ({
+  role,
+  search = "",
+  page = 1,
+  status = "",
+}) => {
+  const response = await API.get(
+    `/admin/auth/unapproved-users?role=${role}&search=${search}&page=${page}&status=${status}`
+  );
   return response.data;
-  
-}
+};
 
 export const approveUsersAPI = async ({ userId, role, status }) => {
-  const response = await API.post('admin/auth/verify-user', {
+  const response = await API.post("admin/auth/verify-user", {
     userId,
     role,
-    status
+    status,
   });
   return response.data;
 };
-export const editUserAPI = async (id, editData) => {
-  const response = await API.put(`/admin/auth/edit-user/${id}`, editData);
+export const editUserAPI = async (role, id, editData) => {
+  const response = await API.put(
+    `/admin/auth/edit-user/${role}/${id}`,
+    editData,
+  
+  );
   return response.data;
 };
+
 export const fetchUserByIdAPI = async ({ role, id }) => {
   const response = await API.get(`/admin/auth/get-user/${role}/${id}`);
   return response.data;
@@ -111,10 +126,11 @@ export const getSubscriptionHistory = async (userId) => {
 
 
 export const addSubCategoryAPI = async ({ name, itemNameId }) => {
-  const response = await axios.post("/items/add-subcategory", {
+  const response = await API.post("/items/add-subcategory", {
     name,
     itemNameId,
   });
-
-
+  return response.data; 
 };
+
+

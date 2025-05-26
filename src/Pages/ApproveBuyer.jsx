@@ -3,6 +3,7 @@ import {Eye,  Filter } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { approveUsers, fetchPendingUsers } from "../Redux/userSlice";
+import Swal from "sweetalert2";
 
 export default function ApproveBuyerTable() {
   const dispatch = useDispatch();
@@ -106,27 +107,55 @@ export default function ApproveBuyerTable() {
     for (let i = start; i <= end; i++) pages.push(i);
     return pages;
   };
+const handleApprove = async (userId) => {
+  const confirmation = await Swal.fire({
+    title: "Are you sure?",
+    text: "Do you want to approve this buyer?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#B3DB48",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, approve!",
+  });
 
-  const handleApprove = async (userId) => {
+  if (confirmation.isConfirmed) {
     try {
       const resultAction = await dispatch(
         approveUsers({ userId, role: "buyer", status: "approved" })
       );
+
       if (approveUsers.fulfilled.match(resultAction)) {
-        console.log("User approved successfully:", resultAction.payload);
         const updatedBuyers = buyers.filter((buyer) => buyer._id !== userId);
         dispatch({
           type: "user/updatePendingBuyers",
           payload: updatedBuyers,
         });
-        navigate("/user");
+
+        Swal.fire({
+          icon: "success",
+          title: "Approved!",
+          text: "Buyer has been approved successfully.",
+          timer: 2000,
+          showConfirmButton: false,
+        });
+
+        navigate("/approvebuyer");
       } else {
-        console.error("Failed to approve user:", resultAction.payload);
+        Swal.fire({
+          icon: "error",
+          title: "Approval Failed",
+          text: resultAction.payload?.message || "Something went wrong.",
+        });
       }
     } catch (error) {
-      console.error("Error dispatching approval:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: error.message || "Unexpected error occurred.",
+      });
     }
-  };
+  }
+};
 
   const handleFilterClick = (type) => {
     setIsFilterOpen(false);
@@ -172,7 +201,7 @@ export default function ApproveBuyerTable() {
 
       {/* Table */}
   <div
-  className="max-w-6xl mx-auto rounded-lg p-4"
+  className=" w-full mx-auto rounded-lg p-4"
   style={{ backgroundColor: "#F6F9EF" }}
 >
   {/* Table Header */}

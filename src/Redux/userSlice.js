@@ -83,13 +83,18 @@ export const fetchItemSubList = createAsyncThunk(
 );
 
 export const addSubCategory = createAsyncThunk(
-  "itemsub/addSubCategory",
+  "user/addSubCategory",
   async ({ name, itemNameId }, { rejectWithValue }) => {
     try {
-      const response = await addSubCategoryAPI({ name, itemNameId });
-      return response.subCategory; // return only the subCategory part
+      const data = await addSubCategoryAPI({ name, itemNameId });
+
+      if (!data?.subCategory?._id) {
+        return rejectWithValue("Invalid response from server");
+      }
+
+      return data.subCategory;
     } catch (error) {
-      return rejectWithValue(error.response?.data || error.message);
+      return rejectWithValue(error.message || "Something went wrong");
     }
   }
 );
@@ -178,9 +183,9 @@ export const editAgent = createAsyncThunk(
 
 export const editUser = createAsyncThunk(
   "user/edit",
-  async ({ id, editData }, { rejectWithValue }) => {
+  async ({ role, id, editData }, { rejectWithValue }) => {
     try {
-      const data = await editUserAPI(id, editData);
+      const data = await editUserAPI(role, id, editData);
       return data;
     } catch (err) {
       return rejectWithValue(
@@ -192,7 +197,7 @@ export const editUser = createAsyncThunk(
 
 export const fetchUserList = createAsyncThunk(
   "user/fetchList",
-  async ({ role, search = "", page = 1, status = "" }, { rejectWithValue }) => {
+  async ({ role, search = "", page, status = "" }, { rejectWithValue }) => {
     try {
       const data = await fetchUsersAPI({ role, search, page, status });
       return { role, data }; // include the role in payload
@@ -273,7 +278,15 @@ const UserSlice = createSlice({
       sellers: [],
     },
 
-    itemsubList: [],
+    itemsubList: {
+      list: [],
+      page: 1,
+      totalPages: 1,
+      total: 0,
+      loading: false,
+      error: null,
+    },
+
     addSubCategoryStatus: "",
     loading: false,
     status: "",
@@ -323,22 +336,28 @@ const UserSlice = createSlice({
       })
 
       .addCase(fetchItemSubList.pending, (state) => {
-        state.status = "loading";
+        state.itemsubList.loading = true;
+        state.itemsubList.error = null;
       })
       .addCase(fetchItemSubList.fulfilled, (state, action) => {
-        state.itemsubList = action.payload.data.subCategories;
-        state.totalPages = action.payload.totalPages || 1;
+        state.itemsubList.list = action.payload.data; // no `.subCategories`, you already return correct format
+        state.itemsubList.page = action.payload.pagination.page;
+        state.itemsubList.totalPages = action.payload.pagination.pages;
+        state.itemsubList.total = action.payload.pagination.total;
+        state.itemsubList.loading = false;
       })
       .addCase(fetchItemSubList.rejected, (state, action) => {
-        state.error = action.payload || "Something went wrong";
+        state.itemsubList.error = action.payload || "Something went wrong";
+        state.itemsubList.loading = false;
       })
+
       .addCase(addSubCategory.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(addSubCategory.fulfilled, (state, action) => {
         state.loading = false;
-        state.itemsubList.push(action.payload);
+        state.itemsubList.list.push(action.payload.subCategory);
       })
       .addCase(addSubCategory.rejected, (state, action) => {
         state.loading = false;
@@ -352,7 +371,7 @@ const UserSlice = createSlice({
         state.products.loading = false;
         state.products.items = action.payload.data.products;
         state.products.currentPage = action.payload.page;
-        state.products.totalPages = action.payload.totalPages;
+        state.products.totalPages = action.payload.total;
       })
       .addCase(fetchProductsList.rejected, (state, action) => {
         state.products.loading = false;

@@ -7,44 +7,54 @@ export default function BuyerTableContent({
 
   onEditClick,
 }) {
-  const dispatch = useDispatch();
-  const onDeleteClick = async (buyer) => {
-    if (!window.confirm(`Delete ${buyer.name}?`)) return;
+  const dispatch=useDispatch();
+const onDeleteClick = async (buyer) => {
+  const confirmResult = await Swal.fire({
+    title: `Delete ${buyer.name}?`,
+    text: "This action cannot be undone.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#3085d6",
+    confirmButtonText: "Yes, delete it!",
+  });
 
-    try {
-      const result = await dispatch(
-        deleteUser({ role: "buyer", id: buyer._id })
-      );
+  if (!confirmResult.isConfirmed) return;
 
-      if (deleteUser.fulfilled.match(result)) {
-        Swal.fire({
-          icon: "success",
-          title: "Deleted!",
-          text: `${buyer.name} has been removed.`,
-          timer: 1500,
-          showConfirmButton: false,
-        });
+  try {
+    const result = await dispatch(
+      deleteUser({ role: "buyer", id: buyer._id })
+    );
 
-        // Trigger parent refresh
-        dispatch(fetchUserList({ role: "buyer" }));
-      } else {
-        Swal.fire({
-          icon: "error",
-          title: "Delete failed",
-          text: result.payload || "Something went wrong",
-        });
-      }
-    } catch (error) {
+    if (deleteUser.fulfilled.match(result)) {
+      Swal.fire({
+        icon: "success",
+        title: "Deleted!",
+        text: `${buyer.name} has been removed.`,
+        timer: 1500,
+        showConfirmButton: false,
+      });
+
+      // Trigger parent refresh
+      dispatch(fetchUserList({ role: "buyer" }));
+    } else {
       Swal.fire({
         icon: "error",
-        title: "Error",
-        text: error.message || "Something went wrong",
+        title: "Delete failed",
+        text: result.payload || "Something went wrong",
       });
     }
-  };
+  } catch (error) {
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: error.message || "Something went wrong",
+    });
+  }
+};
   return (
     <div
-      className="max-w-6xl mx-auto rounded-lg p-4"
+      className="w-full mx-auto rounded-lg p-4"
       style={{ backgroundColor: "#F6F9EF" }}
     >
       <div className="p-3 rounded-lg shadow-sm grid grid-cols-8 font-[Nunito] font-bold text-black text-center text-sm whitespace-nowrap bg-[#F9FAFB]">
