@@ -101,6 +101,15 @@ export const fetchUserByIdAPI = async ({ role, id }) => {
   return response.data;
 };
 
+
+export const getSubscriptionHistory = async (userId) => {
+  const response = await API.get(`/subscription/history/${userId}`);
+  return response.data;
+};
+
+
+
+
 export const addSubCategoryAPI = async ({ name, itemNameId }) => {
   const response = await axios.post("/items/add-subcategory", {
     name,

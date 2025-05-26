@@ -7,15 +7,15 @@ export default function BuyerTableContent({
 
   onEditClick,
 }) {
-  const dispatch=useDispatch();
+  const dispatch = useDispatch();
   const onDeleteClick = async (buyer) => {
     if (!window.confirm(`Delete ${buyer.name}?`)) return;
-  
+
     try {
       const result = await dispatch(
         deleteUser({ role: "buyer", id: buyer._id })
       );
-  
+
       if (deleteUser.fulfilled.match(result)) {
         Swal.fire({
           icon: "success",
@@ -24,7 +24,7 @@ export default function BuyerTableContent({
           timer: 1500,
           showConfirmButton: false,
         });
-  
+
         // Trigger parent refresh
         dispatch(fetchUserList({ role: "buyer" }));
       } else {
@@ -66,7 +66,12 @@ export default function BuyerTableContent({
             className="bg-white p-3 rounded-lg shadow-sm grid grid-cols-8 text-center items-center text-sm whitespace-nowrap"
           >
             <div className="text-gray-700 font-medium">{index + 1}</div>
-            <div className="text-gray-700 font-medium">{buyer.name}</div>
+            <div
+              className="text-gray-700 font-medium"
+              onClick={() => navigate(`/profile/${seller._id}`)}
+            >
+              {buyer.name}
+            </div>
             <div className="text-gray-700">{buyer.phone}</div>
 
             <div className="text-gray-700">

@@ -16,6 +16,7 @@ import {
   addSubCategoryAPI,
   fetchUserByIdAPI,
   deleteAgentById,
+  getSubscriptionHistory,
 } from "../services/userServices";
 
 // FETCH AGENT LIST
@@ -93,7 +94,6 @@ export const addSubCategory = createAsyncThunk(
   }
 );
 
-
 export const getUserById = createAsyncThunk(
   "user/getById",
   async ({ role, id }, { rejectWithValue }) => {
@@ -121,7 +121,6 @@ export const deleteUser = createAsyncThunk(
   }
 );
 
-
 // DELETE USER
 export const deleteAgent = createAsyncThunk(
   "agent/delete",
@@ -130,12 +129,12 @@ export const deleteAgent = createAsyncThunk(
       await deleteAgentById(id); // pass only id
       return id; // no need to return role
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || "Unable to delete agent");
+      return rejectWithValue(
+        error.response?.data?.message || "Unable to delete agent"
+      );
     }
   }
 );
-
-
 
 // Add Agents
 export const addAgent = createAsyncThunk(
@@ -150,7 +149,6 @@ export const addAgent = createAsyncThunk(
   }
 );
 
-
 export const fetchProductsList = createAsyncThunk(
   "productslist/fetch",
   async ({ page }, { rejectWithValue }) => {
@@ -163,7 +161,6 @@ export const fetchProductsList = createAsyncThunk(
     }
   }
 );
-
 
 export const editAgent = createAsyncThunk(
   "agent/edit",
@@ -178,8 +175,6 @@ export const editAgent = createAsyncThunk(
     }
   }
 );
-
-
 
 export const editUser = createAsyncThunk(
   "user/edit",
@@ -238,6 +233,20 @@ export const approveUsers = createAsyncThunk(
   }
 );
 
+export const fetchSubscriptionHistory = createAsyncThunk(
+  "users/fetchSubscriptionHistory",
+  async (userId, { rejectWithValue }) => {
+    try {
+      const data = await getSubscriptionHistory(userId);
+      return data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch subscription history"
+      );
+    }
+  }
+);
+
 const UserSlice = createSlice({
   name: "user",
   initialState: {
@@ -263,9 +272,9 @@ const UserSlice = createSlice({
       buyers: [],
       sellers: [],
     },
-   
+
     itemsubList: [],
-    addSubCategoryStatus:'',
+    addSubCategoryStatus: "",
     loading: false,
     status: "",
     error: "",
@@ -275,6 +284,12 @@ const UserSlice = createSlice({
       error: null,
       currentPage: 1,
       totalPages: 1,
+    },
+    name: "user",
+    initialState: {
+      transactions: [],
+      loading: false,
+      error: null,
     },
   },
 
@@ -318,17 +333,17 @@ const UserSlice = createSlice({
         state.error = action.payload || "Something went wrong";
       })
       .addCase(addSubCategory.pending, (state) => {
-      state.loading = true;
-      state.error = null;
-    })
-    .addCase(addSubCategory.fulfilled, (state, action) => {
-      state.loading = false;
-      state.itemsubList.push(action.payload);
-    })
-    .addCase(addSubCategory.rejected, (state, action) => {
-      state.loading = false;
-      state.error = action.payload;
-    })
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(addSubCategory.fulfilled, (state, action) => {
+        state.loading = false;
+        state.itemsubList.push(action.payload);
+      })
+      .addCase(addSubCategory.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
 
       .addCase(fetchProductsList.pending, (state) => {
         state.products.loading = true;
@@ -471,6 +486,19 @@ const UserSlice = createSlice({
       .addCase(getUserById.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || "Something went wrong";
+      })
+
+      .addCase(fetchSubscriptionHistory.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchSubscriptionHistory.fulfilled, (state, action) => {
+        state.loading = false;
+        state.transactions = action.payload;
+      })
+      .addCase(fetchSubscriptionHistory.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       })
 
       // Delete User
