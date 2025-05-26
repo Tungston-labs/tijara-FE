@@ -84,7 +84,7 @@ export default function ItemNameList() {
 
   return (
     <div className="min-h-screen bg-[#E9E9E9] p-4">
-      <div className="max-w-6xl mx-auto">
+      <div className="w-full mx-auto">
         {/* Header */}
         <div className="flex justify-between items-start mb-4">
           <div>

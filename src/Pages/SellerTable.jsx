@@ -11,7 +11,17 @@ export default function SellerTableContent({ sellers, onEditClick }) {
   console.log("Sellers:", sellers);
 
 const onDeleteClick = async (seller) => {
-  if (!window.confirm(`Delete ${seller.name}?`)) return;
+  const confirmResult = await Swal.fire({
+    title: `Delete ${seller.name}?`,
+    text: "This action cannot be undone.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#B3DB48",
+    confirmButtonText: "Yes, delete it!",
+  });
+
+  if (!confirmResult.isConfirmed) return;
 
   try {
     const result = await dispatch(
@@ -48,7 +58,7 @@ const onDeleteClick = async (seller) => {
   return (
     <>
       <div
-        className="max-w-6xl mx-auto rounded-lg p-4"
+        className="w-full mx-auto rounded-lg p-4"
         style={{ backgroundColor: "#F6F9EF" }}
       >
         <div className="p-3 rounded-lg shadow-sm grid grid-cols-10 font-[Nunito] font-bold text-black text-center text-sm whitespace-nowrap bg-white">

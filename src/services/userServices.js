@@ -1,7 +1,7 @@
 import axios from "axios";
 const API = axios.create({
   withCredentials: true,
-  baseURL: "http://178.248.112.16:8080",
+  baseURL: "http://localhost:5000",
   headers: {
     "Content-Type": "application/json",
     Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -34,15 +34,14 @@ export const fetchItems = async ({ page }) => {
 };
 
 export const fetchSubItems = async (page = 1, search = "") => {
-  const response = await API.get(
-    `/items/get-subcategories?page=${page}&search=${search}`
-  );
+  const response = await API.get(`/items/get-subcategories?page=${page}&search=${search}`);
+  console.log("Raw API response:", response);
   return {
     data: response.data.subCategories,
-    totalPages: response.data.totalPages,
+    pagination: response.data.pagination,
   };
 };
-console.log("Selected code is empty");
+
 
 export const fetchProducts = async ({ page }) => {
   console.log("hello");
@@ -74,7 +73,7 @@ export const editAgentAPI = async (id, editData) => {
 export const fetchUsersAPI = async ({
   role,
   search = "",
-  page = 1,
+  page ,
   status = "",
 }) => {
   const response = await API.get(
@@ -117,9 +116,13 @@ export const fetchUserByIdAPI = async ({ role, id }) => {
   return response.data;
 };
 
+
 export const addSubCategoryAPI = async ({ name, itemNameId }) => {
   const response = await API.post("/items/add-subcategory", {
     name,
     itemNameId,
   });
+  return response.data; 
 };
+
+

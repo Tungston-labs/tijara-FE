@@ -26,7 +26,7 @@ export default function Login() {
 
     try {
       const response = await axios.post(
-        "http://178.248.112.16:8080/admin/auth/adminlogin",
+        "http://localhost:5000/admin/auth/adminlogin",
         formData,
         {
           withCredentials: true, // for sending cookies

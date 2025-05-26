@@ -62,7 +62,7 @@ export default function SellerProducts() {
 
   return (
     <div className="min-h-screen bg-[#E9E9E9] p-6">
-      <div className="max-w-7xl mx-auto">
+      <div className="w-full mx-auto">
         <h1 className="text-2xl font-bold font-[Nunito] mb-4">
           Seller products
         </h1>

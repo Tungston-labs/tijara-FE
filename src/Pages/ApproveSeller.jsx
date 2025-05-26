@@ -8,6 +8,7 @@ import {
   fetchPendingUsers,
 } from "../Redux/userSlice";
 import { Pencil, Trash } from "lucide-react";
+import Swal from "sweetalert2";
 
 export default function ApproveSellerTable() {
   const dispatch = useDispatch();
@@ -54,27 +55,55 @@ export default function ApproveSellerTable() {
     navigate(`/${type.toLowerCase()}`);
   };
 
-  const handleApprove = async (userId) => {
+
+const handleApprove = async (userId) => {
+  const confirmation = await Swal.fire({
+    title: "Are you sure?",
+    text: "Do you want to approve this seller?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#B3DB48",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, approve!",
+  });
+
+  if (confirmation.isConfirmed) {
     try {
       const resultAction = await dispatch(
         approveUsers({ userId, role: "seller", status: "approved" })
       );
 
       if (approveUsers.fulfilled.match(resultAction)) {
-        console.log("User approved successfully:", resultAction.payload);
-
         const updatedBuyers = sellers.filter((buyer) => buyer._id !== userId);
         dispatch({
           type: "user/updatePendingBuyers",
           payload: updatedBuyers,
         });
+
+        Swal.fire({
+          icon: "success",
+          title: "Approved!",
+          text: "Seller has been approved successfully.",
+          timer: 2000,
+          showConfirmButton: false,
+        });
       } else {
-        console.error("Failed to approve user:", resultAction.payload);
+        Swal.fire({
+          icon: "error",
+          title: "Approval Failed",
+          text: resultAction.payload?.message || "Something went wrong.",
+        });
       }
     } catch (error) {
-      console.error("Error dispatching approval:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: error.message || "Unexpected error occurred.",
+      });
     }
-  };
+  }
+};
+
   const onDeleteClick = async (seller) => {
     if (!window.confirm(`Delete ${seller.name}?`)) return;
 
@@ -166,7 +195,7 @@ export default function ApproveSellerTable() {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto rounded-lg p-2 sm:p-4 bg-[#F6F9EF] overflow-x-auto">
+      <div className="w-full mx-auto rounded-lg p-2 sm:p-4 bg-[#F6F9EF] overflow-x-auto">
         <div className="min-w-[768px] p-4 rounded-lg shadow-sm grid grid-cols-9 font-[Nunito] font-bold text-black text-sm text-center bg-[#F9FAFB]">
           <div>No</div>
           <div>Seller name</div>

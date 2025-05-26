@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { addSubCategory, fetchItemSubList } from "../Redux/userSlice";
 import { useDispatch, useSelector } from "react-redux";
+import Swal from "sweetalert2";
 
 export default function ItemNameList() {
   const dispatch = useDispatch();
-  const { itemsubList } = useSelector((state) => state.user);
-  const [totalPages, setTotalPages] = useState(1);
-  const [currentPage, setCurrentPage] = useState(1);
+const { list, totalPages, page } = useSelector((state) => state.user.itemsubList);
+const [currentPage, setCurrentPage] = useState(1);
   const [itemName, setItemName] = useState("");
   const [subcategory, setSubCategory] = useState("");
   const [itemNameId, setItemNameId] = useState("");
@@ -20,7 +20,7 @@ export default function ItemNameList() {
       .then((action) => {
         if (action.payload?.data) {
           setItems(action.payload.data);
-          setTotalPages(action.payload.totalPages || 1);
+          
 
           const itemMap = {};
           const uniqueItems = [];
@@ -52,17 +52,41 @@ export default function ItemNameList() {
     fetchPageItems(1, itemName);
   };
 
-  const handleAddSubCategory = () => {
-    if (!subcategory || !itemName || !itemNameId) {
-      alert("Please enter a subcategory and make sure an item is selected");
-      return;
-    }
-
-    dispatch(addSubCategory({ name: subcategory, itemNameId })).then(() => {
-      setSubCategory("");
-      fetchPageItems(currentPage, itemName);
+ const handleAddSubCategory = () => {
+  if (!subcategory || !itemName || !itemNameId) {
+    Swal.fire({
+      icon: "warning",
+      title: "Missing Input",
+      text: "Please enter a subcategory and make sure an item is selected.",
     });
-  };
+    return;
+  }
+
+
+  dispatch(addSubCategory({ name: subcategory, itemNameId })).then((action) => {
+  console.log("Thunk result:", action);
+
+  if (action.meta.requestStatus === "fulfilled") {
+    Swal.fire({
+      icon: "success",
+      title: "Subcategory Added",
+      text: `Subcategory "${subcategory}" was added successfully.`,
+      timer: 2000,
+      showConfirmButton: false,
+    });
+    setSubCategory("");
+    fetchPageItems(currentPage, itemName);
+  } else {
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: action.payload || "Failed to add subcategory. Please try again.",
+    });
+  }
+});
+
+};
+
 
   const handlePageClick = (page) => {
     setCurrentPage(page);
@@ -113,7 +137,7 @@ export default function ItemNameList() {
 
   return (
     <div className="min-h-screen bg-[#E9E9E9] p-4">
-      <div className="max-w-6xl mx-auto">
+      <div className="w-full mx-auto">
         {/* Header */}
         <div className="flex justify-between items-start mb-4">
           <div>
@@ -136,19 +160,19 @@ export default function ItemNameList() {
                     );
                     setSuggestions(filtered);
 
-                    const matchedItem = existingItems.find(
-                      (item) => item.toLowerCase() === input.toLowerCase()
-                    );
-
-                    if (matchedItem) {
-                      setItemNameId(itemNameMap[matchedItem]);
-                    } else {
-                      setItemNameId("");
-                    }
+                    // Don't search or set ID yet
                   }}
-                  onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                  onBlur={() => {
-                    setTimeout(() => setSuggestions([]), 100);
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      const matchedItem = existingItems.find(
+                        (item) => item.toLowerCase() === itemName.toLowerCase()
+                      );
+
+                      if (matchedItem) {
+                        setItemNameId(itemNameMap[matchedItem]);
+                        handleSearch(); // Trigger only when exact match
+                      }
+                    }
                   }}
                   className="px-4 py-2 rounded-md border border-gray-300 bg-white text-black focus:outline-none w-[250px]"
                 />
