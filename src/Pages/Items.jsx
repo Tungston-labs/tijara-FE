@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchItemList } from "../Redux/userSlice";
+import { fetchItemList, setInputValue, setSearch } from "../Redux/userSlice";
 
 
 export default function ItemNameList() {
@@ -25,6 +25,10 @@ export default function ItemNameList() {
 
   }
 
+useEffect(()=>{
+  dispatch(setSearch(""))
+   dispatch(setInputValue(""))
+},[])
 
 
   const fetchPageItems = (page) => {

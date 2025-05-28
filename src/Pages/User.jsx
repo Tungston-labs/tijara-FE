@@ -1,6 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import { Pencil, Trash, Filter } from "lucide-react";
-import { fetchUserList, deleteUser, editUser } from "../Redux/userSlice";
+import {
+  fetchUserList,
+  deleteUser,
+  editUser,
+  setSearch,
+  setInputValue,
+} from "../Redux/userSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { Modal, Input, message } from "antd";
 import SellerTableContent from "./SellerTable";
@@ -39,10 +45,30 @@ export default function UserTable() {
   // Get sellers and buyers from redux state
   const sellers = useSelector((state) => state.user.sellers);
   const buyers = useSelector((state) => state.user.buyers);
+  const search= useSelector((state)=>state.user.search)
+useEffect(() => {
+ 
+  dispatch(fetchUserList({ page: currentPage, role: filter, search }));
 
-  // Fetch data when filter changes
+
+  const handleEsc = (e) => e.key === "Escape" && setIsFilterOpen(false);
+  const handleClickOutside = (e) => {
+    if (popupRef.current && !popupRef.current.contains(e.target)) {
+      setIsFilterOpen(false);
+    }
+  };
+
+  document.addEventListener("keydown", handleEsc);
+  document.addEventListener("mousedown", handleClickOutside);
+  return () => {
+    document.removeEventListener("keydown", handleEsc);
+    document.removeEventListener("mousedown", handleClickOutside);
+  };
+}, [filter, currentPage,search]);
+
+
   useEffect(() => {
-    dispatch(fetchUserList({ page: currentPage, role: filter }));
+    dispatch(fetchUserList({ page: currentPage, role: filter  }));
 
     const handleEsc = (e) => e.key === "Escape" && setIsFilterOpen(false);
     const handleClickOutside = (e) => {
