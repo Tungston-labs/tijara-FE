@@ -18,8 +18,8 @@ export const fetchApproveBuyerList = async (buyer) => {
   return response;
 };
 
-export const fetchAgents = async ({ page }) => {
-  const response = await API.get(`/admin/agent/get-agents?page=${page}`);
+export const fetchAgents = async ({ page,search }) => {
+  const response = await API.get(`/admin/agent/get-agents?page=${page}&search=${search}`);
   return response;
 };
 export const fetchUnapprovedUsers = async ({ page }) => {

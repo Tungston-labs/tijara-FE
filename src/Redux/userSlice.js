@@ -22,9 +22,9 @@ import {
 // FETCH AGENT LIST
 export const fetchAgentList = createAsyncThunk(
   "agentlist/fetch",
-  async ({ page, limit }, { rejectWithValue }) => {
+  async ({ page, limit , search}, { rejectWithValue }) => {
     try {
-      const response = await fetchAgents({ page, limit });
+      const response = await fetchAgents({ page, limit , search});
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);

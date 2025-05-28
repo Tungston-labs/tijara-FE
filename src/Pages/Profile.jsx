@@ -1,25 +1,23 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchSubscriptionHistory } from "../Redux/userSlice";
+import { fetchAgentList, fetchSubscriptionHistory } from "../Redux/userSlice";
+import Select from "react-select";
 
 export default function ProfileTransactionCard() {
   const dispatch = useDispatch();
+  const { agentList } = useSelector((state) => state.user);
 
-  // Get subscription transactions, loading and error state
   const { transactions = [], loading, error } = useSelector((state) => state.user);
-
-  // Get user info from auth slice dynamically
   const user = useSelector((state) => state.auth.user);
 
-  // Set initial formData state dynamically from user info, or fallback to empty strings
   const [formData, setFormData] = useState({
     email: user?.email || "",
     phone: user?.phone || "",
-    licenceNumber: user?.licenceNumber || "", // make sure you store licenceNumber in user state if applicable
+    licenceNumber: user?.licenceNumber || "",
     agent: "",
   });
 
-  // Update formData when user changes (for example, on login)
+  // Initial form data setup
   useEffect(() => {
     if (user) {
       setFormData({
@@ -31,17 +29,63 @@ export default function ProfileTransactionCard() {
     }
   }, [user]);
 
-  // Dispatch API call when userId is available
+  // Fetch subscription history
   useEffect(() => {
     if (user?._id) {
       dispatch(fetchSubscriptionHistory(user._id));
-      
       console.log("Fetching subscription history for userId:", user._id);
     }
   }, [dispatch, user?._id]);
 
+  // Search input state
+  const [searchInput, setSearchInput] = useState("");
+  const [filteredAgents, setFilteredAgents] = useState([]);
+
+  // Debounced search for agent list directly from the API (search the DB, not only client-side)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (searchInput.trim() !== "") {
+        dispatch(fetchAgentList({ search: searchInput }))
+          .unwrap()
+          .then((data) => {
+            const filtered = data.agents.map((agent) => ({
+              label: agent.agentName,
+              value: agent.agentName,
+            })); 
+            setFilteredAgents(filtered);
+          })
+          .catch((err) => {
+            console.error("Error fetching agents:", err);
+          });
+      } else {
+        setFilteredAgents([]);
+      }
+    }, 300); // debounce
+
+    return () => clearTimeout(timer);
+  }, [searchInput, dispatch]);
+
+  // Always fetch full list of agents initially (like first page for default display)
+  useEffect(() => {
+    dispatch(fetchAgentList())
+      .unwrap()
+      .then((data) => {
+        console.log("Fetched initial agent list:", data);
+      })
+      .catch((err) => {
+        console.error("Error fetching agents:", err);
+      });
+  }, [dispatch]);
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleAgentSelect = (selectedOption) => {
+    const page = 1
+    const search = selectedOption?.value ||"";
+    dispatch(fetchAgentList({page,search}))
+    setFormData({ ...formData, agent: selectedOption?.value || "" });
   };
 
   return (
@@ -68,6 +112,7 @@ export default function ProfileTransactionCard() {
               <p className="font-semibold text-sm mt-4">Licence number</p>
               <p className="text-gray-600 text-sm">{formData.licenceNumber}</p>
             </div>
+
             <div>
               <p className="font-[Nunito] font-bold text-sm">Ph no</p>
               <p className="text-gray-600 text-sm">{formData.phone}</p>
@@ -80,19 +125,27 @@ export default function ProfileTransactionCard() {
               <p className="text-sm font-[Nunito] font-bold">Plan Expiring</p>
               <p className="text-gray-500 text-sm">21-12-2025</p>
             </div>
-            <div className="md:mr-4">
+
+            <div className="md:mr-4 w-60">
               <p className="text-sm font-[Nunito] font-bold">Assign an Agent</p>
-              <select
-                name="agent"
-                value={formData.agent}
-                onChange={handleChange}
-                className="bg-gray-100 px-3 py-2 rounded-md text-sm"
-              >
-                <option value="">Assign an Agent</option>
-                <option value="Ajay">Ajay</option>
-                <option value="Pranav">Pranav</option>
-              </select>
+              <Select
+                options={filteredAgents}
+                onInputChange={(val) => {
+                  console.log("search", val);
+                  setSearchInput(val);
+                }}
+                onChange={handleAgentSelect}
+                placeholder="Assign an Agent"
+                isClearable
+                value={
+                  formData.agent
+                    ? { label: formData.agent, value: formData.agent }
+                    : null
+                }
+                className="text-sm"
+              />
             </div>
+
             <div className="mt-2 md:mt-5">
               <button className="bg-[#B3DB48] px-5 py-2 text-white rounded-md font-[Nunito] font-bold">
                 Sub
