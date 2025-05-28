@@ -37,7 +37,7 @@ function App() {
             <Route path="itemsub" element={<ItemSub />} />
             <Route path="sellproducts" element={<SellerProduct />} />
             <Route path="/approval/:role/:id" element={<ApprovalForm />} />
-            <Route path="/profile" element={<Profile />} />
+            <Route path="/profile/:userId" element={<Profile />} />
           </Route>
         </Route>
       </Route>

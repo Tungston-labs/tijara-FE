@@ -16,6 +16,7 @@ import {
   addSubCategoryAPI,
   fetchUserByIdAPI,
   deleteAgentById,
+  getSubscriptionHistory,
 } from "../services/userServices";
 
 // FETCH AGENT LIST
@@ -237,6 +238,20 @@ export const approveUsers = createAsyncThunk(
   }
 );
 
+export const fetchSubscriptionHistory = createAsyncThunk(
+  "users/fetchSubscriptionHistory",
+  async (userId, { rejectWithValue }) => {
+    try {
+      const data = await getSubscriptionHistory(userId);
+      return data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch subscription history"
+      );
+    }
+  }
+);
+
 const UserSlice = createSlice({
   name: "user",
   initialState: {
@@ -282,6 +297,12 @@ const UserSlice = createSlice({
       error: null,
       currentPage: 1,
       totalPages: 1,
+    },
+    name: "user",
+    initialState: {
+      transactions: [],
+      loading: false,
+      error: null,
     },
   },
 
@@ -491,6 +512,19 @@ const UserSlice = createSlice({
       .addCase(getUserById.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || "Something went wrong";
+      })
+
+      .addCase(fetchSubscriptionHistory.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchSubscriptionHistory.fulfilled, (state, action) => {
+        state.loading = false;
+        state.transactions = action.payload;
+      })
+      .addCase(fetchSubscriptionHistory.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       })
 
       // Delete User

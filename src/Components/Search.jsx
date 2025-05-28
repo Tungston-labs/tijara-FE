@@ -42,7 +42,7 @@ export default function Topbar() {
       {/* Right Section - Profile only */}
       <div className="flex items-center gap-4">
         {/* User Profile */}
-        <div className="flex items-center bg-white p-2 rounded-full shadow-md">
+        {/* <div className="flex items-center bg-white p-2 rounded-full shadow-md">
           <img
             src="https://randomuser.me/api/portraits/women/45.jpg" // Replace with actual user image
             alt="User"
@@ -52,7 +52,7 @@ export default function Topbar() {
             <p className="text-sm font-medium text-gray-800">Ajay Kumar</p>
             <p className="text-xs text-gray-500">Admin</p>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

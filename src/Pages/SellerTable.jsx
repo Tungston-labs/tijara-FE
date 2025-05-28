@@ -1,7 +1,7 @@
 import React from "react";
 import { Pencil, Trash } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { deleteUser, fetchUserList } from "../Redux/userSlice";
+import { deleteUser, fetchSubscriptionHistory, fetchUserList } from "../Redux/userSlice";
 import { useDispatch } from "react-redux";
 import Swal from "sweetalert2";
 
@@ -23,37 +23,37 @@ const onDeleteClick = async (seller) => {
 
   if (!confirmResult.isConfirmed) return;
 
-  try {
-    const result = await dispatch(
-      deleteUser({ role: "seller", id: seller._id })
-    );
+    try {
+      const result = await dispatch(
+        deleteUser({ role: "seller", id: seller._id })
+      );
 
-    if (deleteUser.fulfilled.match(result)) {
-      Swal.fire({
-        icon: "success",
-        title: "Deleted!",
-        text: `${seller.name} has been removed.`,
-        timer: 1500,
-        showConfirmButton: false,
-      });
+      if (deleteUser.fulfilled.match(result)) {
+        Swal.fire({
+          icon: "success",
+          title: "Deleted!",
+          text: `${seller.name} has been removed.`,
+          timer: 1500,
+          showConfirmButton: false,
+        });
 
-      // Trigger parent refresh
-      dispatch(fetchUserList({ role: "seller" }));
-    } else {
+        // Trigger parent refresh
+        dispatch(fetchUserList({ role: "seller" }));
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Delete failed",
+          text: result.payload || "Something went wrong",
+        });
+      }
+    } catch (error) {
       Swal.fire({
         icon: "error",
-        title: "Delete failed",
-        text: result.payload || "Something went wrong",
+        title: "Error",
+        text: error.message || "Something went wrong",
       });
     }
-  } catch (error) {
-    Swal.fire({
-      icon: "error",
-      title: "Error",
-      text: error.message || "Something went wrong",
-    });
-  }
-};
+  };
 
   return (
     <>
@@ -82,7 +82,10 @@ const onDeleteClick = async (seller) => {
               <div className="text-gray-700 font-[Nunito]">{index + 1}</div>
               <div
                 className="text-[#B3DB48] font-[Nunito] cursor-pointer hover:underline"
-                onClick={() => navigate(`/profile`)}
+                onClick={() => {
+                  navigate(`/profile/${seller._id}`);
+                  dispatch(fetchSubscriptionHistory(seller._id)); // dispatch thunk with seller ID here
+                }}
               >
                 {seller.name}
               </div>

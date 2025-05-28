@@ -76,7 +76,12 @@ const onDeleteClick = async (buyer) => {
             className="bg-white p-3 rounded-lg shadow-sm grid grid-cols-8 text-center items-center text-sm whitespace-nowrap"
           >
             <div className="text-gray-700 font-medium">{index + 1}</div>
-            <div className="text-gray-700 font-medium">{buyer.name}</div>
+            <div
+              className="text-gray-700 font-medium"
+              onClick={() => navigate(`/profile/${seller._id}`)}
+            >
+              {buyer.name}
+            </div>
             <div className="text-gray-700">{buyer.phone}</div>
 
             <div className="text-gray-700">

@@ -1,19 +1,44 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchSubscriptionHistory } from "../Redux/userSlice";
 
 export default function ProfileTransactionCard() {
+  const dispatch = useDispatch();
+
+  // Get subscription transactions, loading and error state
+  const { transactions = [], loading, error } = useSelector((state) => state.user);
+
+  // Get user info from auth slice dynamically
+  const user = useSelector((state) => state.auth.user);
+
+  // Set initial formData state dynamically from user info, or fallback to empty strings
   const [formData, setFormData] = useState({
-    email: "Ajay132@gmail.com",
-    phone: "6238945012",
-    licenceNumber: "1854879652",
+    email: user?.email || "",
+    phone: user?.phone || "",
+    licenceNumber: user?.licenceNumber || "", // make sure you store licenceNumber in user state if applicable
     agent: "",
   });
 
-  const [transactions] = useState([
-    { status: "Payment per-month", date: "12 June 2025", amount: 85, agent: "Ajay" },
-    { status: "Payment per-month", date: "12 June 2025", amount: 85, agent: "Ajay" },
-    { status: "Payment per-month", date: "12 June 2025", amount: 85, agent: "Pranav" },
-    { status: "Payment per-month", date: "12 June 2025", amount: 85, agent: "Pranav" },
-  ]);
+  // Update formData when user changes (for example, on login)
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        email: user.email || "",
+        phone: user.phone || "",
+        licenceNumber: user.licenceNumber || "",
+        agent: "",
+      });
+    }
+  }, [user]);
+
+  // Dispatch API call when userId is available
+  useEffect(() => {
+    if (user?._id) {
+      dispatch(fetchSubscriptionHistory(user._id));
+      
+      console.log("Fetching subscription history for userId:", user._id);
+    }
+  }, [dispatch, user?._id]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -81,11 +106,13 @@ export default function ProfileTransactionCard() {
           <h3 className="text-center text-[#B3DB48] font-[Nunito] font-bold mb-4 text-lg">
             Transaction Summary
           </h3>
+          {loading && <p className="text-center text-sm text-gray-500">Loading...</p>}
+          {error && <p className="text-center text-red-500 text-sm">{error}</p>}
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
               <thead>
-                <tr className="border-b border-gray-200 ">
-                  <th className="px-4 py-2 font-[Nunito] font-bold text-black ">Status</th>
+                <tr className="border-b border-gray-200">
+                  <th className="px-4 py-2 font-[Nunito] font-bold text-black">Status</th>
                   <th className="px-4 py-2 font-[Nunito] font-bold text-black">Date</th>
                   <th className="px-4 py-2 font-[Nunito] font-bold text-black">Amount</th>
                   <th className="px-4 py-2 font-[Nunito] font-bold text-black">Agent Info</th>
@@ -93,7 +120,7 @@ export default function ProfileTransactionCard() {
               </thead>
               <tbody>
                 {transactions.map((txn, index) => (
-                  <tr key={index} className="border-b border-gray-100 font-[Nunito] ">
+                  <tr key={index} className="border-b border-gray-100 font-[Nunito]">
                     <td className="px-4 py-2 text-gray-500">{txn.status}</td>
                     <td className="px-4 py-2 text-gray-500">{txn.date}</td>
                     <td className="px-4 py-2 text-gray-500">{txn.amount}</td>
@@ -121,5 +148,3 @@ export default function ProfileTransactionCard() {
     </div>
   );
 }
-
-

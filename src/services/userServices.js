@@ -117,6 +117,14 @@ export const fetchUserByIdAPI = async ({ role, id }) => {
 };
 
 
+export const getSubscriptionHistory = async (userId) => {
+  const response = await API.get(`/subscription/history/${userId}`);
+  return response.data;
+};
+
+
+
+
 export const addSubCategoryAPI = async ({ name, itemNameId }) => {
   const response = await API.post("/items/add-subcategory", {
     name,
