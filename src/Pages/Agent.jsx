@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Search, Trash2 } from "lucide-react";
 import { Button, Modal, Form, Input } from "antd";
 import { useDispatch, useSelector } from "react-redux";
-import { addAgent, editAgent, deleteAgent, fetchAgentList } from "../Redux/userSlice";
+import { addAgent, editAgent, deleteAgent, fetchAgentList, setSearch, setInputValue } from "../Redux/userSlice";
 import Swal from "sweetalert2";
 
 const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -10,7 +10,7 @@ const isValidPhone = (phone) => /^[0-9]{10}$/.test(phone);
 
 export default function AgentTable() {
   const dispatch = useDispatch();
-  const { agentList } = useSelector((state) => state.user);
+  const { agentList , search } = useSelector((state) => state.user);
   const [showEditPopup, setShowEditPopup] = useState(false);
   const [showAddPopup, setShowAddPopup] = useState(false);
   const [selectedAgent, setSelectedAgent] = useState(null);
@@ -64,9 +64,13 @@ export default function AgentTable() {
       }
     });
   };
+useEffect(()=>{
+     dispatch(setSearch(""))
+    dispatch(setInputValue(""))
+},[])
 
   useEffect(() => {
-    dispatch(fetchAgentList({ page: currentPage, limit }))
+    dispatch(fetchAgentList({ page: currentPage, limit,search }))
       .unwrap()
       .then((res) => {
         setTotalPages(res.totalPages);
@@ -74,7 +78,7 @@ export default function AgentTable() {
       .catch((err) => {
         console.error("Error fetching agents:", err);
       });
-  }, [dispatch, currentPage]);
+  }, [dispatch, currentPage,search]);
 
   const handleEditOk = () => {
     if (!selectedAgent) return;

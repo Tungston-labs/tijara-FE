@@ -18,12 +18,12 @@ export const fetchApproveBuyerList = async (buyer) => {
   return response;
 };
 
-export const fetchAgents = async ({ page,search }) => {
+export const fetchAgents = async ({ page ,search}) => {
   const response = await API.get(`/admin/agent/get-agents?page=${page}&search=${search}`);
   return response;
 };
-export const fetchUnapprovedUsers = async ({ page }) => {
-  const response = await API.get(`admin/auth/unapproved-users?page=${page}`);
+export const fetchUnapprovedUsers = async ({ page, search }) => {
+  const response = await API.get(`admin/auth/unapproved-users?page=${page}&&search=${search}`);
   return response;
 };
 
@@ -43,7 +43,7 @@ export const fetchSubItems = async (page = 1, search = "") => {
 };
 
 
-export const fetchProducts = async ({ page }) => {
+export const fetchProducts = async ({ page,role }) => {
   console.log("hello");
   const response = API.get(`/product/get-products/${role}&page=${page}`);
   return response;

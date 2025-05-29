@@ -22,9 +22,9 @@ import {
 // FETCH AGENT LIST
 export const fetchAgentList = createAsyncThunk(
   "agentlist/fetch",
-  async ({ page, limit , search}, { rejectWithValue }) => {
+  async ({ page, limit,search }, { rejectWithValue }) => {
     try {
-      const response = await fetchAgents({ page, limit , search});
+      const response = await fetchAgents({ page, limit,search });
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -34,9 +34,9 @@ export const fetchAgentList = createAsyncThunk(
 
 export const fetchUnapprovedUserList = createAsyncThunk(
   "unapprovedList/fetch",
-  async (page, { rejectWithValue }) => {
+  async (page, search,{ rejectWithValue }) => {
     try {
-      const response = await fetchUnapprovedUsers({ page });
+      const response = await fetchUnapprovedUsers({ page ,search});
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -306,7 +306,14 @@ const UserSlice = createSlice({
     },
   },
 
-  reducers: {},
+  reducers: {
+    setSearch: (state, action) => {
+      state.search = action.payload;
+    },
+    setInputValue(state, action) {
+      state.inputValue = action.payload;
+    },
+  },
   extraReducers: (builder) => {
     builder
 
@@ -533,5 +540,5 @@ const UserSlice = createSlice({
       });
   },
 });
-
+export const { setSearch, setInputValue } = UserSlice.actions;
 export default UserSlice.reducer;

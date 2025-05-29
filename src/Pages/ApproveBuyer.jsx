@@ -1,59 +1,35 @@
 import { useState, useEffect, useRef } from "react";
 import {Eye,  Filter } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { approveUsers, fetchPendingUsers } from "../Redux/userSlice";
+import { approveUsers, fetchPendingUsers, setInputValue, setSearch,  } from "../Redux/userSlice";
 import Swal from "sweetalert2";
 
 export default function ApproveBuyerTable() {
   const dispatch = useDispatch();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const popupRef = useRef(null);
-  const [search, setSearch] = useState("");
   const navigate = useNavigate();
    const [filter, setFilter] = useState("buyer");
-
+  
   const [page, setPage] = useState(1); // 🧩 Fix: Define `page`
   const pageSize = 10; // Define how many buyers per page
-  const { loading, error, pending, totalPending } = useSelector((state) => state.user); // Assuming totalPending is from API
-  const buyers = pending[filter + "s"] || [];
-
+  const { loading, error, pending, totalPending } = useSelector((state) => state.user);
+  // const buyers = pending[filter + "s"] || [];
+  const buyers = useSelector((state) => state.user.pending.buyers);
   const totalPages = Math.ceil((totalPending || buyers.length) / pageSize); 
- 
+const search = useSelector((state) => state.user.search);
+
+  useEffect(()=>{
+  dispatch(setSearch(""))
+   dispatch(setInputValue(""))
+},[])
+
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await dispatch(fetchPendingUsers({ role: filter }));
-        console.log("Fetched users", response);
-        // console.log("Fetched data:", response); // <-- This will now show the actual result
-      } catch (err) {
-        console.error("Failed to fetch pending users:", err);
-      }
-    };
-
-    fetchData();
-
-    const handleEsc = (e) => e.key === "Escape" && setIsFilterOpen(false);
-    const handleClickOutside = (e) => {
-      if (popupRef.current && !popupRef.current.contains(e.target)) {
-        setIsFilterOpen(false);
-      }
-    };
-
-    document.addEventListener("keydown", handleEsc);
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("keydown", handleEsc);
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [filter, dispatch]);
-
-
-  // 🧩 Fetch buyers
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        await dispatch(fetchPendingUsers({ role: filter, page, limit: pageSize }));
+        await dispatch(fetchPendingUsers({ role: filter, page, search }));
       } catch (err) {
         console.error("Failed to fetch pending users:", err);
       }
@@ -73,7 +49,7 @@ export default function ApproveBuyerTable() {
       document.removeEventListener("keydown", handleEsc);
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [filter, dispatch, page]);
+  }, [filter, dispatch, page, search]);
 
   const handlePrev = () => {
     if (page > 1) setPage((prev) => prev - 1);

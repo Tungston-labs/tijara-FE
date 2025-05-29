@@ -6,6 +6,8 @@ import {
   approveUsers,
   deleteUser,
   fetchPendingUsers,
+  setInputValue,
+  setSearch,
 } from "../Redux/userSlice";
 import { Pencil, Trash } from "lucide-react";
 import Swal from "sweetalert2";
@@ -15,18 +17,23 @@ export default function ApproveSellerTable() {
   const navigate = useNavigate();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const popupRef = useRef(null);
-  const [search, setSearch] = useState("");
 
   const [filter, setFilter] = useState("seller");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const { loading, error, pending } = useSelector((state) => state.user);
-  const sellers = pending[filter + "s"];
+  // const sellers = pending[filter + "s"];
+   const sellers = useSelector((state) => state.user.pending.sellers);
+    const search = useSelector((state) => state.user.search);
 
+ useEffect(()=>{
+   dispatch(setSearch(""))
+    dispatch(setInputValue(""))
+ },[])
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await dispatch(fetchPendingUsers({ role: filter }));
+        const response = await dispatch(fetchPendingUsers({ role: filter,search }));
         return response;
       } catch (err) {
         console.error("Failed to fetch pending users:", err);
@@ -48,7 +55,7 @@ export default function ApproveSellerTable() {
       document.removeEventListener("keydown", handleEsc);
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [filter, dispatch]);
+  }, [filter, dispatch, search]);
 
   const handleFilterClick = (type) => {
     setIsFilterOpen(false);
