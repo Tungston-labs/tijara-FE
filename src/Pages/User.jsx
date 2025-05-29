@@ -46,6 +46,16 @@ export default function UserTable() {
   const sellers = useSelector((state) => state.user.sellers);
   const buyers = useSelector((state) => state.user.buyers);
   const search= useSelector((state)=>state.user.search)
+
+    useEffect(() => {
+    dispatch(setSearch(""));
+    dispatch(setInputValue(""));
+    setCurrentPage(1);
+  }, [dispatch]);
+  
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search]);
 useEffect(() => {
  
   dispatch(fetchUserList({ page: currentPage, role: filter, search }));
@@ -67,23 +77,7 @@ useEffect(() => {
 }, [filter, currentPage,search]);
 
 
-  useEffect(() => {
-    dispatch(fetchUserList({ page: currentPage, role: filter  }));
 
-    const handleEsc = (e) => e.key === "Escape" && setIsFilterOpen(false);
-    const handleClickOutside = (e) => {
-      if (popupRef.current && !popupRef.current.contains(e.target)) {
-        setIsFilterOpen(false);
-      }
-    };
-
-    document.addEventListener("keydown", handleEsc);
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("keydown", handleEsc);
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [filter, currentPage]);
 
   // Delete Handler
   const handleDeleteClick = (user) => {
@@ -277,12 +271,14 @@ useEffect(() => {
             sellers={sellers.list || []}
             onEditClick={handleEditClick}
             onDeleteClick={handleDeleteClick}
+            currentPage={currentPage}
           />
         ) : (
           <BuyerTable
             buyers={buyers.list || []}
             onEditClick={handleEditClick}
             onDeleteClick={handleDeleteClick}
+            currentPage={currentPage}
           />
         )}
 

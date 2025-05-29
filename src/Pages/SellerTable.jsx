@@ -5,7 +5,7 @@ import { deleteUser, fetchSubscriptionHistory, fetchUserList } from "../Redux/us
 import { useDispatch } from "react-redux";
 import Swal from "sweetalert2";
 
-export default function SellerTableContent({ sellers, onEditClick }) {
+export default function SellerTableContent({ sellers, onEditClick, currentPage }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   console.log("Sellers:", sellers);
@@ -79,12 +79,12 @@ const onDeleteClick = async (seller) => {
               key={index}
               className="bg-white p-3 rounded-lg shadow-sm grid grid-cols-10 text-center items-center text-sm whitespace-nowrap"
             >
-              <div className="text-gray-700 font-[Nunito]">{index + 1}</div>
+              <div className="text-gray-700 font-[Nunito]">{index + 1 + (currentPage - 1) * 10}</div>
               <div
                 className="text-[#B3DB48] font-[Nunito] cursor-pointer hover:underline"
                 onClick={() => {
                   navigate(`/profile/${seller._id}`);
-                  dispatch(fetchSubscriptionHistory(seller._id)); // dispatch thunk with seller ID here
+                  dispatch(fetchSubscriptionHistory(seller._id)); 
                 }}
               >
                 {seller.name}

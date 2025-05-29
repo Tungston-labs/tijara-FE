@@ -55,10 +55,11 @@ export const deleteUserById = async ({ role, id }) => {
 };
 
 
-export const deleteAgentById = async ({ id }) => {
-  const res = API.delete(`/admin/auth/delete-agent/${id}`);
+export const deleteAgentById = async (id) => {
+  const res = await API.delete(`/admin/agent/delete-agent/${id}`);
   return res.data;
 };
+
 
 export const addAgentAPI=async(agentData)=>{
     const response=API.post(`/admin/agent/add-agent`,agentData)
@@ -85,7 +86,7 @@ export const fetchUsersAPI = async ({
 export const fetchPendingUsersAPI = async ({
   role,
   search = "",
-  page = 1,
+  page ,
   status = "",
 }) => {
   const response = await API.get(

@@ -17,8 +17,7 @@ export default function Topbar() {
   }, [inputValue, dispatch]);
   const handleInputChange = (e) => {
       dispatch(setInputValue(e.target.value));
-      console.log('dnndjndddnkkd',e.target.value)
-    
+      
   };
   
   return (
@@ -36,6 +35,7 @@ export default function Topbar() {
           className="w-full pl-12 pr-4 py-2 rounded-md border focus:outline-none focus:ring-2 focus:ring-gray-300 bg-white"
           onChange={handleInputChange
           }
+          
         />
       </div>
      

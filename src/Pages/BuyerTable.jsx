@@ -2,12 +2,14 @@ import { Pencil, Trash } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { deleteUser, fetchUserList } from "../Redux/userSlice";
 import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
 export default function BuyerTableContent({
   buyers,
-
+  currentPage,
   onEditClick,
 }) {
   const dispatch=useDispatch();
+  const navigate=useNavigate();
 const onDeleteClick = async (buyer) => {
   const confirmResult = await Swal.fire({
     title: `Delete ${buyer.name}?`,
@@ -75,10 +77,10 @@ const onDeleteClick = async (buyer) => {
             key={index}
             className="bg-white p-3 rounded-lg shadow-sm grid grid-cols-8 text-center items-center text-sm whitespace-nowrap"
           >
-            <div className="text-gray-700 font-medium">{index + 1}</div>
+            <div className="text-gray-700 font-medium">{index + 1 + (currentPage - 1) * 10}</div>
             <div
               className="text-gray-700 font-medium"
-              onClick={() => navigate(`/profile/${seller._id}`)}
+              onClick={() => navigate(`/profile/${buyer._id}`)}
             >
               {buyer.name}
             </div>
