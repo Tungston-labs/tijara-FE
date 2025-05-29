@@ -1,3 +1,6 @@
+
+
+
 import { Pencil, Trash } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { deleteUser, fetchUserList } from "../Redux/userSlice";
@@ -21,39 +24,51 @@ const onDeleteClick = async (buyer) => {
     confirmButtonText: "Yes, delete it!",
   });
 
-  if (!confirmResult.isConfirmed) return;
+  const onDeleteClick = async (buyer) => {
+    const confirmResult = await Swal.fire({
+      title: `Delete ${buyer.name}?`,
+      text: "This action cannot be undone.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    });
 
-  try {
-    const result = await dispatch(
-      deleteUser({ role: "buyer", id: buyer._id })
-    );
+    if (!confirmResult.isConfirmed) return;
 
-    if (deleteUser.fulfilled.match(result)) {
-      Swal.fire({
-        icon: "success",
-        title: "Deleted!",
-        text: `${buyer.name} has been removed.`,
-        timer: 1500,
-        showConfirmButton: false,
-      });
+    try {
+      const result = await dispatch(
+        deleteUser({ role: "buyer", id: buyer._id })
+      );
 
-      // Trigger parent refresh
-      dispatch(fetchUserList({ role: "buyer" }));
-    } else {
+      if (deleteUser.fulfilled.match(result)) {
+        Swal.fire({
+          icon: "success",
+          title: "Deleted!",
+          text: `${buyer.name} has been removed.`,
+          timer: 1500,
+          showConfirmButton: false,
+        });
+
+        // Trigger parent refresh
+        dispatch(fetchUserList({ role: "buyer" }));
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Delete failed",
+          text: result.payload || "Something went wrong",
+        });
+      }
+    } catch (error) {
       Swal.fire({
         icon: "error",
-        title: "Delete failed",
-        text: result.payload || "Something went wrong",
+        title: "Error",
+        text: error.message || "Something went wrong",
       });
     }
-  } catch (error) {
-    Swal.fire({
-      icon: "error",
-      title: "Error",
-      text: error.message || "Something went wrong",
-    });
-  }
-};
+  };
+
   return (
     <div
       className="w-full mx-auto rounded-lg p-4"
@@ -65,7 +80,7 @@ const onDeleteClick = async (buyer) => {
         <div>Ph no</div>
         <div>Plan Expiring</div>
         <div>Payment type</div>
-        {/* <div>Buyer/seller</div>  */}
+        {/* <div>Buyer/seller</div> */}
         <div>Edit</div>
         <div>Delete</div>
       </div>
@@ -79,8 +94,10 @@ const onDeleteClick = async (buyer) => {
           >
             <div className="text-gray-700 font-medium">{index + 1 + (currentPage - 1) * 10}</div>
             <div
-              className="text-gray-700 font-medium"
-              onClick={() => navigate(`/profile/${buyer._id}`)}
+              className="text-[#B3DB48] font-[Nunito] cursor-pointer hover:underline"
+              onClick={() => {
+                navigate(`/profilebuyer/${buyer._id}`);
+              }}
             >
               {buyer.name}
             </div>
@@ -118,4 +135,5 @@ const onDeleteClick = async (buyer) => {
       </div>
     </div>
   );
+}
 }

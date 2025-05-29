@@ -13,6 +13,7 @@ import ApprovalForm from "./Pages/ApprovalForm";
 import ProtectedRoute from "./Components/ProtectedRoute";
 import PersistLogin from "./Components/PersistLogin"; // ✅ IMPORTANT: Add this line
 import User from "./Pages/User";
+import ProfileBuyer from "./Pages/ProfileBuyer";
 
 function App() {
   return (
@@ -37,7 +38,8 @@ function App() {
             <Route path="itemsub" element={<ItemSub />} />
             <Route path="sellproducts" element={<SellerProduct />} />
             <Route path="/approval/:role/:id" element={<ApprovalForm />} />
-            <Route path="/profile/:userId" element={<Profile />} />
+            <Route path="/profile/:role/:id" element={<Profile />} />
+            <Route path="/profilebuyer/:userId" element={<ProfileBuyer />} />
           </Route>
         </Route>
       </Route>
