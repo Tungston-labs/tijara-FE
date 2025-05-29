@@ -1,7 +1,12 @@
 import React from "react";
 import { Pencil, Trash } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { deleteUser, fetchSubscriptionHistory, fetchUserList } from "../Redux/userSlice";
+import {
+  deleteUser,
+  fetchSubscriptionHistory,
+  fetchUserList,
+  getUserById,
+} from "../Redux/userSlice";
 import { useDispatch } from "react-redux";
 import Swal from "sweetalert2";
 
@@ -10,18 +15,18 @@ export default function SellerTableContent({ sellers, onEditClick }) {
   const navigate = useNavigate();
   console.log("Sellers:", sellers);
 
-const onDeleteClick = async (seller) => {
-  const confirmResult = await Swal.fire({
-    title: `Delete ${seller.name}?`,
-    text: "This action cannot be undone.",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonColor: "#d33",
-    cancelButtonColor: "#B3DB48",
-    confirmButtonText: "Yes, delete it!",
-  });
+  const onDeleteClick = async (seller) => {
+    const confirmResult = await Swal.fire({
+      title: `Delete ${seller.name}?`,
+      text: "This action cannot be undone.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#B3DB48",
+      confirmButtonText: "Yes, delete it!",
+    });
 
-  if (!confirmResult.isConfirmed) return;
+    if (!confirmResult.isConfirmed) return;
 
     try {
       const result = await dispatch(
@@ -83,8 +88,9 @@ const onDeleteClick = async (seller) => {
               <div
                 className="text-[#B3DB48] font-[Nunito] cursor-pointer hover:underline"
                 onClick={() => {
-                  navigate(`/profile/${seller._id}`);
-                  dispatch(fetchSubscriptionHistory(seller._id)); // dispatch thunk with seller ID here
+                  navigate(`/profile/seller/${seller._id}`); // pass role as string
+                  dispatch(fetchSubscriptionHistory(seller._id));
+                  dispatch(getUserById({ role: "seller", id: seller._id })); // pass object with role and id
                 }}
               >
                 {seller.name}

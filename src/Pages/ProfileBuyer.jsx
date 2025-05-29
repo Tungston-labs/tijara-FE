@@ -1,22 +1,22 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAgentList, fetchSubscriptionHistory, getUserById } from "../Redux/userSlice";
+import { fetchAgentList, fetchSubscriptionHistory } from "../Redux/userSlice";
 import Select from "react-select";
-import { useParams } from "react-router-dom";
 
 export default function ProfileTransactionCard() {
   const dispatch = useDispatch();
   const { agentList } = useSelector((state) => state.user);
-  const {filter,setFilter}=useState("")
+
   const { transactions = [], loading, error } = useSelector((state) => state.user);
-  const { user } = useSelector((state) => state.user);
-const { role, id } = useParams();  
-const [formData, setFormData] = useState({
+  const user = useSelector((state) => state.auth.user);
+
+  const [formData, setFormData] = useState({
     email: user?.email || "",
     phone: user?.phone || "",
-    licenceNumber: user?.licenceNumber || "",
+
     agent: "",
   });
+
 
   // Initial form data setup
   useEffect(() => {
@@ -24,7 +24,7 @@ const [formData, setFormData] = useState({
       setFormData({
         email: user.email || "",
         phone: user.phone || "",
-        licenceNumber: user.licenceNumber || "",
+        
         agent: "",
       });
     }
@@ -37,29 +37,6 @@ const [formData, setFormData] = useState({
       console.log("Fetching subscription history for userId:", user._id);
     }
   }, [dispatch, user?._id]);
-
-
- useEffect(() => {
-    if (id) {
-      dispatch(getUserById({ role, id }));
-    }
-  
-
-  const handleEsc = (e) => e.key === "Escape" && setIsFilterOpen(false);
-  const handleClickOutside = (e) => {
-    if (popupRef.current && !popupRef.current.contains(e.target)) {
-      setIsFilterOpen(false);
-    }
-  };
-
-  document.addEventListener("keydown", handleEsc);
-  document.addEventListener("mousedown", handleClickOutside);
-  return () => {
-    document.removeEventListener("keydown", handleEsc);
-    document.removeEventListener("mousedown", handleClickOutside);
-  };
-}, [dispatch,role, id]);
- console.log("Fetching user:", { role, id });
 
   // Search input state
   const [searchInput, setSearchInput] = useState("");
@@ -125,7 +102,7 @@ const [formData, setFormData] = useState({
               className="w-20 h-20 rounded-full"
             />
             <h2 className="text-xl font-[Nunito] font-bold mt-2">Ajay kumar</h2>
-            <p className="text-sm text-gray-500">abc pvt ltd</p>
+            
           </div>
 
           {/* Info Section */}
@@ -133,8 +110,7 @@ const [formData, setFormData] = useState({
             <div>
               <p className="font-[Nunito] font-bold text-sm">Email.ID</p>
               <p className="text-gray-600 text-sm">{formData.email}</p>
-              <p className="font-semibold text-sm mt-4">Licence number</p>
-              <p className="text-gray-600 text-sm">{formData.licenceNumber}</p>
+              
             </div>
 
             <div>
