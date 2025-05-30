@@ -11,6 +11,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Modal, Input, message } from "antd";
 import SellerTableContent from "./SellerTable";
 import BuyerTable from "./BuyerTable";
+import Swal from "sweetalert2";
 
 export default function UserTable() {
   const dispatch = useDispatch();
@@ -45,39 +46,34 @@ export default function UserTable() {
   // Get sellers and buyers from redux state
   const sellers = useSelector((state) => state.user.sellers);
   const buyers = useSelector((state) => state.user.buyers);
-  const search= useSelector((state)=>state.user.search)
+  const search = useSelector((state) => state.user.search);
 
-    useEffect(() => {
+  useEffect(() => {
     dispatch(setSearch(""));
     dispatch(setInputValue(""));
     setCurrentPage(1);
   }, [dispatch]);
-  
+
   useEffect(() => {
     setCurrentPage(1);
   }, [search]);
-useEffect(() => {
- 
-  dispatch(fetchUserList({ page: currentPage, role: filter, search }));
+  useEffect(() => {
+    dispatch(fetchUserList({ page: currentPage, role: filter, search }));
 
+    const handleEsc = (e) => e.key === "Escape" && setIsFilterOpen(false);
+    const handleClickOutside = (e) => {
+      if (popupRef.current && !popupRef.current.contains(e.target)) {
+        setIsFilterOpen(false);
+      }
+    };
 
-  const handleEsc = (e) => e.key === "Escape" && setIsFilterOpen(false);
-  const handleClickOutside = (e) => {
-    if (popupRef.current && !popupRef.current.contains(e.target)) {
-      setIsFilterOpen(false);
-    }
-  };
-
-  document.addEventListener("keydown", handleEsc);
-  document.addEventListener("mousedown", handleClickOutside);
-  return () => {
-    document.removeEventListener("keydown", handleEsc);
-    document.removeEventListener("mousedown", handleClickOutside);
-  };
-}, [filter, currentPage,search]);
-
-
-
+    document.addEventListener("keydown", handleEsc);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("keydown", handleEsc);
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [filter, currentPage, search]);
 
   // Delete Handler
   const handleDeleteClick = (user) => {
@@ -164,13 +160,24 @@ useEffect(() => {
         })
       ).unwrap();
 
-      message.success("User updated successfully");
+      Swal.fire({
+        icon: "success",
+        title: "User Updated!",
+        text: `${formData.name}'s profile has been updated.`,
+        timer: 1500,
+        showConfirmButton: false,
+      });
+
       setShowEditPopup(false);
       setIsEditing(false);
       setSelectedUser(null);
       dispatch(fetchUserList({ role: filter }));
     } catch (error) {
-      message.error("Failed to update user");
+      Swal.fire({
+        icon: "error",
+        title: "Update Failed",
+        text: error.message || "Something went wrong",
+      });
     }
   };
 
