@@ -1,8 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import { Eye, Filter } from "lucide-react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { approveUsers, fetchPendingUsers, setInputValue, setSearch } from "../Redux/userSlice";
+import {
+  approveUsers,
+  fetchPendingUsers,
+  setInputValue,
+  setSearch,
+} from "../Redux/userSlice";
 import Swal from "sweetalert2";
 
 export default function ApproveBuyerTable() {
@@ -10,60 +15,59 @@ export default function ApproveBuyerTable() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const popupRef = useRef(null);
   const navigate = useNavigate();
+  const [currentPage, setCurrentPage] = useState(1);
   const [filter, setFilter] = useState("buyer");
-  const [page, setPage] = useState(1);
-  const pageSize = 10;
-  const { loading, error, pending, totalPending } = useSelector((state) => state.user);
   const buyers = useSelector((state) => state.user.pending.buyers);
-  const totalPages = Math.ceil((totalPending || buyers.length) / pageSize);
+  const totalPages = useSelector((state) => state.user.buyers.totalPages);
+
   const search = useSelector((state) => state.user.search);
 
   useEffect(() => {
     dispatch(setSearch(""));
     dispatch(setInputValue(""));
-  }, []);
+    setCurrentPage(1);
+  }, [dispatch]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        await dispatch(fetchPendingUsers({ role: filter, page, search }));
-      } catch (err) {
-        console.error("Failed to fetch pending users:", err);
-      }
-    };
-    fetchData();
+    setCurrentPage(1);
+  }, [search]);
 
-    const handleEsc = (e) => e.key === "Escape" && setIsFilterOpen(false);
-    const handleClickOutside = (e) => {
-      if (popupRef.current && !popupRef.current.contains(e.target)) {
-        setIsFilterOpen(false);
-      }
-    };
+  // Fetch data when page or search changes
+useEffect(() => {
+  dispatch(fetchPendingUsers({ role: filter, page: currentPage, search }));
 
-    document.addEventListener("keydown", handleEsc);
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("keydown", handleEsc);
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [filter, dispatch, page, search]);
+  const handleEsc = (e) => e.key === "Escape" && setIsFilterOpen(false);
+  const handleClickOutside = (e) => {
+    if (popupRef.current && !popupRef.current.contains(e.target)) {
+      setIsFilterOpen(false);
+    }
+  };
 
-  const handlePrev = () => {
-    if (page > 1) setPage((prev) => prev - 1);
+  document.addEventListener("keydown", handleEsc);
+  document.addEventListener("mousedown", handleClickOutside);
+  return () => {
+    document.removeEventListener("keydown", handleEsc);
+    document.removeEventListener("mousedown", handleClickOutside);
+  };
+}, [dispatch, filter, search, currentPage]); 
+
+
+   const handlePrev = () => {
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
   };
 
   const handleNext = () => {
-    if (page < totalPages) setPage((prev) => prev + 1);
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
 
-  const handlePageClick = (p) => {
-    setPage(p);
+  const handlePageClick = (pageNum) => {
+    setCurrentPage(pageNum);
   };
 
   const handleGoToPage = (e) => {
-    const value = parseInt(e.target.value, 10);
-    if (!isNaN(value) && value >= 1 && value <= totalPages) {
-      setPage(value);
+    const page = Number(e.target.value);
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
       e.target.value = "";
     }
   };
@@ -71,16 +75,20 @@ export default function ApproveBuyerTable() {
   const getPaginationNumbers = () => {
     const pages = [];
     const visibleCount = 5;
-    let start = Math.max(1, page - Math.floor(visibleCount / 2));
+    let start = Math.max(1, currentPage - Math.floor(visibleCount / 2));
     let end = start + visibleCount - 1;
+
     if (end > totalPages) {
       end = totalPages;
       start = Math.max(1, end - visibleCount + 1);
     }
-    for (let i = start; i <= end; i++) pages.push(i);
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+
     return pages;
   };
-
   const handleApprove = async (userId) => {
     const confirmation = await Swal.fire({
       title: "Are you sure?",
@@ -195,12 +203,12 @@ export default function ApproveBuyerTable() {
               key={buyer._id}
               className="bg-white p-3 rounded-lg shadow-sm grid grid-cols-2 sm:grid-cols-6 items-center text-xs sm:text-sm gap-2"
             >
-              <div>{index + 1}</div>
+              <div>{index + 1 + (currentPage - 1) * 10}</div>
               <div>{buyer.name}</div>
-              <div className="hidden sm:block">{buyer.phone}</div>
-              <div className="hidden sm:block">{buyer.email}</div>
+              <div>{buyer.phone}</div>
+              <div>{buyer.email}</div>
 
-              <div className="hidden sm:flex justify-center">
+              <div className="flex justify-center">
                 <Eye
                   className="text-[#B3DB48] w-5 h-5 cursor-pointer"
                   onClick={() => navigate(`/approval/buyer/${buyer._id}`)}
@@ -224,21 +232,29 @@ export default function ApproveBuyerTable() {
       <div className="max-w-6xl mx-auto mt-6 flex flex-col sm:flex-row items-center justify-between text-xs sm:text-sm gap-2">
         <div></div>
         <div className="flex items-center space-x-2 text-gray-700">
-          <button onClick={handlePrev} disabled={page === 1} className="text-lg">
+          <button
+            onClick={handlePrev}
+            disabled={currentPage === 1}
+            className="text-lg"
+          >
             &lt;
           </button>
           {getPaginationNumbers().map((num) => (
             <button
               key={num}
               className={`w-8 h-8 rounded-full font-[Nunito] font-bold ${
-                page === num ? "bg-[#B3DB48] text-black" : "hover:underline"
+                currentPage === num ? "bg-[#B3DB48] text-black" : "hover:underline"
               }`}
               onClick={() => handlePageClick(num)}
             >
               {num}
             </button>
           ))}
-          <button onClick={handleNext} disabled={page === totalPages} className="text-lg">
+          <button
+            onClick={handleNext}
+            disabled={currentPage === totalPages}
+            className="text-lg"
+          >
             &gt;
           </button>
         </div>

@@ -22,9 +22,9 @@ import {
 // FETCH AGENT LIST
 export const fetchAgentList = createAsyncThunk(
   "agentlist/fetch",
-  async ({ page, limit,search }, { rejectWithValue }) => {
+  async ({ page, limit, search }, { rejectWithValue }) => {
     try {
-      const response = await fetchAgents({ page, limit,search });
+      const response = await fetchAgents({ page, limit, search });
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -34,9 +34,9 @@ export const fetchAgentList = createAsyncThunk(
 
 export const fetchUnapprovedUserList = createAsyncThunk(
   "unapprovedList/fetch",
-  async (page, search,{ rejectWithValue }) => {
+  async (page, search, { rejectWithValue }) => {
     try {
-      const response = await fetchUnapprovedUsers({ page ,search});
+      const response = await fetchUnapprovedUsers({ page, search });
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -131,8 +131,8 @@ export const deleteAgent = createAsyncThunk(
   "agent/delete",
   async (id, { rejectWithValue }) => {
     try {
-      await deleteAgentById(id); // pass only id
-      return id; // no need to return role
+      await deleteAgentById(id); // now fixed
+      return id;
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || "Unable to delete agent"
@@ -140,6 +140,7 @@ export const deleteAgent = createAsyncThunk(
     }
   }
 );
+
 
 // Add Agents
 export const addAgent = createAsyncThunk(
@@ -214,7 +215,6 @@ export const fetchPendingUsers = createAsyncThunk(
   async ({ role, search = "", page = 1, status = "" }, { rejectWithValue }) => {
     try {
       const data = await fetchPendingUsersAPI({ role, search, page, status });
-      console.log("sfhfsaffbhkajhafghfgjhkfbh", data);
       return { role, data };
     } catch (err) {
       return rejectWithValue(
@@ -450,11 +450,20 @@ const UserSlice = createSlice({
 
       .addCase(fetchPendingUsers.fulfilled, (state, action) => {
         const role = action.meta.arg.role; // "seller" or "buyer"
-        const users = action.payload.data.data; // <-- The actual array
-        state.pending[`${role}s`] = users;
+        const response = action.payload.data;
+
+        // Set the list of pending users
+        state.pending[`${role}s`] = response.data;
+
+        // OPTIONAL: Also store total, page, totalPages per role
+        state[`${role}s`].total = response.totalResults;
+        state[`${role}s`].page = response.currentPage;
+        state[`${role}s`].totalPages = response.totalPages;
+
         state.loading = false;
         state.error = null;
       })
+
       .addCase(fetchPendingUsers.pending, (state) => {
         state.loading = true;
       })

@@ -10,7 +10,7 @@ import {
 import { useDispatch } from "react-redux";
 import Swal from "sweetalert2";
 
-export default function SellerTableContent({ sellers, onEditClick }) {
+export default function SellerTableContent({ sellers, onEditClick, currentPage }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   console.log("Sellers:", sellers);

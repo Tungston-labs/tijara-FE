@@ -20,20 +20,27 @@ export default function ApproveSellerTable() {
 
   const [filter, setFilter] = useState("seller");
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const { loading, error, pending } = useSelector((state) => state.user);
+  const totalPages = useSelector((state) => state.user.sellers.totalPages);
   // const sellers = pending[filter + "s"];
-   const sellers = useSelector((state) => state.user.pending.sellers);
-    const search = useSelector((state) => state.user.search);
+  const sellers = useSelector((state) => state.user.pending.sellers);
+  const search = useSelector((state) => state.user.search);
 
- useEffect(()=>{
-   dispatch(setSearch(""))
-    dispatch(setInputValue(""))
- },[])
+  useEffect(() => {
+    dispatch(setSearch(""));
+    dispatch(setInputValue(""));
+    setCurrentPage(1);
+  }, [dispatch]);
+  
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search]);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await dispatch(fetchPendingUsers({ role: filter,search }));
+        const response = await dispatch(
+          fetchPendingUsers({ role: filter, search, page: currentPage })
+        );
         return response;
       } catch (err) {
         console.error("Failed to fetch pending users:", err);
@@ -55,61 +62,60 @@ export default function ApproveSellerTable() {
       document.removeEventListener("keydown", handleEsc);
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [filter, dispatch, search]);
+  }, [filter, dispatch, search, currentPage]);
 
   const handleFilterClick = (type) => {
     setIsFilterOpen(false);
     navigate(`/${type.toLowerCase()}`);
   };
 
+  const handleApprove = async (userId) => {
+    const confirmation = await Swal.fire({
+      title: "Are you sure?",
+      text: "Do you want to approve this seller?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#B3DB48",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, approve!",
+    });
 
-const handleApprove = async (userId) => {
-  const confirmation = await Swal.fire({
-    title: "Are you sure?",
-    text: "Do you want to approve this seller?",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonColor: "#B3DB48",
-    cancelButtonColor: "#d33",
-    confirmButtonText: "Yes, approve!",
-  });
+    if (confirmation.isConfirmed) {
+      try {
+        const resultAction = await dispatch(
+          approveUsers({ userId, role: "seller", status: "approved" })
+        );
 
-  if (confirmation.isConfirmed) {
-    try {
-      const resultAction = await dispatch(
-        approveUsers({ userId, role: "seller", status: "approved" })
-      );
+        if (approveUsers.fulfilled.match(resultAction)) {
+          const updatedBuyers = sellers.filter((buyer) => buyer._id !== userId);
+          dispatch({
+            type: "user/updatePendingBuyers",
+            payload: updatedBuyers,
+          });
 
-      if (approveUsers.fulfilled.match(resultAction)) {
-        const updatedBuyers = sellers.filter((buyer) => buyer._id !== userId);
-        dispatch({
-          type: "user/updatePendingBuyers",
-          payload: updatedBuyers,
-        });
-
-        Swal.fire({
-          icon: "success",
-          title: "Approved!",
-          text: "Seller has been approved successfully.",
-          timer: 2000,
-          showConfirmButton: false,
-        });
-      } else {
+          Swal.fire({
+            icon: "success",
+            title: "Approved!",
+            text: "Seller has been approved successfully.",
+            timer: 2000,
+            showConfirmButton: false,
+          });
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Approval Failed",
+            text: resultAction.payload?.message || "Something went wrong.",
+          });
+        }
+      } catch (error) {
         Swal.fire({
           icon: "error",
-          title: "Approval Failed",
-          text: resultAction.payload?.message || "Something went wrong.",
+          title: "Error",
+          text: error.message || "Unexpected error occurred.",
         });
       }
-    } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: error.message || "Unexpected error occurred.",
-      });
     }
-  }
-};
+  };
 
   const onDeleteClick = async (seller) => {
     if (!window.confirm(`Delete ${seller.name}?`)) return;
@@ -220,7 +226,7 @@ const handleApprove = async (userId) => {
               key={seller._id}
               className="bg-white p-3 rounded-lg shadow-sm grid grid-cols-9 items-center text-center text-sm"
             >
-              <div>{index + 1}</div>
+              <div>{index + 1 + (currentPage - 1) * 10}</div>
               <div>{seller.name}</div>
               <div>{seller.phone}</div>
               <div>{seller.email}</div>

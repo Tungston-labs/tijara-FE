@@ -36,6 +36,20 @@ export default function AgentTable() {
     address: "",
   });
 
+useEffect(() => {
+  setCurrentPage(1);
+}, [search]);
+
+useEffect(() => {
+  dispatch(fetchAgentList({ page: currentPage, limit, search }))
+    .unwrap()
+    .then((res) => {
+      setTotalPages(res.totalPages);
+    })
+    .catch((err) => {
+      console.error("Error fetching agents:", err);
+    });
+}, [dispatch, currentPage, search]);
   const handleEditClick = (agent) => {
     setSelectedAgent(agent);
     setEditName(agent?.agentName);
@@ -59,7 +73,7 @@ export default function AgentTable() {
         try {
           await dispatch(deleteAgent(agentId)).unwrap();
           Swal.fire("Deleted!", "Agent has been deleted.", "success");
-          dispatch(fetchAgentList({ page: currentPage, limit }));
+          dispatch(fetchAgentList({ page: currentPage, limit, search }));
         } catch (err) {
           console.error("Failed to delete agent:", err);
           Swal.fire("Error", "Failed to delete agent", "error");
@@ -68,21 +82,6 @@ export default function AgentTable() {
     });
   };
 
-  useEffect(() => {
-    dispatch(setSearch(""));
-    dispatch(setInputValue(""));
-  }, [dispatch]);
-
-  useEffect(() => {
-    dispatch(fetchAgentList({ page: currentPage, limit, search }))
-      .unwrap()
-      .then((res) => {
-        setTotalPages(res.totalPages);
-      })
-      .catch((err) => {
-        console.error("Error fetching agents:", err);
-      });
-  }, [dispatch, currentPage, search]);
 
   const handleEditOk = () => {
     if (!selectedAgent) return;
@@ -306,9 +305,8 @@ export default function AgentTable() {
         </div>
       </div>
 
-
-
-      <Modal
+      {/* Edit Agent Modal */}
+  <Modal
         title=""
         open={showEditPopup}
         onOk={handleEditOk}
