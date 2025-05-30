@@ -109,7 +109,7 @@ useEffect(() => {
       .then(() => {
         Swal.fire("Success", "Agent updated successfully", "success");
         setShowEditPopup(false);
-        dispatch(fetchAgentList({ page: currentPage, limit }));
+        dispatch(fetchAgentList({ page: currentPage, limit, search }));
       })
       .catch((err) => {
         console.error("Failed to edit agent:", err);

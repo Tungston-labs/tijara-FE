@@ -1,5 +1,5 @@
 import React from "react";
-import { Pencil, Trash } from "lucide-react";
+import { Pencil, Trash, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
   deleteUser,
@@ -124,7 +124,7 @@ export default function SellerTableContent({ sellers, onEditClick, currentPage }
                   onClick={() => onDeleteClick(seller)}
                   className="text-red-500 hover:text-red-700"
                 >
-                  <Trash size={14} />
+                  <Trash2 size={18} />
                 </button>
               </div>
             </div>

@@ -1,9 +1,11 @@
-
-
-
-import { Pencil, Trash } from "lucide-react";
+import { Pencil, Trash, Trash2 } from "lucide-react";
 import { useDispatch } from "react-redux";
-import { deleteUser, fetchUserList } from "../Redux/userSlice";
+import {
+  deleteUser,
+  fetchSubscriptionHistory,
+  fetchUserList,
+  getUserById,
+} from "../Redux/userSlice";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 export default function BuyerTableContent({
@@ -11,19 +13,8 @@ export default function BuyerTableContent({
   currentPage,
   onEditClick,
 }) {
-  const dispatch=useDispatch();
-  const navigate=useNavigate();
-const onDeleteClick = async (buyer) => {
-  const confirmResult = await Swal.fire({
-    title: `Delete ${buyer.name}?`,
-    text: "This action cannot be undone.",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonColor: "#d33",
-    cancelButtonColor: "#3085d6",
-    confirmButtonText: "Yes, delete it!",
-  });
-
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const onDeleteClick = async (buyer) => {
     const confirmResult = await Swal.fire({
       title: `Delete ${buyer.name}?`,
@@ -68,7 +59,6 @@ const onDeleteClick = async (buyer) => {
       });
     }
   };
-
   return (
     <div
       className="w-full mx-auto rounded-lg p-4"
@@ -80,7 +70,7 @@ const onDeleteClick = async (buyer) => {
         <div>Ph no</div>
         <div>Plan Expiring</div>
         <div>Payment type</div>
-        {/* <div>Buyer/seller</div> */}
+        {/* <div>Buyer/seller</div>  */}
         <div>Edit</div>
         <div>Delete</div>
       </div>
@@ -92,11 +82,15 @@ const onDeleteClick = async (buyer) => {
             key={index}
             className="bg-white p-3 rounded-lg shadow-sm grid grid-cols-8 text-center items-center text-sm whitespace-nowrap"
           >
-            <div className="text-gray-700 font-medium">{index + 1 + (currentPage - 1) * 10}</div>
+            <div className="text-gray-700 font-medium">
+              {index + 1 + (currentPage - 1) * 10}
+            </div>
             <div
-              className="text-[#B3DB48] font-[Nunito] cursor-pointer hover:underline"
+              className="text-gray-700 font-medium"
               onClick={() => {
-                navigate(`/profilebuyer/${buyer._id}`);
+                navigate(`/profile/buyer/${buyer._id}`); // pass role as string
+                dispatch(fetchSubscriptionHistory(buyer._id));
+                dispatch(getUserById({ role: "buyer", id: buyer._id })); // pass object with role and id
               }}
             >
               {buyer.name}
@@ -127,7 +121,7 @@ const onDeleteClick = async (buyer) => {
                 onClick={() => onDeleteClick(buyer)}
                 className="text-red-500 hover:text-red-700"
               >
-                <Trash size={14} />
+                <Trash2 size={18} />
               </button>
             </div>
           </div>
@@ -135,5 +129,4 @@ const onDeleteClick = async (buyer) => {
       </div>
     </div>
   );
-}
 }
