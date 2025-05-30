@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from "react";
-import {Eye,  Filter } from "lucide-react";
+import { Eye, Filter } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { approveUsers, fetchPendingUsers, setInputValue, setSearch,  } from "../Redux/userSlice";
+import { approveUsers, fetchPendingUsers, setInputValue, setSearch } from "../Redux/userSlice";
 import Swal from "sweetalert2";
 
 export default function ApproveBuyerTable() {
@@ -10,21 +10,18 @@ export default function ApproveBuyerTable() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const popupRef = useRef(null);
   const navigate = useNavigate();
-   const [filter, setFilter] = useState("buyer");
-  
-  const [page, setPage] = useState(1); // 🧩 Fix: Define `page`
-  const pageSize = 10; // Define how many buyers per page
+  const [filter, setFilter] = useState("buyer");
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
   const { loading, error, pending, totalPending } = useSelector((state) => state.user);
-  // const buyers = pending[filter + "s"] || [];
   const buyers = useSelector((state) => state.user.pending.buyers);
-  const totalPages = Math.ceil((totalPending || buyers.length) / pageSize); 
-const search = useSelector((state) => state.user.search);
+  const totalPages = Math.ceil((totalPending || buyers.length) / pageSize);
+  const search = useSelector((state) => state.user.search);
 
-  useEffect(()=>{
-  dispatch(setSearch(""))
-   dispatch(setInputValue(""))
-},[])
-
+  useEffect(() => {
+    dispatch(setSearch(""));
+    dispatch(setInputValue(""));
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -83,55 +80,56 @@ const search = useSelector((state) => state.user.search);
     for (let i = start; i <= end; i++) pages.push(i);
     return pages;
   };
-const handleApprove = async (userId) => {
-  const confirmation = await Swal.fire({
-    title: "Are you sure?",
-    text: "Do you want to approve this buyer?",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonColor: "#B3DB48",
-    cancelButtonColor: "#d33",
-    confirmButtonText: "Yes, approve!",
-  });
 
-  if (confirmation.isConfirmed) {
-    try {
-      const resultAction = await dispatch(
-        approveUsers({ userId, role: "buyer", status: "approved" })
-      );
+  const handleApprove = async (userId) => {
+    const confirmation = await Swal.fire({
+      title: "Are you sure?",
+      text: "Do you want to approve this buyer?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#B3DB48",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, approve!",
+    });
 
-      if (approveUsers.fulfilled.match(resultAction)) {
-        const updatedBuyers = buyers.filter((buyer) => buyer._id !== userId);
-        dispatch({
-          type: "user/updatePendingBuyers",
-          payload: updatedBuyers,
-        });
+    if (confirmation.isConfirmed) {
+      try {
+        const resultAction = await dispatch(
+          approveUsers({ userId, role: "buyer", status: "approved" })
+        );
 
-        Swal.fire({
-          icon: "success",
-          title: "Approved!",
-          text: "Buyer has been approved successfully.",
-          timer: 2000,
-          showConfirmButton: false,
-        });
+        if (approveUsers.fulfilled.match(resultAction)) {
+          const updatedBuyers = buyers.filter((buyer) => buyer._id !== userId);
+          dispatch({
+            type: "user/updatePendingBuyers",
+            payload: updatedBuyers,
+          });
 
-        navigate("/approvebuyer");
-      } else {
+          Swal.fire({
+            icon: "success",
+            title: "Approved!",
+            text: "Buyer has been approved successfully.",
+            timer: 2000,
+            showConfirmButton: false,
+          });
+
+          navigate("/approvebuyer");
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Approval Failed",
+            text: resultAction.payload?.message || "Something went wrong.",
+          });
+        }
+      } catch (error) {
         Swal.fire({
           icon: "error",
-          title: "Approval Failed",
-          text: resultAction.payload?.message || "Something went wrong.",
+          title: "Error",
+          text: error.message || "Unexpected error occurred.",
         });
       }
-    } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: error.message || "Unexpected error occurred.",
-      });
     }
-  }
-};
+  };
 
   const handleFilterClick = (type) => {
     setIsFilterOpen(false);
@@ -139,9 +137,9 @@ const handleApprove = async (userId) => {
   };
 
   return (
-    <div className="p-6 min-h-screen bg-[#E9E9E9] relative">
+    <div className="p-4 sm:p-6 min-h-screen bg-[#E9E9E9] relative">
       {/* Header */}
-      <div className="max-w-6xl mx-auto flex items-center justify-between mb-4 relative">
+      <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 relative">
         <div>
           <p className="text-gray-500 text-sm">Approval &gt; Buyer</p>
           <h2 className="text-2xl font-[Nunito] font-bold">Buyer</h2>
@@ -176,54 +174,54 @@ const handleApprove = async (userId) => {
       </div>
 
       {/* Table */}
-  <div
-  className=" w-full mx-auto rounded-lg p-4"
-  style={{ backgroundColor: "#F6F9EF" }}
->
-  {/* Table Header */}
-  <div className="p-3 rounded-lg shadow-sm grid grid-cols-6 font-[Nunito] font-bold text-black text-sm text-left bg-[fff]">
-    <div>No</div>
-    <div>Buyer name</div>
-    <div>Ph no</div>
-    <div>Email id</div>
-   
-  </div>
-
-  {/* Table Rows */}
-  <div className="space-y-3 mt-3">
-    {buyers.map((buyer, index) => (
       <div
-        key={buyer._id}
-        className="bg-white p-3 rounded-lg shadow-sm grid grid-cols-6 items-center text-sm"
+        className="w-full mx-auto rounded-lg p-2 sm:p-4 overflow-x-auto"
+        style={{ backgroundColor: "#F6F9EF" }}
       >
-        <div>{index + 1}</div>
-        <div>{buyer.name}</div>
-        <div>{buyer.phone}</div>
-        <div>{buyer.email}</div>
-
-        <div className="flex justify-center">
-          <Eye
-            className="text-[#B3DB48] w-5 h-5 cursor-pointer"
-            onClick={() => navigate(`/approval/buyer/${buyer._id}`)}
-          />
+        {/* Table Header */}
+        <div className="p-3 rounded-lg shadow-sm grid grid-cols-2 sm:grid-cols-6 font-[Nunito] font-bold text-black text-xs sm:text-sm text-left bg-[fff]">
+          <div>No</div>
+          <div>Buyer name</div>
+          <div className="hidden sm:block">Ph no</div>
+          <div className="hidden sm:block">Email id</div>
+          <div className="hidden sm:flex justify-center">View</div>
+          <div className="text-right">Action</div>
         </div>
 
-        <div className="text-right">
-          <button
-            className="bg-[#B3DB48] text-white px-4 py-1 rounded-md text-sm"
-            onClick={() => handleApprove(buyer._id)}
-          >
-            Approve
-          </button>
+        {/* Table Rows */}
+        <div className="space-y-3 mt-3">
+          {buyers.map((buyer, index) => (
+            <div
+              key={buyer._id}
+              className="bg-white p-3 rounded-lg shadow-sm grid grid-cols-2 sm:grid-cols-6 items-center text-xs sm:text-sm gap-2"
+            >
+              <div>{index + 1}</div>
+              <div>{buyer.name}</div>
+              <div className="hidden sm:block">{buyer.phone}</div>
+              <div className="hidden sm:block">{buyer.email}</div>
+
+              <div className="hidden sm:flex justify-center">
+                <Eye
+                  className="text-[#B3DB48] w-5 h-5 cursor-pointer"
+                  onClick={() => navigate(`/approval/buyer/${buyer._id}`)}
+                />
+              </div>
+
+              <div className="text-right">
+                <button
+                  className="bg-[#B3DB48] text-white px-3 py-1 rounded-md text-xs sm:text-sm"
+                  onClick={() => handleApprove(buyer._id)}
+                >
+                  Approve
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
-    ))}
-  </div>
-</div>
-
 
       {/* Pagination */}
-      <div className="max-w-6xl mx-auto mt-6 flex items-center justify-between text-sm">
+      <div className="max-w-6xl mx-auto mt-6 flex flex-col sm:flex-row items-center justify-between text-xs sm:text-sm gap-2">
         <div></div>
         <div className="flex items-center space-x-2 text-gray-700">
           <button onClick={handlePrev} disabled={page === 1} className="text-lg">
@@ -244,7 +242,7 @@ const handleApprove = async (userId) => {
             &gt;
           </button>
         </div>
-        <div className="flex items-center gap-2 text-sm text-gray-700">
+        <div className="flex items-center gap-2 text-gray-700">
           <span>Go to page</span>
           <input
             type="number"
@@ -252,7 +250,7 @@ const handleApprove = async (userId) => {
             onKeyDown={(e) => {
               if (e.key === "Enter") handleGoToPage(e);
             }}
-            className="w-16 px-2 py-1 border border-gray-300 rounded-md text-sm"
+            className="w-16 px-2 py-1 border border-gray-300 rounded-md text-xs sm:text-sm"
             min={1}
             max={totalPages}
           />

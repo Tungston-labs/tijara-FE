@@ -1,8 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Pencil, Search, Trash2 } from "lucide-react";
-import { Button, Modal, Form, Input } from "antd";
+import { Pencil, Trash2 } from "lucide-react";
+import { Button, Modal } from "antd";
 import { useDispatch, useSelector } from "react-redux";
-import { addAgent, editAgent, deleteAgent, fetchAgentList, setSearch, setInputValue } from "../Redux/userSlice";
+import {
+  addAgent,
+  editAgent,
+  deleteAgent,
+  fetchAgentList,
+  setSearch,
+  setInputValue,
+} from "../Redux/userSlice";
 import Swal from "sweetalert2";
 
 const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -10,7 +17,7 @@ const isValidPhone = (phone) => /^[0-9]{10}$/.test(phone);
 
 export default function AgentTable() {
   const dispatch = useDispatch();
-  const { agentList , search } = useSelector((state) => state.user);
+  const { agentList, search } = useSelector((state) => state.user);
   const [showEditPopup, setShowEditPopup] = useState(false);
   const [showAddPopup, setShowAddPopup] = useState(false);
   const [selectedAgent, setSelectedAgent] = useState(null);
@@ -48,29 +55,26 @@ export default function AgentTable() {
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes, delete it!",
     }).then(async (result) => {
-      console.log("result",result);
-      
       if (result.isConfirmed) {
         try {
           await dispatch(deleteAgent(agentId)).unwrap();
           Swal.fire("Deleted!", "Agent has been deleted.", "success");
           dispatch(fetchAgentList({ page: currentPage, limit }));
         } catch (err) {
-          console.log("err",err);
-          
           console.error("Failed to delete agent:", err);
           Swal.fire("Error", "Failed to delete agent", "error");
         }
       }
     });
   };
-useEffect(()=>{
-     dispatch(setSearch(""))
-    dispatch(setInputValue(""))
-},[])
 
   useEffect(() => {
-    dispatch(fetchAgentList({ page: currentPage, limit,search }))
+    dispatch(setSearch(""));
+    dispatch(setInputValue(""));
+  }, [dispatch]);
+
+  useEffect(() => {
+    dispatch(fetchAgentList({ page: currentPage, limit, search }))
       .unwrap()
       .then((res) => {
         setTotalPages(res.totalPages);
@@ -78,7 +82,7 @@ useEffect(()=>{
       .catch((err) => {
         console.error("Error fetching agents:", err);
       });
-  }, [dispatch, currentPage,search]);
+  }, [dispatch, currentPage, search]);
 
   const handleEditOk = () => {
     if (!selectedAgent) return;
@@ -191,21 +195,21 @@ useEffect(()=>{
   };
 
   return (
-    <div className="min-h-screen bg-[#E9E9E9] p-6 relative overflow-hidden">
+    <div className="min-h-screen bg-[#E9E9E9] p-4 md:p-6">
       {/* Header */}
-      <div className="max-w-6xl mx-auto flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-[Nunito] font-bold">Agents</h1>
+      <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between mb-4 gap-4">
+        <h1 className="text-xl md:text-2xl font-[Nunito] font-bold">Agents</h1>
         <button
           onClick={() => setShowAddPopup(true)}
-          className="bg-[#B3DB48] text-white px-5 py-2 rounded-md text-md font-[Nunito] font-bold shadow"
+          className="bg-[#B3DB48] text-white px-4 py-2 rounded-md text-sm md:text-md font-[Nunito] font-bold shadow"
         >
           + Add Agent
         </button>
       </div>
 
       {/* Table */}
-      <div className="w-full mx-auto bg-[#F6F9EF] rounded-lg p-4">
-        <div className="grid grid-cols-7 font-[Nunito] font-bold text-black text-sm bg-[#F9FAFB] rounded-md shadow-sm py-3 px-4">
+      <div className="w-full mx-auto bg-[#F6F9EF] rounded-lg p-2 md:p-4 overflow-x-auto">
+        <div className="hidden md:grid grid-cols-7 font-[Nunito] font-bold text-black text-sm bg-[#F9FAFB] rounded-md shadow-sm py-3 px-4">
           <div>No</div>
           <div>Full Name</div>
           <div>Email</div>
@@ -215,14 +219,16 @@ useEffect(()=>{
           <div className="text-center">Delete</div>
         </div>
 
-        <div className="mt-3 space-y-3">
+        <div className="mt-2 space-y-2">
           {agentList && agentList.length > 0 ? (
             agentList.map((agent, index) => (
               <div
                 key={agent?._id || index}
-                className="grid grid-cols-7 bg-white rounded-md shadow-sm py-3 px-4 items-center text-sm text-gray-700"
+                className="bg-white rounded-md shadow-sm p-3 flex flex-col md:grid md:grid-cols-7 gap-2 text-sm text-gray-700"
               >
-                <div>{index + 1 + (currentPage - 1) * limit}</div>
+                <div className="font-bold md:font-normal">
+                  {index + 1 + (currentPage - 1) * limit}
+                </div>
                 <div>{agent?.agentName}</div>
                 <div>{agent?.email}</div>
                 <div>{agent?.phone}</div>
@@ -252,8 +258,8 @@ useEffect(()=>{
       </div>
 
       {/* Pagination */}
-      <div className="flex justify-between items-center mt-6">
-        <div className="flex items-center space-x-2 text-gray-700">
+      <div className="flex flex-col md:flex-row justify-between items-center mt-4 gap-3">
+        <div className="flex items-center space-x-1 text-gray-700">
           <button
             onClick={handlePrev}
             className="text-lg"
@@ -265,7 +271,7 @@ useEffect(()=>{
           {getPaginationNumbers().map((num) => (
             <button
               key={num}
-              className={`w-8 h-8 rounded-full font-[Nunito] font-bold ${
+              className={`w-7 h-7 md:w-8 md:h-8 rounded-full font-[Nunito] font-bold ${
                 currentPage === num
                   ? "bg-[#B3DB48] text-black"
                   : "hover:underline"
@@ -293,14 +299,15 @@ useEffect(()=>{
             onKeyDown={(e) => {
               if (e.key === "Enter") handleGoToPage(e);
             }}
-            className="w-16 px-2 py-1 border border-gray-300 rounded-md text-sm"
+            className="w-16 px-2 py-1 border border-gray-300 rounded-md"
             min={1}
             max={totalPages}
           />
         </div>
       </div>
 
-      {/* Edit Agent Modal */}
+
+
       <Modal
         title=""
         open={showEditPopup}
@@ -310,8 +317,70 @@ useEffect(()=>{
         okText="Save"
         cancelText="Cancel"
       >
-        {/* Modal Content... */}
-        {/* (same as before) */}
+        <h2 className="text-center text-xl font-[Nunito] font-bold mb-4">
+          Edit Agent
+        </h2>
+        <div className="flex justify-center mb-6">
+          <div className="w-24 h-24 bg-gray-300 rounded-full flex items-center justify-center">
+            <svg
+              className="w-12 h-12 text-gray-500"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z" />
+            </svg>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4 mb-4">
+          <div>
+            <label className="block text-sm font-[Nunito] font-bold mb-1">
+              Agent Name
+            </label>
+            <input
+              type="text"
+              value={editName}
+              onChange={(e) => setEditName(e.target.value)}
+              className="w-full bg-white rounded-md px-3 py-2 border"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-[Nunito] font-bold mb-1">
+              Phone Number
+            </label>
+            <input
+              type="text"
+              value={editPhone}
+              onChange={(e) => setEditPhone(e.target.value)}
+              className="w-full bg-white rounded-md px-3 py-2 border"
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4 mb-6">
+          <div>
+            <label className="block text-sm font-[Nunito] font-bold mb-1">
+              Email ID
+            </label>
+            <input
+              type="text"
+              value={editEmail}
+              onChange={(e) => setEditEmail(e.target.value)}
+              className="w-full bg-white rounded-md px-3 py-2 border"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-[Nunito] font-bold mb-1">
+              Address
+            </label>
+            <input
+              type="text"
+              value={editAddress}
+              onChange={(e) => setEditAddress(e.target.value)}
+              className="w-full bg-white rounded-md px-3 py-2 border"
+            />
+          </div>
+        </div>
       </Modal>
 
       {/* Add Agent Modal */}
@@ -328,9 +397,9 @@ useEffect(()=>{
           Add Agent
         </h2>
         <div className="flex justify-center mb-6">
-          <div className="w-24 h-24 bg-gray-300 rounded-full flex items-center justify-center">
+          <div className="w-20 h-20 bg-gray-300 rounded-full flex items-center justify-center">
             <svg
-              className="w-12 h-12 text-gray-500"
+              className="w-10 h-10 text-gray-500"
               fill="currentColor"
               viewBox="0 0 24 24"
             >
@@ -338,7 +407,7 @@ useEffect(()=>{
             </svg>
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-4 mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
             <label className="block text-sm font-[Nunito] font-bold mb-1">
               Agent Name
@@ -368,7 +437,7 @@ useEffect(()=>{
             />
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
             <label className="block text-sm font-[Nunito] font-bold mb-1">
               Email ID
@@ -402,7 +471,3 @@ useEffect(()=>{
     </div>
   );
 }
-
-
-
-

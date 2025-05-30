@@ -14,6 +14,9 @@ import ProtectedRoute from "./Components/ProtectedRoute";
 import PersistLogin from "./Components/PersistLogin"; // ✅ IMPORTANT: Add this line
 import User from "./Pages/User";
 import ProfileBuyer from "./Pages/ProfileBuyer";
+import Email from "./Pages/Email";
+import Otp from "./Pages/Otp";
+import ResetPassword from "./Pages/ResetPassword";
 
 function App() {
   return (
@@ -23,6 +26,9 @@ function App() {
 
       {/* Public Routes */}
       <Route path="login" element={<Login />} />
+       <Route path="email" element={<Email />} />
+       <Route path="otp" element={<Otp />} />
+       <Route path="reset-password" element={<ResetPassword/>} />
 
       {/* Protected Layout Routes */}
       <Route path="/" element={<Layout />}>
