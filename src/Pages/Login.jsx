@@ -3,6 +3,7 @@ import axios from "axios";
 import { useDispatch } from "react-redux";
 import { login } from "../Redux/authSlice.js";
 import { useNavigate } from "react-router-dom";
+import logo from '../assets/images/image 6.png';
 
 export default function Login() {
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -69,7 +70,7 @@ export default function Login() {
         {/* Logo */}
         <div className="flex justify-center mb-4">
           <img
-            src="image 6.png"
+            src={logo}
             alt="tijara logo"
             className="h-12 object-contain"
           />

@@ -9,6 +9,7 @@ import { FiUserPlus } from "react-icons/fi";
 import { MdCategory } from "react-icons/md";
 import { PiNetworkFill } from "react-icons/pi";
 import { IoReceiptOutline } from "react-icons/io5";
+import logo from '../assets/images/image 6.png';
 
 export default function Sidebar() {
   const [active, setActive] = useState("Dashboard");
@@ -54,7 +55,7 @@ export default function Sidebar() {
       <div>
         {/* Logo */}
         <div className="flex justify-center items-center mb-10 mt-4">
-          <img src="/image 6.png" alt="Logo" className="h-12 object-contain" />
+          <img src={logo} alt="Logo" className="h-12 object-contain" />
         </div>
 
         {/* Menu */}
