@@ -9,7 +9,7 @@ import { FiUserPlus } from "react-icons/fi";
 import { MdCategory } from "react-icons/md";
 import { PiNetworkFill } from "react-icons/pi";
 import { IoReceiptOutline } from "react-icons/io5";
-import logo from '../assets/images/image 6.png';
+import logo from '../assets/images/logotijara.png';
 
 export default function Sidebar() {
   const [active, setActive] = useState("Dashboard");
