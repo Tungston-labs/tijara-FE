@@ -2,7 +2,7 @@
 import { Outlet } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import useRefreshToken from "../hooks/useRefreshToken";
+import useRefreshToken from "../Hooks/useRefreshToken";
 import { setAccessToken } from "../Redux/authSlice";
 
 const PersistLogin = () => {

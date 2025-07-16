@@ -1,91 +1,141 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
-import { approveUsers, getUserById } from "../Redux/userSlice";
+import { approveTradeLicense, approveUsers, getUserById } from "../Redux/userSlice";
 import Swal from "sweetalert2";
 
 export default function UserApproval() {
   const dispatch = useDispatch();
-  const { role, id } = useParams();
+  const { id } = useParams();
   const navigate = useNavigate();
   const { user, loading, error } = useSelector((state) => state.user);
 
   useEffect(() => {
     if (id) {
-      dispatch(getUserById({ role, id }));
+      dispatch(getUserById({ id }));
     }
-  }, [dispatch, role, id]);
+  }, [dispatch, id]);
 
-  console.log("Fetching user:", { role, id });
+  console.log("Fetching user:", { id });
 
   if (loading) return <div className="p-6">Loading...</div>;
   if (error) return <div className="p-6 text-red-500">Error: {error}</div>;
   if (!user) return null;
-  const handleApprove = async (userId) => {
+  
+ const handleApprove = async (userId) => {
+
+
+  if (user?.tradeLicenseStatus === "pending") {
+    // Approve trade license
+    const confirm = await Swal.fire({
+      title: "Are you sure?",
+      text: "Approve this seller's trade license?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#B3DB48",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, approve!",
+    });
+
+    if (!confirm.isConfirmed) return;
+
     try {
+      const result = await dispatch(
+        approveTradeLicense({ userId, action: "approve" })
+      );
+
+      if (approveTradeLicense.fulfilled.match(result)) {
+        Swal.fire("Approved!", "Seller has been approved.", "success");
+        navigate("/approveseller");
+      } else {
+        Swal.fire("Failed", result.payload || "Approval failed", "error");
+      }
+    } catch (err) {
+      console.error(err);
+      Swal.fire("Error", "Something went wrong", "error");
+    }
+  } else {
+    // Approve regular buyer or seller without license logic
+    try {
+        console.log("Dispatching approveUsers with:", {
+  userId,
+  status: "approved",
+});
       const resultAction = await dispatch(
-        approveUsers({ userId, role, status: "approved" })
+        approveUsers({ userId,  status: "approved", role: user.role})
       );
 
       if (approveUsers.fulfilled.match(resultAction)) {
         Swal.fire("Success", "User approved successfully", "success");
 
-        // Navigate based on role
-        if (role === "buyer") {
+        if (user?.role === "buyer") {
           navigate("/approvebuyer");
-        } else if (role === "seller") {
-          navigate("/approveseller");
         } else {
-          navigate("/"); // default fallback
+          navigate("/approveseller");
         }
       } else {
-        console.error("Approval failed");
         Swal.fire("Error", "Approval failed", "error");
       }
     } catch (error) {
-      console.error("Error approving user:", error);
       Swal.fire("Error", "An error occurred", "error");
     }
-  };
+  }
+};
 
-  const handleDecline = async (userId) => {
-    const confirmResult = await Swal.fire({
-      title: "Are you sure?",
-      text: "This action will decline the user.",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#aaa",
-      confirmButtonText: "Yes, decline",
-    });
 
-    if (!confirmResult.isConfirmed) return;
+const handleDecline = async (userId) => {
+  const confirmResult = await Swal.fire({
+    title: "Are you sure?",
+    text: "This action will decline the user.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#aaa",
+    confirmButtonText: "Yes, decline",
+  });
 
-    // Step 2: Proceed with decline
+  if (!confirmResult.isConfirmed) return;
+
+  if (user?.tradeLicenseStatus === "pending") {
+    // Decline trade license
+    try {
+      const result = await dispatch(
+        approveTradeLicense({ userId, action: "reject" })
+      );
+
+      if (approveTradeLicense.fulfilled.match(result)) {
+        Swal.fire("Declined!", "Trade license has been rejected.", "success");
+        navigate("/approveseller");
+      } else {
+        Swal.fire("Error", result.payload || "Failed to decline", "error");
+      }
+    } catch (err) {
+      Swal.fire("Error", "Something went wrong!", "error");
+    }
+  } else {
+    // Decline buyer or regular seller
     try {
       const resultAction = await dispatch(
-        approveUsers({ userId, role, status: "rejected" })
+        approveUsers({ userId, role: user?.role, status: "rejected", })
       );
 
       if (approveUsers.fulfilled.match(resultAction)) {
-        await Swal.fire("Declined!", "User has been declined.", "success");
+        Swal.fire("Declined!", "User has been declined.", "success");
 
-        // Step 3: Navigate based on role
-        if (role === "buyer") {
+        if (user?.role === "buyer") {
           navigate("/approvebuyer");
-        } else if (role === "seller") {
-          navigate("/approveseller");
         } else {
-          navigate("/");
+          navigate("/approveseller");
         }
       } else {
         Swal.fire("Error", "Failed to decline user.", "error");
       }
     } catch (error) {
-      console.error("Error declining user:", error);
       Swal.fire("Error", "Something went wrong!", "error");
     }
-  };
+  }
+};
+
 
   return (
     <div className="min-h-screen bg-[#E7E7E7] p-6">
@@ -113,7 +163,7 @@ export default function UserApproval() {
 
         {/* Form */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 font-[Nunito] text-[14px]">
-          {role === "seller" && (
+          {user?.tradeLicenseStatus === "pending" && (
             <>
               {/* Left Side */}
               <div className="space-y-4">
@@ -121,7 +171,6 @@ export default function UserApproval() {
                   <label className="block mb-1">Full Name</label>
                   <input
                     type="text"
-                    placeholder="Full Name"
                     value={user?.name || ""}
                     readOnly
                     className="w-full px-4 py-2 bg-[#F2F2F2] rounded-md outline-none"
@@ -136,7 +185,6 @@ export default function UserApproval() {
                     </span>
                     <input
                       type="text"
-                      placeholder="Phone Number"
                       value={user?.phone || ""}
                       readOnly
                       className="w-full px-4 py-2 bg-[#F2F2F2] rounded-r-md outline-none"
@@ -148,7 +196,6 @@ export default function UserApproval() {
                   <label className="block mb-1">Company Name</label>
                   <input
                     type="text"
-                    placeholder="Company Name"
                     value={user?.companyName || ""}
                     readOnly
                     className="w-full px-4 py-2 bg-[#F2F2F2] rounded-md outline-none"
@@ -159,7 +206,6 @@ export default function UserApproval() {
                   <label className="block mb-1">Trade license Number</label>
                   <input
                     type="text"
-                    placeholder="Trade license Number"
                     value={user?.tradeLicenseNumber || ""}
                     readOnly
                     className="w-full px-4 py-2 bg-[#F2F2F2] rounded-md outline-none"
@@ -170,7 +216,6 @@ export default function UserApproval() {
                   <label className="block mb-1">Email</label>
                   <input
                     type="email"
-                    placeholder="Email"
                     value={user?.email || ""}
                     readOnly
                     className="w-full px-4 py-2 bg-[#F2F2F2] rounded-md outline-none"
@@ -185,7 +230,6 @@ export default function UserApproval() {
                     <label className="block mb-1">Manager Name</label>
                     <input
                       type="text"
-                      placeholder="First"
                       value={user?.managerName || ""}
                       readOnly
                       className="w-full px-4 py-2 bg-[#F2F2F2] rounded-md outline-none"
@@ -217,10 +261,9 @@ export default function UserApproval() {
               </div>
             </>
           )}
-
-          {role === "buyer" && (
+          {user?.role === "buyer" && (
             <>
-              {/* Buyer layout: only show relevant fields, same structure */}
+              {/* Buyer layout: only show relevant fields */}
               <div className="space-y-4 md:col-span-2">
                 <div>
                   <label className="block mb-1">Full Name</label>

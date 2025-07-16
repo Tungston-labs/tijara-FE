@@ -3,9 +3,10 @@ import { Eye, Filter } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  approveTradeLicense,
   approveUsers,
   deleteUser,
-  fetchPendingUsers,
+  fetchTradeLicense,
   setInputValue,
   setSearch,
 } from "../Redux/userSlice";
@@ -22,7 +23,7 @@ export default function ApproveSellerTable() {
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = useSelector((state) => state.user.sellers.totalPages);
   // const sellers = pending[filter + "s"];
-  const sellers = useSelector((state) => state.user.pending.sellers);
+  const sellers = useSelector((state) => state.user.tradeLicenseUsers.list);
   const search = useSelector((state) => state.user.search);
 
   useEffect(() => {
@@ -30,7 +31,7 @@ export default function ApproveSellerTable() {
     dispatch(setInputValue(""));
     setCurrentPage(1);
   }, [dispatch]);
-  
+
   useEffect(() => {
     setCurrentPage(1);
   }, [search]);
@@ -38,12 +39,10 @@ export default function ApproveSellerTable() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await dispatch(
-          fetchPendingUsers({ role: filter, search, page: currentPage })
-        );
-        return response;
+        const result = await dispatch(fetchTradeLicense({ page: currentPage, search }));
+        return result;
       } catch (err) {
-        console.error("Failed to fetch pending users:", err);
+        console.error("Failed to fetch trade license users:", err);
       }
     };
 
@@ -62,7 +61,7 @@ export default function ApproveSellerTable() {
       document.removeEventListener("keydown", handleEsc);
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [filter, dispatch, search, currentPage]);
+  }, [dispatch, search,currentPage]);
 
   const handleFilterClick = (type) => {
     setIsFilterOpen(false);
@@ -72,7 +71,7 @@ export default function ApproveSellerTable() {
   const handleApprove = async (userId) => {
     const confirmation = await Swal.fire({
       title: "Are you sure?",
-      text: "Do you want to approve this seller?",
+      text: "Approve this seller's trade license?",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#B3DB48",
@@ -82,40 +81,60 @@ export default function ApproveSellerTable() {
 
     if (confirmation.isConfirmed) {
       try {
-        const resultAction = await dispatch(
-          approveUsers({ userId, role: "seller", status: "approved" })
+        const result = await dispatch(
+          approveTradeLicense({ userId, action: "approve" })
         );
+        dispatch(fetchTradeLicense({ page: currentPage, search }))
 
-        if (approveUsers.fulfilled.match(resultAction)) {
-          const updatedBuyers = sellers.filter((buyer) => buyer._id !== userId);
-          dispatch({
-            type: "user/updatePendingBuyers",
-            payload: updatedBuyers,
-          });
-
+        if (approveTradeLicense.fulfilled.match(result)) {
           Swal.fire({
             icon: "success",
             title: "Approved!",
-            text: "Seller has been approved successfully.",
+            text: "Seller has been approved.",
             timer: 2000,
             showConfirmButton: false,
           });
+
+          // Re-fetch list or filter it locally
+          
         } else {
           Swal.fire({
             icon: "error",
-            title: "Approval Failed",
-            text: resultAction.payload?.message || "Something went wrong.",
+            title: "Failed",
+            text: result.payload?.message || "Approval failed.",
           });
         }
-      } catch (error) {
+      } catch (err) {
         Swal.fire({
           icon: "error",
           title: "Error",
-          text: error.message || "Unexpected error occurred.",
+          text: err.message || "Unexpected error occurred.",
         });
       }
     }
   };
+
+  // const handleReject = async (userId) => {
+  //   const confirmation = await Swal.fire({
+  //     title: "Reject this seller?",
+  //     text: "This will mark their license as rejected.",
+  //     icon: "warning",
+  //     showCancelButton: true,
+  //     confirmButtonColor: "#d33",
+  //     cancelButtonText: "Cancel",
+  //     confirmButtonText: "Yes, reject",
+  //   });
+
+  //   if (confirmation.isConfirmed) {
+  //     const result = await dispatch(approveTradeLicense({ userId, action: "reject" }));
+  //     if (approveTradeLicense.fulfilled.match(result)) {
+  //       Swal.fire("Rejected", "Seller's license rejected.", "success");
+  //       dispatch(fetchTradeLicense());
+  //     } else {
+  //       Swal.fire("Error", result.payload || "Rejection failed", "error");
+  //     }
+  //   }
+  // };
 
   const onDeleteClick = async (seller) => {
     if (!window.confirm(`Delete ${seller.name}?`)) return;
@@ -237,7 +256,10 @@ export default function ApproveSellerTable() {
               <div className="flex flex-col gap-2 items-center">
                 <Eye
                   className="text-[#B3DB48] w-5 h-5 cursor-pointer"
-                  onClick={() => navigate(`/approval/seller/${seller._id}`)}
+                  onClick={() =>
+                  navigate(`/approval/${seller._id}`)
+
+                  }
                 />
               </div>
               <div className="flex flex-col gap-4 items-center">

@@ -113,7 +113,8 @@ export default function Sidebar() {
         <div className="mt-6 flex items-center px-2">
           <img src="/Layer 2.png" alt="Tungston Logo" className="h-10" />
           <div className="ml-2">
-            <p className="text-gray-500 text-sm leading-tight">
+            <p className="text-gray-500 text-sm leading-
+            tight">
               Designed by <br />
               <span className="text-[#F48211] font-extrabold">
                 Tungston Labs

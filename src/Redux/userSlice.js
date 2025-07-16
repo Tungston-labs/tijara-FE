@@ -17,6 +17,8 @@ import {
   fetchUserByIdAPI,
   deleteAgentById,
   getSubscriptionHistory,
+  pendingTradeLicense,
+  approveLicense,
 } from "../services/userServices";
 
 // FETCH AGENT LIST
@@ -101,9 +103,9 @@ export const addSubCategory = createAsyncThunk(
 
 export const getUserById = createAsyncThunk(
   "user/getById",
-  async ({ role, id }, { rejectWithValue }) => {
+  async ({ id }, { rejectWithValue }) => {
     try {
-      const data = await fetchUserByIdAPI({ role, id });
+      const data = await fetchUserByIdAPI({ id });
       return data; // already data, no .data needed again
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
@@ -140,7 +142,6 @@ export const deleteAgent = createAsyncThunk(
     }
   }
 );
-
 
 // Add Agents
 export const addAgent = createAsyncThunk(
@@ -224,15 +225,46 @@ export const fetchPendingUsers = createAsyncThunk(
   }
 );
 
+export const fetchTradeLicense = createAsyncThunk(
+  "users/tradeLicenseList",
+  async ({ page = 1, search = "" }, { rejectWithValue }) => {
+    try {
+      const data = await pendingTradeLicense({ page, search });
+      console.log("Fetched trade license data:", data);
+      return data.data || data;
+    } catch (error) {
+      return rejectWithValue(
+        error?.response?.data?.message ||
+          error.message ||
+          "Error fetching trade license"
+      );
+    }
+  }
+);
+
 export const approveUsers = createAsyncThunk(
   "users/approve",
-  async ({ userId, role, status }, { rejectWithValue }) => {
+  async ({ userId, status }, { rejectWithValue }) => {
     try {
-      const data = await approveUsersAPI({ userId, role, status });
+      const data = await approveUsersAPI({ userId, status });
       return data;
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || "Error in approving user"
+      );
+    }
+  }
+);
+
+export const approveTradeLicense = createAsyncThunk(
+  "user/approveTradeLicense",
+  async ({ userId, action }, { rejectWithValue }) => {
+    try {
+      const data = await approveLicense(userId, action);
+      return data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Approval failed"
       );
     }
   }
@@ -251,67 +283,74 @@ export const fetchSubscriptionHistory = createAsyncThunk(
     }
   }
 );
+const initialState = {
+  sellers: {
+    list: [],
+    loading: false,
+    error: null,
+    total: 0,
+    page: 1,
+    totalPages: 1,
+  },
+  buyers: {
+    list: [],
+    loading: false,
+    error: null,
+    total: 0,
+    page: 1,
+    totalPages: 1,
+  },
+
+  tradeLicenseUsers: {
+    list: [],
+    loading: false,
+    error: null,
+    status: "idle",
+  },
+  approvalStatus: "idle",
+  approvalError: null,
+  editedUser: null,
+  agentList: [],
+  pending: {
+    buyers: [],
+    sellers: [],
+  },
+  itemsubList: {
+    list: [],
+    page: 1,
+    totalPages: 1,
+    total: 0,
+    loading: false,
+    error: null,
+  },
+  addSubCategoryStatus: "",
+  products: {
+    items: [],
+    loading: false,
+    error: null,
+    currentPage: 1,
+    totalPages: 1,
+  },
+  transactions: [],
+  status: "idle", // for generic loading
+  error: null,
+  search: "",
+  inputValue: "",
+};
 
 const UserSlice = createSlice({
   name: "user",
-  initialState: {
-    sellers: {
-      list: [],
-      loading: false,
-      error: null,
-      total: 0,
-      page: 1,
-      totalPages: 1,
-    },
-    buyers: {
-      list: [],
-      loading: false,
-      error: null,
-      total: 0,
-      page: 1,
-      totalPages: 1,
-    },
-    editedUser: null,
-    agentList: [],
-    pending: {
-      buyers: [],
-      sellers: [],
-    },
-
-    itemsubList: {
-      list: [],
-      page: 1,
-      totalPages: 1,
-      total: 0,
-      loading: false,
-      error: null,
-    },
-
-    addSubCategoryStatus: "",
-    loading: false,
-    status: "",
-    error: "",
-    products: {
-      items: [],
-      loading: false,
-      error: null,
-      currentPage: 1,
-      totalPages: 1,
-    },
-    name: "user",
-    initialState: {
-      transactions: [],
-      loading: false,
-      error: null,
-    },
-  },
-
+  initialState,
   reducers: {
     setSearch: (state, action) => {
       state.search = action.payload;
     },
     setInputValue(state, action) {
       state.inputValue = action.payload;
+    },
+    resetApprovalState: (state) => {
+      state.approvalStatus = "idle";
+      state.approvalError = null;
     },
   },
   extraReducers: (builder) => {
@@ -329,7 +368,38 @@ const UserSlice = createSlice({
         state.status = "failed";
         state.error = action.payload || "Failed to fetch agents";
       })
+      .addCase(fetchTradeLicense.fulfilled, (state, action) => {
+        state.tradeLicenseUsers.list = action.payload.users;
+        state.tradeLicenseUsers.loading = false;
+        state.tradeLicenseUsers.error = null;
 
+        state.sellers.totalPages = action.payload.totalPages;
+        state.sellers.page = action.payload.currentPage;
+      })
+      .addCase(fetchTradeLicense.pending, (state) => {
+        state.tradeLicenseUsers.loading = true;
+      })
+      .addCase(fetchTradeLicense.rejected, (state, action) => {
+        state.tradeLicenseUsers.loading = false;
+        state.tradeLicenseUsers.error = action.payload || "Fetch failed";
+      })
+
+      .addCase(approveTradeLicense.pending, (state) => {
+        state.approvalStatus = "loading";
+        state.approvalError = null;
+      })
+      .addCase(approveTradeLicense.fulfilled, (state, action) => {
+        state.approvalStatus = "succeeded";
+
+        const approvedId = action.payload.user?._id;
+        state.tradeLicenseUsers.list = state.tradeLicenseUsers.list.filter(
+          (user) => user._id !== approvedId
+        );
+      })
+      .addCase(approveTradeLicense.rejected, (state, action) => {
+        state.approvalStatus = "failed";
+        state.approvalError = action.payload;
+      })
       .addCase(fetchItemList.pending, (state) => {
         state.status = "loading";
       })

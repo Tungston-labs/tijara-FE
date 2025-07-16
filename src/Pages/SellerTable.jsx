@@ -9,8 +9,13 @@ import {
 } from "../Redux/userSlice";
 import { useDispatch } from "react-redux";
 import Swal from "sweetalert2";
+import { format } from "date-fns";
 
-export default function SellerTableContent({ sellers, onEditClick, currentPage }) {
+export default function SellerTableContent({
+  sellers,
+  onEditClick,
+  currentPage,
+}) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   console.log("Sellers:", sellers);
@@ -84,7 +89,9 @@ export default function SellerTableContent({ sellers, onEditClick, currentPage }
               key={index}
               className="bg-white p-3 rounded-lg shadow-sm grid grid-cols-10 text-center items-center text-sm whitespace-nowrap"
             >
-              <div className="text-gray-700 font-[Nunito]">{index + 1 + (currentPage - 1) * 10}</div>
+              <div className="text-gray-700 font-[Nunito]">
+                {index + 1 + (currentPage - 1) * 10}
+              </div>
               <div
                 className="text-[#B3DB48] font-[Nunito] cursor-pointer hover:underline"
                 onClick={() => {
@@ -101,8 +108,8 @@ export default function SellerTableContent({ sellers, onEditClick, currentPage }
               <div className="text-gray-700">{seller.tradeLicenseNumber}</div>
 
               <div className="text-gray-700">
-                {seller.subscription?.endDate
-                  ? new Date(seller.subscription.endDate).toLocaleDateString()
+                {seller.tradeLicenseExpiry
+                  ? format(new Date(seller.tradeLicenseExpiry), "yyyy-MM-dd")
                   : "N/A"}
               </div>
 

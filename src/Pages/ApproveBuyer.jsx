@@ -89,55 +89,47 @@ useEffect(() => {
 
     return pages;
   };
-  const handleApprove = async (userId) => {
-    const confirmation = await Swal.fire({
-      title: "Are you sure?",
-      text: "Do you want to approve this buyer?",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#B3DB48",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, approve!",
-    });
+const handleApprove = async (userId) => {
+  console.log("Approving user:", { userId });
 
-    if (confirmation.isConfirmed) {
-      try {
-        const resultAction = await dispatch(
-          approveUsers({ userId, role: "buyer", status: "approved" })
-        );
+  const confirmation = await Swal.fire({
+    title: "Are you sure?",
+    text: "Do you want to approve this buyer?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#B3DB48",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, approve!",
+  });
 
-        if (approveUsers.fulfilled.match(resultAction)) {
-          const updatedBuyers = buyers.filter((buyer) => buyer._id !== userId);
-          dispatch({
-            type: "user/updatePendingBuyers",
-            payload: updatedBuyers,
-          });
+  if (!confirmation.isConfirmed) return;
 
-          Swal.fire({
-            icon: "success",
-            title: "Approved!",
-            text: "Buyer has been approved successfully.",
-            timer: 2000,
-            showConfirmButton: false,
-          });
+  try {
+    const resultAction = await dispatch(
+      approveUsers({ userId, status: "approved" }) 
+    );
+    await dispatch(fetchPendingUsers({ role: "buyer", page: currentPage, search }));
 
-          navigate("/approvebuyer");
-        } else {
-          Swal.fire({
-            icon: "error",
-            title: "Approval Failed",
-            text: resultAction.payload?.message || "Something went wrong.",
-          });
-        }
-      } catch (error) {
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: error.message || "Unexpected error occurred.",
-        });
-      }
+
+    console.log("Approve result:", resultAction);
+
+    if (approveUsers.fulfilled.match(resultAction)) {
+      Swal.fire("Success", "Buyer has been approved.", "success");
+
+      const updated = buyers.filter((b) => b._id !== userId);
+      dispatch({ type: "user/updatePendingBuyers", payload: updated });
+     
+      navigate("/approvebuyer");
+    } else {
+      Swal.fire("Error", resultAction.payload || "Approval failed", "error");
     }
-  };
+  } catch (error) {
+    console.error(error);
+    Swal.fire("Error", error.message || "Something went wrong", "error");
+  }
+};
+
+
 
   const handleFilterClick = (type) => {
     setIsFilterOpen(false);
@@ -211,7 +203,7 @@ useEffect(() => {
               <div className="flex justify-center">
                 <Eye
                   className="text-[#B3DB48] w-5 h-5 cursor-pointer"
-                  onClick={() => navigate(`/approval/buyer/${buyer._id}`)}
+                  onClick={() => navigate(`/approval/${buyer._id}`)}
                 />
               </div>
 

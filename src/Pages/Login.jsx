@@ -69,7 +69,7 @@ export default function Login() {
         {/* Logo */}
         <div className="flex justify-center mb-4">
           <img
-            src="/image 6.png"
+            src="image 6.png"
             alt="tijara logo"
             className="h-12 object-contain"
           />

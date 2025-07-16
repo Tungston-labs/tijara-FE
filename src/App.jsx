@@ -26,9 +26,9 @@ function App() {
 
       {/* Public Routes */}
       <Route path="login" element={<Login />} />
-       <Route path="email" element={<Email />} />
-       <Route path="otp" element={<Otp />} />
-       <Route path="reset-password" element={<ResetPassword/>} />
+      <Route path="email" element={<Email />} />
+      <Route path="otp" element={<Otp />} />
+      <Route path="reset-password" element={<ResetPassword />} />
 
       {/* Protected Layout Routes */}
       <Route path="/" element={<Layout />}>
@@ -43,7 +43,7 @@ function App() {
             <Route path="item" element={<Items />} />
             <Route path="itemsub" element={<ItemSub />} />
             <Route path="sellproducts" element={<SellerProduct />} />
-            <Route path="/approval/:role/:id" element={<ApprovalForm />} />
+            <Route path="/approval/:id" element={<ApprovalForm />} />
             <Route path="/profile/:role/:id" element={<Profile />} />
             <Route path="/profilebuyer/:userId" element={<ProfileBuyer />} />
           </Route>

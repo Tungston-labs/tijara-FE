@@ -95,14 +95,27 @@ export const fetchPendingUsersAPI = async ({
   return response.data;
 };
 
-export const approveUsersAPI = async ({ userId, role, status }) => {
+export const approveUsersAPI = async ({ userId, status }) => {
   const response = await API.post("admin/auth/verify-user", {
     userId,
-    role,
     status,
   });
   return response.data;
 };
+
+export const pendingTradeLicense = async ({ page = 1, search = "" }) => {
+  const response = await API.get(`/admin/auth/pending-license?page=${page}&search=${search}`);
+  return response;
+};
+
+
+export const approveLicense = async (userId,action) => {
+  const response = await API.put(`admin/auth/verify-trade-license/${userId}`,{action
+    
+  });
+  return response;
+};
+
 export const editUserAPI = async (role, id, editData) => {
   const response = await API.put(
     `/admin/auth/edit-user/${role}/${id}`,
@@ -112,8 +125,8 @@ export const editUserAPI = async (role, id, editData) => {
   return response.data;
 };
 
-export const fetchUserByIdAPI = async ({ role, id }) => {
-  const response = await API.get(`/admin/auth/get-user/${role}/${id}`);
+export const fetchUserByIdAPI = async ({  id }) => {
+  const response = await API.get(`/admin/auth/get-user/${id}`);
   return response.data;
 };
 
