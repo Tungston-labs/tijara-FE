@@ -1,7 +1,7 @@
 import axios from "axios";
 const API = axios.create({
   withCredentials: true,
-  baseURL: "http://178.248.112.16:8080",
+  baseURL: " https://api.thijara.me",
   headers: {
     "Content-Type": "application/json",
     Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
