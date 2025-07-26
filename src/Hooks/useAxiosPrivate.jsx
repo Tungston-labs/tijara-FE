@@ -4,47 +4,54 @@ import { axiosPrivate } from "../api/api";
 import { useSelector } from "react-redux";
 
 const useAxiosPrivate = () => {
-  const auth = useSelector((state) => state.auth);
+  const { accessToken } = useSelector((state) => state.auth);
   const refresh = useRefreshToken();
-   
+
   useEffect(() => {
+    // Request Interceptor
     const requestIntercept = axiosPrivate.interceptors.request.use(
       (config) => {
-          console.log("Attaching token:", auth?.accessToken); 
-
-        if (!config.headers["Authorization"]) {
-          config.headers["Authorization"] = `Bearer ${auth?.accessToken}`;
+        if (!config.headers["Authorization"] && accessToken) {
+          config.headers["Authorization"] = `Bearer ${accessToken}`;
         }
         return config;
       },
-      (error) => {
-        console.log("no token");
-        return Promise.reject(error);
-      }
+      (error) => Promise.reject(error)
     );
 
+    // Response Interceptor
     const responseIntercept = axiosPrivate.interceptors.response.use(
-      (response) => {
-        return response;
-      },
+      (response) => response,
       async (error) => {
         const originalRequest = error?.config;
+
+        // Token expired or invalid
         if (error?.response?.status === 403 && !originalRequest._retry) {
           originalRequest._retry = true;
-          const accessToken = await refresh();
-          if (!accessToken) return Promise.reject(error);
-          originalRequest.headers["Authorization"] = `Bearer ${accessToken}`;
-          return axiosPrivate(originalRequest);
+
+          try {
+            const newAccessToken = await refresh();
+            if (!newAccessToken) return Promise.reject(error);
+
+            axiosPrivate.defaults.headers["Authorization"] = `Bearer ${newAccessToken}`;
+            originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
+            return axiosPrivate(originalRequest);
+          } catch (refreshError) {
+            return Promise.reject(refreshError);
+          }
         }
+
         return Promise.reject(error);
       }
     );
 
+    // Cleanup interceptors
     return () => {
       axiosPrivate.interceptors.request.eject(requestIntercept);
       axiosPrivate.interceptors.response.eject(responseIntercept);
     };
-  }, [auth?.accessToken, refresh]);
+  }, [accessToken, refresh]);
+
   return axiosPrivate;
 };
 

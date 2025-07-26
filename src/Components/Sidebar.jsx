@@ -10,12 +10,14 @@ import { MdCategory } from "react-icons/md";
 import { PiNetworkFill } from "react-icons/pi";
 import { IoReceiptOutline } from "react-icons/io5";
 import logo from '../assets/images/logotijara.png';
+import { logout } from "../Redux/authSlice";
+import { useDispatch } from "react-redux";
 
 export default function Sidebar() {
   const [active, setActive] = useState("Dashboard");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const navigate = useNavigate();
-
+  const dispatch=useDispatch();
   const menuItems = [
     { name: "Dashboard", icon: RiDashboardFill },
     { name: "Approval", icon: FiUserPlus },
@@ -44,11 +46,12 @@ export default function Sidebar() {
     setDropdownOpen((prev) => !prev);
   };
 
-  const handleLogout = () => {
-    console.log("Logged out");
-    navigate("/login");
-  };
-
+const handleLogout = () => {
+  localStorage.removeItem("accessToken");
+  localStorage.removeItem("role");
+  dispatch(logout());
+  navigate("/login");
+};
   return (
     <div className="w-64 h-screen bg-white flex flex-col justify-between p-4">
       {/* Top Section */}
