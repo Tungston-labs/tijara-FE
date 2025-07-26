@@ -1,9 +1,12 @@
 import { createSlice } from "@reduxjs/toolkit";
 
+// Try to get token from localStorage on app load
+const tokenFromStorage = localStorage.getItem("accessToken");
+
 const initialState = {
   userName: null,
-  accessToken: null,
-  user: null, // include role if needed
+  accessToken: tokenFromStorage || null,
+  user: null,
 };
 
 const authSlice = createSlice({
@@ -13,20 +16,20 @@ const authSlice = createSlice({
     login: (state, action) => {
       state.userName = action.payload.userName;
       state.accessToken = action.payload.accessToken;
-      state.user = action.payload.user; 
+      state.user = action.payload.user;
     },
     logout: (state) => {
       state.userName = null;
       state.accessToken = null;
       state.user = null;
+      localStorage.removeItem("accessToken"); // Optional cleanup
     },
     setAccessToken: (state, action) => {
-  state.accessToken = action.payload.accessToken; 
-},
-
+      state.accessToken = action.payload.accessToken;
+    },
     setUser: (state, action) => {
       state.user = action.payload;
-    }
+    },
   },
 });
 

@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { login } from "../Redux/authSlice.js";
 import { useNavigate } from "react-router-dom";
 import logo from '../assets/images/logotijara.png';
@@ -17,46 +17,51 @@ export default function Login() {
       [e.target.name]: e.target.value,
     }));
   };
+  const accessToken = useSelector((state) => state.auth.accessToken);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    console.log("Form submitted with data:", formData); // DEBUG
+useEffect(() => {
+  if (accessToken) {
+    navigate("/box");
+  }
+}, [accessToken]);
 
-    setError("");
-    setLoading(true);
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError("");
+  setLoading(true);
 
-    try {
-      const response = await axios.post(
-        "https://api.thijara.me/admin/auth/adminlogin",
-        formData,
-        {
-          withCredentials: true, // for sending cookies
-        }
-      );
+  try {
+    const response = await axios.post(
+      "https://api.thijara.me/admin/auth/adminlogin",
+      formData,
+      {
+        withCredentials: true,
+      }
+    );
 
-      console.log("Login response:", response); // DEBUG
-      localStorage.setItem("accessToken",response.data.accessToken)
-      dispatch(
-        login({
-          userName: response.data.user.userName,
-          accessToken: response.data.accessToken,
-          user: response.data.user,
-        })
-      );
-      navigate('/box')
-// After successful login
-   localStorage.setItem("role", response.data.user.role);
+    const { user, accessToken } = response.data;
 
-      console.log("Dispatched token:", response.data.accessToken); // DEBUG
+    localStorage.setItem("accessToken", accessToken);
+    localStorage.setItem("role", user.role);
 
-      // window.location.href = "/box"; // Redirect after login
-    } catch (err) {
-      console.error("Login error:", err); // DEBUG
-      setError(err.response?.data?.message || "Login failed");
-    } finally {
-      setLoading(false);
-    }
-  };
+    // Update Redux
+    dispatch(
+      login({
+        userName: user.userName,
+        accessToken,
+        user,
+      })
+    );
+
+
+  } catch (err) {
+    console.error("Login error:", err);
+    setError(err.response?.data?.message || "Login failed");
+  } finally {
+    setLoading(false);
+  }
+};
+
   
   return (
     <div

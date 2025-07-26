@@ -1,41 +1,32 @@
 import { useDispatch } from "react-redux";
 import { setAccessToken, logout } from "../Redux/authSlice";
-import { api } from "../api/api";
+import { api } from "../api/api"; // Your axios instance
 
 const useRefreshToken = () => {
   const dispatch = useDispatch();
 
   const refresh = async () => {
     try {
-      // Try reading role from localStorage (fallback if Redux is empty)
-      let role = localStorage.getItem("role");
-
-      if (!role) throw new Error("User role not found for refresh.");
-
-      let refreshUrl = "";
-      if (role === "admin") refreshUrl = "/admin/auth/refresh";
-      else if (role === "seller") refreshUrl = "/seller/refresh";
-      else if (role === "buyer") refreshUrl = "/buyer/refresh";
-      else throw new Error("Unknown role");
-
       const response = await api.post(
-        refreshUrl,
+        "/admin/auth/refresh",
         {},
         {
-          withCredentials: true,
+          withCredentials: true, // important for HTTP-only cookie
         }
       );
 
-      dispatch(
-        setAccessToken({
-          accessToken: response.data.accessToken,
-        })
-      );
+      const accessToken = response?.data?.accessToken;
 
-      return response.data.accessToken;
+      if (!accessToken) throw new Error("No access token returned");
+
+      dispatch(setAccessToken({ accessToken }));
+      localStorage.setItem("accessToken", accessToken);
+
+      return accessToken;
     } catch (error) {
       console.log("Refresh token failed:", error?.response?.data || error);
-      dispatch(logout()); // clear state if refresh fails
+      dispatch(logout());
+      localStorage.removeItem("accessToken");
       return null;
     }
   };
