@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { api } from "../api/api"; // Your axios instance
 
 import { RiDashboardFill } from "react-icons/ri";
 import { FaUsers } from "react-icons/fa6";
@@ -46,12 +47,19 @@ export default function Sidebar() {
     setDropdownOpen((prev) => !prev);
   };
 
-const handleLogout = () => {
-  localStorage.removeItem("accessToken");
-  localStorage.removeItem("role");
-  dispatch(logout());
-  navigate("/login");
-};
+  const handleLogout = async () => {
+    try {
+      await api.post("/admin/auth/logout", {}, { withCredentials: true });
+
+      // Clear Redux and localStorage
+      dispatch(logout());
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("role");
+    } catch (err) {
+      console.error("Logout failed:", err);
+    }
+  };
+
   return (
     <div className="w-64 h-screen bg-white flex flex-col justify-between p-4">
       {/* Top Section */}
