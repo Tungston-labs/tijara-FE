@@ -58,7 +58,7 @@ export default function EmailForm() {
     e.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:5000/admin/auth/send-otp", {
+      const response = await fetch("https://api.thijara.me/admin/auth/send-otp", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

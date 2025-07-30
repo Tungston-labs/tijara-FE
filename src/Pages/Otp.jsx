@@ -57,7 +57,7 @@ const VerificationCodeForm = ({ email, role }) => {
 
     try {
       setLoading(true);
-      const response = await axios.post('http://localhost:5000/admin/auth/verify-otp', {
+      const response = await axios.post('https://api.thijara.me/admin/auth/verify-otp', {
         email,
         role,
         otp: otpValue,
