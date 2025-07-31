@@ -125,37 +125,43 @@ const axiosPrivate=useAxiosPrivate()
     {/* Graph + Bottom Cards */}
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* Graph */}
-      <div className="col-span-1 lg:col-span-2 bg-white rounded-xl shadow-md  min-h-[340px]">
-        <ResponsiveContainer width="100%" height={400}>
-          <LineChart data={monthlyData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="month" />
-            <YAxis
-              tickCount={6}
-              domain={[0, 'auto']}
-              interval="preserveStartEnd"
-            />
-            <Tooltip />
-            <Line
-              type="monotone"
-              dataKey="buyer"
-              stroke="#EF4444"
-              activeDot={{ r: 6 }}
-              name="Buyer"
-            />
-            <Line
-              type="monotone"
-              dataKey="seller"
-              stroke="#84CC16"
-              activeDot={{ r: 6 }}
-              name="Seller"
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
+   <div className="col-span-1 lg:col-span-2 bg-white rounded-xl shadow-md min-h-[340px]">
+  <div className="px-4 pt-4 pb-2"> {/* Add internal spacing here */}
+    <ResponsiveContainer width="100%" height={400}>
+      <LineChart
+        data={monthlyData}
+        margin={{ top: 20, right: 30, left: 10, bottom: 10 }} // spacing inside chart area
+      >
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="month" />
+        <YAxis
+          tickCount={6}
+          domain={[0, 'auto']}
+          interval="preserveStartEnd"
+        />
+        <Tooltip />
+        <Line
+          type="monotone"
+          dataKey="buyer"
+          stroke="#EF4444"
+          activeDot={{ r: 6 }}
+          name="Buyer"
+        />
+        <Line
+          type="monotone"
+          dataKey="seller"
+          stroke="#84CC16"
+          activeDot={{ r: 6 }}
+          name="Seller"
+        />
+      </LineChart>
+    </ResponsiveContainer>
+  </div>
+</div>
+
 
       {/* Bottom Cards */}
-      <div className="flex flex-col gap-10 mt-10">
+      <div className="flex flex-col gap-10 mt-16">
         {bottomCards.map((stat, index) => (
           <div
             key={index}
