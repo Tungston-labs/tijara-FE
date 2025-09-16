@@ -7,7 +7,7 @@ const useRefreshToken = () => {
 
   const refresh = async () => {
     try {
-      const response = await api.post(
+      const response = await api.get(
         "/admin/auth/refresh",
         {},
         {

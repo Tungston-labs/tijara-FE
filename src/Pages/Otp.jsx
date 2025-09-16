@@ -1,9 +1,9 @@
-import React, { useRef, useState } from 'react';
-import axios from 'axios';
+import React, { useRef, useState } from "react";
+import axios from "axios";
 
 const VerificationCodeForm = ({ email, role }) => {
   const inputRefs = useRef([]);
-  const [otp, setOtp] = useState(Array(6).fill(''));
+  const [otp, setOtp] = useState(Array(6).fill(""));
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e, index) => {
@@ -14,28 +14,31 @@ const VerificationCodeForm = ({ email, role }) => {
       updatedOtp[index] = value;
       setOtp(updatedOtp);
       if (index < 5) inputRefs.current[index + 1]?.focus();
-    } else if (value === '') {
+    } else if (value === "") {
       const updatedOtp = [...otp];
-      updatedOtp[index] = '';
+      updatedOtp[index] = "";
       setOtp(updatedOtp);
     }
   };
 
   const handleKeyDown = (e, index) => {
-    if (e.key === 'Backspace') {
+    if (e.key === "Backspace") {
       e.preventDefault();
       const updatedOtp = [...otp];
-      if (otp[index] === '' && index > 0) {
+      if (otp[index] === "" && index > 0) {
         inputRefs.current[index - 1]?.focus();
       }
-      updatedOtp[index] = '';
+      updatedOtp[index] = "";
       setOtp(updatedOtp);
     }
   };
 
   const handlePaste = (e) => {
     e.preventDefault();
-    const paste = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+    const paste = e.clipboardData
+      .getData("text")
+      .replace(/\D/g, "")
+      .slice(0, 6);
     const updatedOtp = [...otp];
 
     for (let i = 0; i < paste.length; i++) {
@@ -50,24 +53,24 @@ const VerificationCodeForm = ({ email, role }) => {
     }
   };
 
-  const isOtpComplete = otp.every((digit) => digit !== '');
+  const isOtpComplete = otp.every((digit) => digit !== "");
 
   const handleSubmit = async () => {
-    const otpValue = otp.join('');
+    const otpValue = otp.join("");
 
     try {
       setLoading(true);
-      const response = await axios.post('https://api.thijara.me/admin/auth/verify-otp', {
-        email,
-        role,
-        otp: otpValue,
-      });
+      const response = await axios.post(
+        "https://api.thijara.me/admin/auth/verify-otp",
+        { otp: otpValue },
+        { withCredentials: true } // <---- important!
+      );
 
-      alert('OTP Verified Successfully');
+      alert("OTP Verified Successfully");
       console.log(response.data);
       // You can navigate to reset password page here
     } catch (error) {
-      alert(error?.response?.data?.message || 'OTP Verification Failed');
+      alert(error?.response?.data?.message || "OTP Verification Failed");
       console.error(error);
     } finally {
       setLoading(false);
@@ -79,20 +82,22 @@ const VerificationCodeForm = ({ email, role }) => {
       <div
         className="text-center shadow"
         style={{
-          width: '400px',
-          height: '450px',
-          borderRadius: '27px',
-          border: '0.2px solid #ccc',
-          padding: '78px 67px',
-          boxSizing: 'border-box',
+          width: "400px",
+          height: "450px",
+          borderRadius: "27px",
+          border: "0.2px solid #ccc",
+          padding: "78px 67px",
+          boxSizing: "border-box",
         }}
       >
         <div className="flex flex-col items-center gap-[50px] h-full justify-between">
           <div>
-            <h1 className="text-2xl font-[Nunito] font-bold mb-4">Reset your password</h1>
+            <h1 className="text-2xl font-[Nunito] font-bold mb-4">
+              Reset your password
+            </h1>
             <h2 className="text-lg font-[Nunito] font-bold mb-2">Verify</h2>
             <p className="text-gray-900 whitespace-nowrap">
-              Your code was sent to you via phone number.
+              Your code was sent to you via Email.
             </p>
           </div>
 
@@ -117,10 +122,12 @@ const VerificationCodeForm = ({ email, role }) => {
               disabled={!isOtpComplete || loading}
               onClick={handleSubmit}
               className={`w-[350px] py-3 text-white font-[Nunito] font-bold rounded-md transition ${
-                isOtpComplete ? 'bg-[#B3DB48]' : 'bg-[#CEDEA5] cursor-not-allowed'
+                isOtpComplete
+                  ? "bg-[#B3DB48]"
+                  : "bg-[#CEDEA5] cursor-not-allowed"
               }`}
             >
-              {loading ? 'Verifying...' : 'Submit'}
+              {loading ? "Verifying..." : "Submit"}
             </button>
           </div>
         </div>

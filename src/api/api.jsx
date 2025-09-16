@@ -15,5 +15,12 @@ const axiosPrivate = axios.create({
   },
   withCredentials: true,
 });
-
+export const refreshToken = async () => {
+  const response = await axios.post(
+    `${BASE_URL}/admin/auth/refresh-admin`, 
+    {},
+    { withCredentials: true }
+  );
+  return response.data.accessToken;
+};
 export { api, axiosPrivate };

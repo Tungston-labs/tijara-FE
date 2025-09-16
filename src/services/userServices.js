@@ -1,4 +1,5 @@
 import axios from "axios";
+import { axiosPrivate } from "../api/api";
 const API = axios.create({
   withCredentials: true,
   baseURL: " https://api.thijara.me",
@@ -126,7 +127,7 @@ export const editUserAPI = async (role, id, editData) => {
 };
 
 export const fetchUserByIdAPI = async ({  id }) => {
-  const response = await API.get(`/admin/auth/get-user/${id}`);
+  const response = await axiosPrivate.get(`/admin/auth/get-user/${id}`);
   return response.data;
 };
 
@@ -135,9 +136,6 @@ export const getSubscriptionHistory = async (userId) => {
   const response = await API.get(`/subscription/history/${userId}`);
   return response.data;
 };
-
-
-
 
 export const addSubCategoryAPI = async ({ name, itemNameId }) => {
   const response = await API.post("/items/add-subcategory", {
