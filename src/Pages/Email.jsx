@@ -9,7 +9,6 @@
 //   e.preventDefault(); // prevent page reload
 //   navigate("/otp"); // navigate to /otp
 // };
-  
 
 //   return (
 //     <div className="min-h-screen flex items-center justify-center bg-white">
@@ -42,43 +41,39 @@
 //   );
 // }
 
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+import axios from "axios";
 export default function EmailForm() {
   const [email, setEmail] = useState("");
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  // You can make 'role' dynamic later (from UI or context)
   const role = "admin";
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
 
-    try {
-      const response = await fetch("https://api.thijara.me/admin/auth/send-otp", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, role }),
-      });
 
-      const data = await response.json();
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-      if (response.ok) {
-        console.log("OTP sent successfully");
-        navigate("/otp");
-      } else {
-        setError(data.message || "Something went wrong");
-      }
-    } catch (err) {
-      console.error("Error:", err);
+  try {
+    const response = await axios.post(
+      "https://api.thijara.me/admin/auth/send-otp",
+      { email, role },           // request body
+      { withCredentials: true }  
+    );
+
+    console.log("OTP sent successfully");
+    navigate("/otp");
+  } catch (err) {
+    console.error("Error:", err);
+    if (err.response?.data?.message) {
+      setError(err.response.data.message);
+    } else {
       setError("Server error");
     }
-  };
+  }
+};
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-white">
