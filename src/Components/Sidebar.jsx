@@ -61,7 +61,7 @@ export default function Sidebar() {
   };
 
   return (
-    <div className="w-64 h-screen bg-white flex flex-col justify-between p-4">
+    <div className="w-96 h-screen bg-white flex flex-col justify-between p-4">
       {/* Top Section */}
       <div>
         {/* Logo */}

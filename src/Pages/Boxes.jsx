@@ -78,7 +78,7 @@ const axiosPrivate=useAxiosPrivate()
   return (
 <div className="flex bg-[#E9E9E9] min-h-screen ">
 <div className="flex-1 px-6 py-6 max-w-screen-2xl mx-auto w-full">
-    <h2 className="text-xl font-[Nunito] font-bold mb-4">Dashboard</h2>
+    <h2 className="text-3xl font-[Nunito] font-bold mb-4">Dashboard</h2>
 
     {/* Top Cards */}
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
@@ -91,7 +91,7 @@ const axiosPrivate=useAxiosPrivate()
             <div className="bg-[#B3DB48] w-9 h-9 rounded-full flex items-center justify-center">
               {stat.icon}
             </div>
-            <p className="text-sm font-[Nunito] font-semibold text-black">
+            <p className="text-2xl font-[Nunito] font-semibold text-black">
               {stat.title}
             </p>
           </div>
@@ -106,15 +106,15 @@ const axiosPrivate=useAxiosPrivate()
   {/* Monthly Analytics Header + Dots */}
 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-4">
   <div className="col-span-1 lg:col-span-2 flex justify-between items-center">
-    <h2 className="text-xl font-[Nunito] font-bold">Monthly Analytics</h2>
+    <h2 className="text-2xl font-[Nunito] font-bold">Monthly Analytics</h2>
     <div className="flex gap-4">
       <div className="flex items-center gap-2">
         <span className="w-3 h-3 rounded-full bg-[#EF4444]"></span>
-        <span className="text-sm font-[Nunito] font-medium">Buyer</span>
+        <span className="text-2xl font-[Nunito] font-medium">Buyer</span>
       </div>
       <div className="flex items-center gap-2">
         <span className="w-3 h-3 rounded-full bg-[#84CC16]"></span>
-        <span className="text-sm font-[Nunito] font-medium">Seller</span>
+        <span className="text-2xl font-[Nunito] font-medium">Seller</span>
       </div>
     </div>
   </div>
@@ -126,11 +126,11 @@ const axiosPrivate=useAxiosPrivate()
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* Graph */}
    <div className="col-span-1 lg:col-span-2 bg-white rounded-xl shadow-md min-h-[340px]">
-  <div className="px-4 pt-4 pb-2"> {/* Add internal spacing here */}
+  <div className="px-4 pt-4 pb-2"> 
     <ResponsiveContainer width="100%" height={400}>
       <LineChart
         data={monthlyData}
-        margin={{ top: 20, right: 30, left: 10, bottom: 10 }} // spacing inside chart area
+        margin={{ top: 20, right: 30, left: 10, bottom: 10 }} 
       >
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis dataKey="month" />
@@ -171,7 +171,7 @@ const axiosPrivate=useAxiosPrivate()
               <div className="bg-[#B3DB48] w-9 h-9 rounded-full flex items-center justify-center">
                 {stat.icon}
               </div>
-              <p className="text-sm font-[Nunito] font-semibold text-black">
+              <p className="text-2xl font-[Nunito] font-semibold text-black">
                 {stat.title}
               </p>
             </div>

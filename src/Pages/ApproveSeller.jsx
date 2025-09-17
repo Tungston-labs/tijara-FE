@@ -193,7 +193,7 @@ export default function ApproveSellerTable() {
 
   return (
     <div className="p-4 sm:p-6 min-h-screen bg-[#E9E9E9]">
-      <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4">
+      <div className="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4">
         <div className="mb-2 sm:mb-0">
           <p className="text-gray-500 text-sm">Approval &gt; Seller</p>
           <h2 className="text-2xl font-[Nunito] font-bold">Seller</h2>
@@ -201,9 +201,9 @@ export default function ApproveSellerTable() {
         <div className="relative">
           <button
             onClick={() => setIsFilterOpen(!isFilterOpen)}
-            className="bg-[#B3DB48] text-white px-4 py-2 rounded-md flex items-center gap-2"
+            className="bg-[#B3DB48] text-black px-4 py-2 rounded-md flex items-center gap-2"
           >
-            <Filter size={20} /> Filter
+            <Filter size={20} color="white" /> Filter
           </button>
           {isFilterOpen && (
             <div
@@ -228,7 +228,7 @@ export default function ApproveSellerTable() {
       </div>
 
       <div className="w-full mx-auto rounded-lg p-2 sm:p-4 bg-[#F6F9EF] overflow-x-auto">
-        <div className="min-w-[768px] p-4 rounded-lg shadow-sm grid grid-cols-9 font-[Nunito] font-bold text-black text-sm text-center bg-[#F9FAFB]">
+        <div className="min-w-[768px] p-4 rounded-lg shadow-sm grid grid-cols-6 font-[Nunito] font-bold text-black text-sm text-center bg-[#F9FAFB]">
           <div>No</div>
           <div>Seller name</div>
           <div>Ph no</div>

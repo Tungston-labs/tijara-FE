@@ -71,7 +71,7 @@ export default function SellerTableContent({
         className="w-full mx-auto rounded-lg p-4"
         style={{ backgroundColor: "#F6F9EF" }}
       >
-        <div className="p-3 rounded-lg shadow-sm grid grid-cols-10 font-[Nunito] font-bold text-black text-center text-sm whitespace-nowrap bg-white">
+        <div className="p-3 rounded-lg shadow-sm grid grid-cols-8 font-[Nunito] font-bold text-black text-center text-sm whitespace-nowrap bg-white">
           <div>No</div>
           <div>Seller Name</div>
           <div>Ph no </div>
@@ -87,7 +87,7 @@ export default function SellerTableContent({
           {sellers.map((seller, index) => (
             <div
               key={index}
-              className="bg-white p-3 rounded-lg shadow-sm grid grid-cols-10 text-center items-center text-sm whitespace-nowrap"
+              className="bg-white p-3 rounded-lg shadow-sm grid grid-cols-8 text-center items-center text-sm whitespace-nowrap"
             >
               <div className="text-gray-700 font-[Nunito]">
                 {index + 1 + (currentPage - 1) * 10}

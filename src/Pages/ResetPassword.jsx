@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Eye, EyeOff } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import "@fontsource/nunito";
 
 export default function ResetPassword() {
@@ -9,6 +10,7 @@ export default function ResetPassword() {
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const isValid =
@@ -30,7 +32,7 @@ export default function ResetPassword() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            ...(token ? { Authorization: `Bearer ${token}` } : {}), // add token as fallback
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
           },
           credentials: "include",
           body: JSON.stringify({ newPassword }),
@@ -46,6 +48,11 @@ export default function ResetPassword() {
       setMessage(data.message);
       setNewPassword("");
       setConfirmPassword("");
+
+      // Navigate after short delay so user can see success message
+      setTimeout(() => {
+        navigate("/login"); // adjust route if needed
+      }, 1500);
     } catch (err) {
       setError(err.message);
     }
@@ -82,6 +89,13 @@ export default function ResetPassword() {
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
               />
+              <button
+                type="button"
+                className="absolute right-3 top-3 text-[#B3DB48]"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
+              </button>
             </div>
           </div>
 
@@ -102,7 +116,7 @@ export default function ResetPassword() {
                 className="absolute right-3 top-3 text-[#B3DB48]"
                 onClick={() => setShowPassword(!showPassword)}
               >
-                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
               </button>
             </div>
           </div>

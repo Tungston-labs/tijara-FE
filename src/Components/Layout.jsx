@@ -11,7 +11,7 @@ function Layout() {
       <Sidebar />
 
       {/* Main content area */}
-      <div className="flex-1 p-4">
+      <div className="flex-1  ">
         {location.pathname !== "/box" && <Search />} 
         <Outlet />
       </div>

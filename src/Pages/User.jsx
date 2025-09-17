@@ -236,19 +236,19 @@ export default function UserTable() {
   return (
     <>
       <div className="p-6 min-h-screen  bg-[#E9E9E9] relative">
-        <div className="max-w-6xl mx-auto flex items-center justify-between mb-4 relative">
-          <div>
-            <p className="text-gray-500 text-sm">Users &gt; {filter}</p>
-            <h2 className="text-2xl font-[Nunito] font-bold capitalize">
-              {filter}
-            </h2>
+        <div className="w-full pb-2 flex items-center justify-between">
+          <div className="w-full flex-col items-center relative">
+          <p className="text-gray-500 text-sm text-left">Users &gt; {filter}</p>
+          <h2 className="text-2xl  font-[Nunito] font-bold capitalize">
+            {filter}
+          </h2>
           </div>
-          <div className="relative">
+          <div className="relative  ">
             <button
               onClick={() => setIsFilterOpen(!isFilterOpen)}
-              className="bg-[#B3DB48] text-white px-4 py-2 rounded-md flex items-center gap-2"
+              className="bg-[#B3DB48] text-black px-4 py-2 rounded-md flex  gap-2"
             >
-              <Filter size={25} /> Filter
+              <Filter size={25}color="white" /> Filter
             </button>
             {isFilterOpen && (
               <div
@@ -257,13 +257,13 @@ export default function UserTable() {
               >
                 <button
                   onClick={() => handleFilterClick("Seller")}
-                  className="w-full text-left px-4 py-3 text-md hover:bg-[#B3DB48] rounded-t-lg"
+                  className="w-full text-left px-4 py-3 text-md hover:bg-[#B3DB48] rounded-[10px]"
                 >
                   Seller
                 </button>
                 <button
                   onClick={() => handleFilterClick("Buyer")}
-                  className="w-full text-left px-4 py-3 text-md hover:bg-[#B3DB48] rounded-b-lg"
+                  className="w-full text-left px-4 py-3 text-md hover:bg-[#B3DB48] rounded-[10px]"
                 >
                   Buyer
                 </button>

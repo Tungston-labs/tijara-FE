@@ -139,7 +139,7 @@ const handleApprove = async (userId) => {
   return (
     <div className="p-4 sm:p-6 min-h-screen bg-[#E9E9E9] relative">
       {/* Header */}
-      <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 relative">
+      <div className="w-full  flex flex-col sm:flex-row items-center sm:items-center justify-between gap-3 mb-4 relative">
         <div>
           <p className="text-gray-500 text-sm">Approval &gt; Buyer</p>
           <h2 className="text-2xl font-[Nunito] font-bold">Buyer</h2>
@@ -147,9 +147,9 @@ const handleApprove = async (userId) => {
         <div className="relative">
           <button
             onClick={() => setIsFilterOpen(!isFilterOpen)}
-            className="bg-[#B3DB48] text-white px-4 py-2 rounded-md flex items-center gap-2"
+            className="bg-[#B3DB48] text-black px-4 py-2 rounded-md flex items-center gap-2"
           >
-            <Filter size={20} /> Filter
+            <Filter size={20} color="white" /> Filter
           </button>
           {isFilterOpen && (
             <div
@@ -179,7 +179,7 @@ const handleApprove = async (userId) => {
         style={{ backgroundColor: "#F6F9EF" }}
       >
         {/* Table Header */}
-        <div className="p-3 rounded-lg shadow-sm grid grid-cols-2 sm:grid-cols-6 font-[Nunito] font-bold text-black text-xs sm:text-sm text-left bg-[fff]">
+        <div className="p-3 rounded-lg shadow-sm grid grid-cols-2 sm:grid-cols-6 font-[Nunito] font-bold text-black text-xs sm:text-sm text-left bg-white">
           <div>No</div>
           <div>Buyer name</div>
           <div className="hidden sm:block">Ph no</div>

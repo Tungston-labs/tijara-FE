@@ -196,11 +196,11 @@ useEffect(() => {
   return (
     <div className="min-h-screen bg-[#E9E9E9] p-4 md:p-6">
       {/* Header */}
-      <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between mb-4 gap-4">
+      <div className="w-full mx-auto flex flex-col md:flex-row items-center justify-between mb-4 gap-4">
         <h1 className="text-xl md:text-2xl font-[Nunito] font-bold">Agents</h1>
         <button
           onClick={() => setShowAddPopup(true)}
-          className="bg-[#B3DB48] text-white px-4 py-2 rounded-md text-sm md:text-md font-[Nunito] font-bold shadow"
+          className="bg-[#B3DB48] text-black px-4 py-2 rounded-md text-sm md:text-md font-[Nunito] font-bold shadow"
         >
           + Add Agent
         </button>

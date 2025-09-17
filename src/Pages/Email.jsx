@@ -1,11 +1,12 @@
-// EmailForm.jsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 export default function EmailForm() {
   const [email, setEmail] = useState("");
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [cooldown, setCooldown] = useState(0); // 60s timer
   const navigate = useNavigate();
 
   const role = "admin";
@@ -13,7 +14,12 @@ export default function EmailForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (loading || cooldown > 0) return; // prevent spamming
+
     try {
+      setLoading(true);
+      setError(null);
+
       const response = await axios.post(
         "https://api.thijara.me/admin/auth/send-otp",
         { email, role },
@@ -21,7 +27,12 @@ export default function EmailForm() {
       );
 
       localStorage.setItem("resetToken", response.data.resetToken);
+
+      // ✅ navigate immediately after OTP send
       navigate("/otp", { state: { email, role } });
+
+      // ✅ start 60s cooldown
+      setCooldown(60);
     } catch (err) {
       console.error("Error:", err);
       if (err.response?.data?.message) {
@@ -29,8 +40,18 @@ export default function EmailForm() {
       } else {
         setError("Server error");
       }
+    } finally {
+      setLoading(false);
     }
   };
+
+  // decrease cooldown every second
+  useEffect(() => {
+    if (cooldown > 0) {
+      const timer = setTimeout(() => setCooldown(cooldown - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [cooldown]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-white">
@@ -52,11 +73,21 @@ export default function EmailForm() {
             <p className="text-red-500 text-sm mb-4 font-[Nunito]">{error}</p>
           )}
 
+          {/* Button / Timer */}
           <button
             type="submit"
-            className="w-full bg-[#B3DB48] text-white py-4 rounded-2xl text-lg font-[Nunito] font-bold transition-colors"
+            disabled={loading || cooldown > 0}
+            className={`w-full py-4 rounded-2xl text-lg font-[Nunito] font-bold transition-colors ${
+              loading || cooldown > 0
+                ? "bg-gray-400 cursor-not-allowed text-white"
+                : "bg-[#B3DB48] text-white"
+            }`}
           >
-            Submit
+            {loading
+              ? "Sending..."
+              : cooldown > 0
+              ? `Resend OTP in ${cooldown}s`
+              : "Submit"}
           </button>
         </form>
       </div>

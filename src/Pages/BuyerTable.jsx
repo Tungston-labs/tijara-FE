@@ -61,16 +61,15 @@ export default function BuyerTableContent({
   };
   return (
     <div
-      className="w-full mx-auto rounded-lg p-4"
+      className="w-full rounded-lg  "
       style={{ backgroundColor: "#F6F9EF" }}
     >
-      <div className="p-3 rounded-lg shadow-sm grid grid-cols-8 font-[Nunito] font-bold text-black text-center text-sm whitespace-nowrap bg-[#F9FAFB]">
+      <div className="p-3 rounded-lg shadow-sm grid grid-cols-7 font-[Nunito] font-bold text-black text-center text-sm  bg-white">
         <div>No</div>
         <div>Buyer name</div>
         <div>Ph no</div>
         <div>Plan Expiring</div>
         <div>Payment type</div>
-        {/* <div>Buyer/seller</div>  */}
         <div>Edit</div>
         <div>Delete</div>
       </div>
@@ -80,7 +79,7 @@ export default function BuyerTableContent({
         {buyers.map((buyer, index) => (
           <div
             key={index}
-            className="bg-white p-3 rounded-lg shadow-sm grid grid-cols-8 text-center items-center text-sm whitespace-nowrap"
+            className="bg-white p-3 rounded-lg shadow-sm grid grid-cols-7 text-center items-center text-sm whitespace-nowrap"
           >
             <div className="text-gray-700 font-medium">
               {index + 1 + (currentPage - 1) * 10}
@@ -107,7 +106,7 @@ export default function BuyerTableContent({
               {buyer.subscription?.paymentType || "N/A"}
             </div>
 
-            <div className="flex justify-center">
+            <div className="flex justify-center whitespace-nowrap">
               <button
                 onClick={() => onEditClick(buyer)}
                 className="text-[#B3DB48] hover:text-green-600"
@@ -116,7 +115,7 @@ export default function BuyerTableContent({
               </button>
             </div>
 
-            <div className="flex justify-center">
+            <div className="flex justify-center whitespace-nowrap">
               <button
                 onClick={() => onDeleteClick(buyer)}
                 className="text-red-500 hover:text-red-700"
