@@ -64,7 +64,7 @@ export default function BuyerTableContent({
       className="w-full rounded-lg  "
       style={{ backgroundColor: "#F6F9EF" }}
     >
-      <div className="p-3 rounded-lg shadow-sm grid grid-cols-7 font-[Nunito] font-bold text-black text-center text-sm  bg-white">
+      <div className="p-3 rounded-lg shadow-sm grid grid-cols-7 lg:text-[9px] xl:text-sm font-[Nunito] font-bold  text-black text-center text-sm bg-white">
         <div>No</div>
         <div>Buyer name</div>
         <div>Ph no</div>
@@ -79,7 +79,7 @@ export default function BuyerTableContent({
         {buyers.map((buyer, index) => (
           <div
             key={index}
-            className="bg-white p-3 rounded-lg shadow-sm grid grid-cols-7 text-center items-center text-sm whitespace-nowrap"
+            className="bg-white p-3 rounded-lg shadow-sm grid grid-cols-7 lg:text-[9px] xl:text-sm text-center items-center text-sm whitespace-nowrap"
           >
             <div className="text-gray-700 font-medium">
               {index + 1 + (currentPage - 1) * 10}

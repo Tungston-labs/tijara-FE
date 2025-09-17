@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Pencil, Trash2 } from "lucide-react";
 import { Button, Modal } from "antd";
 import { useDispatch, useSelector } from "react-redux";
+import validator from "validator";
+
 import {
   addAgent,
   editAgent,
@@ -11,7 +13,6 @@ import {
   setInputValue,
 } from "../Redux/userSlice";
 import Swal from "sweetalert2";
-
 const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 const isValidPhone = (phone) => /^[0-9]{10}$/.test(phone);
 
@@ -124,32 +125,36 @@ useEffect(() => {
     setShowEditPopup(false);
   };
 
-  const handleAddOk = async () => {
-    const { agentName, phone, email, address } = addFormData;
+ 
+const handleAddOk = async () => {
+  const { agentName, phone, email, address } = addFormData;
 
-    if (!agentName || !phone || !email || !address) {
-      return alert("All fields are required");
-    }
+  if (!agentName || !phone || !email || !address) {
+    return Swal.fire("Error", "All fields are required", "error");
+  }
 
-    if (!isValidEmail(email)) {
-      return alert("Invalid email format");
-    }
+  if (!validator.isEmail(email)) {
+    return Swal.fire("Error", "Invalid email format", "error");
+  }
 
-    if (!isValidPhone(phone)) {
-      return alert("Phone number must be 10 digits");
-    }
+  if (!validator.isMobilePhone(phone, "en-IN")) {
+    return Swal.fire("Error", "Invalid phone number", "error");
+  }
 
-    try {
-      await dispatch(addAgent(addFormData)).unwrap();
-      Swal.fire("Success", "Agent added successfully", "success");
-      setAddFormData({ agentName: "", phone: "", email: "", address: "" });
-      setShowAddPopup(false);
-      dispatch(fetchAgentList({ page: currentPage, limit }));
-    } catch (err) {
-      console.error("Error adding agent:", err);
-      Swal.fire("Error", "Failed to add agent", "error");
-    }
-  };
+  try {
+    await dispatch(addAgent(addFormData)).unwrap();
+    Swal.fire("Success", "Agent added successfully", "success");
+    setAddFormData({ agentName: "", phone: "", email: "", address: "" });
+    setShowAddPopup(false);
+
+    // Always reload first page (fixes "no agents found")
+    dispatch(fetchAgentList({ page: 1, limit:4 }));
+  } catch (err) {
+    console.error("Error adding agent:", err);
+    const message = err?.response?.data?.message || "Failed to add agent";
+    Swal.fire("Error", message , "error");
+  }
+};
 
   const handleAddCancel = () => {
     setShowAddPopup(false);
@@ -208,7 +213,7 @@ useEffect(() => {
 
       {/* Table */}
       <div className="w-full mx-auto bg-[#F6F9EF] rounded-lg p-2 md:p-4 overflow-x-auto">
-        <div className="hidden md:grid grid-cols-7 font-[Nunito] font-bold text-black text-sm bg-[#F9FAFB] rounded-md shadow-sm py-3 px-4">
+        <div className="hidden md:grid grid-cols-7 font-[Nunito] font-bold text-black lg:text-[9px] xl:text-sm bg-[#2d7ece] rounded-md shadow-sm py-3 px-4">
           <div>No</div>
           <div>Full Name</div>
           <div>Email</div>
@@ -223,7 +228,7 @@ useEffect(() => {
             agentList.map((agent, index) => (
               <div
                 key={agent?._id || index}
-                className="bg-white rounded-md shadow-sm p-3 flex flex-col md:grid md:grid-cols-7 gap-2 text-sm text-gray-700"
+                className="bg-white rounded-md shadow-sm p-3 flex flex-col md:grid md:grid-cols-7  lg:text-[9px] xl:text-sm text-gray-700"
               >
                 <div className="font-bold md:font-normal">
                   {index + 1 + (currentPage - 1) * limit}
@@ -237,7 +242,7 @@ useEffect(() => {
                     onClick={() => handleEditClick(agent)}
                     className="text-[#B3DB48] hover:text-green-600"
                   >
-                    <Pencil size={18} />
+                    <Pencil size={14} />
                   </button>
                 </div>
                 <div className="flex justify-center">
@@ -245,7 +250,7 @@ useEffect(() => {
                     onClick={() => handleDelete(agent._id)}
                     className="text-red-500 hover:text-red-700"
                   >
-                    <Trash2 size={18} />
+                    <Trash2 size={14} />
                   </button>
                 </div>
               </div>

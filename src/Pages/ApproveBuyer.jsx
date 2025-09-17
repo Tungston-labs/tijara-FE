@@ -137,7 +137,7 @@ const handleApprove = async (userId) => {
   };
 
   return (
-    <div className="p-4 sm:p-6 min-h-screen bg-[#E9E9E9] relative">
+    <div className="p-4 sm:p-6 min-h-screen lg:w-full  bg-[#E9E9E9] relative">
       {/* Header */}
       <div className="w-full  flex flex-col sm:flex-row items-center sm:items-center justify-between gap-3 mb-4 relative">
         <div>

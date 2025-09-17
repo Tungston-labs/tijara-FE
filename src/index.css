@@ -1,5 +1,16 @@
 @import "tailwindcss";
 
+
+@theme {
+
+  --breakpoint-mb1xl:23.4375rem; /*375px phone */
+  --breakpoint-mb2xl:26.5625rem ; /*425px; phone */
+
+  --breakpoint-4xl: 160rem; /*2k  (2560 × 1440)*/
+  --breakpoint-5xl: 240rem; /*4k  (3840 × 2160) */
+  --breakpoint-6xl: 320rem; /*5k  (5120 × 2880)*/
+  --breakpoint-7xl: 480rem; /*8k  (7680 × 4320)*/
+}
 /* :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;

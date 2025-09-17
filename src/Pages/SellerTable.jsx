@@ -68,10 +68,10 @@ export default function SellerTableContent({
   return (
     <>
       <div
-        className="w-full mx-auto rounded-lg p-4"
+        className="w-full lg:w-full md:w-4xl   mx-auto rounded-lg p-4"
         style={{ backgroundColor: "#F6F9EF" }}
       >
-        <div className="p-3 rounded-lg shadow-sm grid grid-cols-8 font-[Nunito] font-bold text-black text-center text-sm whitespace-nowrap bg-white">
+        <div className="p-3 rounded-lg shadow-sm lg:w-full lg:text-[9px] xl:text-sm  grid grid-cols-8 font-[Nunito] font-bold text-black text-center text-sm whitespace-wrap bg-white">
           <div>No</div>
           <div>Seller Name</div>
           <div>Ph no </div>
@@ -87,7 +87,7 @@ export default function SellerTableContent({
           {sellers.map((seller, index) => (
             <div
               key={index}
-              className="bg-white p-3 rounded-lg shadow-sm grid grid-cols-8 text-center items-center text-sm whitespace-nowrap"
+              className="bg-white p-3 rounded-lg shadow-sm lg:text-[9px] xl:text-sm  grid grid-cols-8 text-center items-center text-sm whitespace-nowrap"
             >
               <div className="text-gray-700 font-[Nunito]">
                 {index + 1 + (currentPage - 1) * 10}
@@ -117,7 +117,7 @@ export default function SellerTableContent({
                 {seller.subscription?.paymentType || "N/A"}
               </div>
 
-              <div className="flex justify-center">
+              <div className="flex justify-center ">
                 <button
                   onClick={() => onEditClick(seller)}
                   className="text-[#B3DB48] hover:text-green-600"
@@ -126,7 +126,7 @@ export default function SellerTableContent({
                 </button>
               </div>
 
-              <div className="flex justify-center">
+              <div className="flex justify-center ">
                 <button
                   onClick={() => onDeleteClick(seller)}
                   className="text-red-500 hover:text-red-700"

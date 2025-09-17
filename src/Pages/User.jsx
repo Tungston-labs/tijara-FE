@@ -235,7 +235,7 @@ export default function UserTable() {
 
   return (
     <>
-      <div className="p-6 min-h-screen  bg-[#E9E9E9] relative">
+      <div className="p-6 min-h-screen lg:w-full xl:w-full  bg-[#E9E9E9] relative">
         <div className="w-full pb-2 flex items-center justify-between">
           <div className="w-full flex-col items-center relative">
           <p className="text-gray-500 text-sm text-left">Users &gt; {filter}</p>

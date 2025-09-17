@@ -94,29 +94,24 @@ export default function Sidebar() {
         <div className="relative inline-block text-left mt-4">
           <div
             onClick={handleProfileClick}
-            className="flex items-center bg-white p-2 rounded-full shadow-md cursor-pointer"
+            className="flex items-center   shadow-md cursor-pointer"
           >
-            <img
-              src="https://randomuser.me/api/portraits/women/45.jpg"
-              alt="User"
-              className="w-8 h-8 rounded-full object-cover"
-            />
+           
             <div className="ml-2">
-              <p className="text-sm font-medium text-gray-800">Ajay Kumar</p>
-              <p className="text-xs text-gray-500">Admin</p>
             </div>
+            <button
+                onClick={handleLogout}
+                className="flex items-center w-full text-[#FF5B5B] px-4 py-3 text-[18px] justify-center hover:bg-gray-100"
+              >
+                <LogOut className="w-5 h-5 mr-2" />
+                Log out
+              </button>
           </div>
 
           {/* Dropdown */}
           {dropdownOpen && (
             <div className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg z-50">
-              <button
-                onClick={handleLogout}
-                className="flex items-center w-full text-[#FF5B5B] px-4 py-3 text-[18px] hover:bg-gray-100"
-              >
-                <LogOut className="w-5 h-5 mr-2" />
-                Log out
-              </button>
+              
             </div>
           )}
         </div>

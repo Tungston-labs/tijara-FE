@@ -145,13 +145,15 @@ export const deleteAgent = createAsyncThunk(
 
 // Add Agents
 export const addAgent = createAsyncThunk(
-  "agent/add",
+  "user/addAgent",
   async (agentData, { rejectWithValue }) => {
     try {
       const response = await addAgentAPI(agentData);
-      return response;
-    } catch (error) {
-      return rejectWithValue(error.message || "Unable to add agents");
+      return response; // { message, agent }
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data?.message || "Error adding agent"
+      );
     }
   }
 );
@@ -362,11 +364,13 @@ const UserSlice = createSlice({
       .addCase(fetchAgentList.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.agentList = action.payload.agents;
+        state.total = action.payload.total;
+        state.page = action.payload.page;
+        state.totalPages = action.payload.totalPages;
       })
-
       .addCase(fetchAgentList.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.payload || "Failed to fetch agents";
+        state.error = action.payload;
       })
       .addCase(fetchTradeLicense.fulfilled, (state, action) => {
         state.tradeLicenseUsers.list = action.payload.users;
@@ -454,20 +458,18 @@ const UserSlice = createSlice({
         state.products.loading = false;
         state.products.error = action.payload || "Failed to fetch products";
       })
-      .addCase(addAgent.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-        state.successMessage = null;
-      })
       .addCase(addAgent.fulfilled, (state, action) => {
         state.loading = false;
         state.successMessage = "Agent Added Successfully";
-        state.agentList.push(action.payload);
+        state.agentList.unshift(action.payload); // add instantly
+        state.total += 1;
       })
+
       .addCase(addAgent.rejected, (state, action) => {
-        state.loading = true;
+        state.status = "failed";
         state.error = action.payload;
       })
+
       .addCase(editAgent.pending, (state) => {
         state.loading = true;
         state.error = null;

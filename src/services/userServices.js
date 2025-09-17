@@ -63,7 +63,7 @@ export const deleteAgentById = async (id) => {
 
 
 export const addAgentAPI=async(agentData)=>{
-    const response=API.post(`/admin/agent/add-agent`,agentData)
+    const response= await API.post(`/admin/agent/add-agent`,agentData)
     return response.data;
 }
 
