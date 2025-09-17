@@ -61,15 +61,20 @@ const VerificationCodeForm = () => {
 
     try {
       setLoading(true);
-      const response = await axios.post(
-        "https://api.thijara.me/admin/auth/verify-otp",
-        { otp: otpValue, email, role }, // 👈 send email + role
-        { withCredentials: true }
-      );
+      const token = localStorage.getItem("resetToken");
+      const response =await axios.post(
+  "https://api.thijara.me/admin/auth/verify-otp",
+  { otp: otpValue, email, role },
+  {
+    withCredentials: true,
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  }
+);
+
 
       alert("OTP Verified Successfully");
       console.log(response.data);
-      navigate("/reset-password"); // 👈 redirect to reset password page
+      navigate("/reset-password"); 
     } catch (error) {
       alert(error?.response?.data?.message || "OTP Verification Failed");
       console.error(error);

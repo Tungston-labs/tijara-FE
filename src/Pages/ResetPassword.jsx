@@ -22,15 +22,20 @@ export default function ResetPassword() {
     try {
       setError("");
       setMessage("");
+      const token = localStorage.getItem("resetToken");
 
-      const response = await fetch("/api/auth/admin-reset-password", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        credentials: "include", // Send cookies with request
-        body: JSON.stringify({ newPassword })
-      });
+      const response = await fetch(
+        "https://api.thijara.me/admin/auth/admin-reset-password",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}), // add token as fallback
+          },
+          credentials: "include",
+          body: JSON.stringify({ newPassword }),
+        }
+      );
 
       const data = await response.json();
 
@@ -38,7 +43,7 @@ export default function ResetPassword() {
         throw new Error(data.message || "Something went wrong");
       }
 
-      setMessage("Password reset successful. You can now log in.");
+      setMessage(data.message);
       setNewPassword("");
       setConfirmPassword("");
     } catch (err) {
@@ -54,10 +59,14 @@ export default function ResetPassword() {
         </h2>
 
         {message && (
-          <div className="mb-4 text-green-600 text-center font-semibold">{message}</div>
+          <div className="mb-4 text-green-600 text-center font-semibold">
+            {message}
+          </div>
         )}
         {error && (
-          <div className="mb-4 text-red-600 text-center font-semibold">{error}</div>
+          <div className="mb-4 text-red-600 text-center font-semibold">
+            {error}
+          </div>
         )}
 
         <div className="space-y-6">

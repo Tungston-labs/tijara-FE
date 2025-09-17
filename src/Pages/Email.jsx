@@ -20,8 +20,7 @@ export default function EmailForm() {
         { withCredentials: true }
       );
 
-      console.log("OTP sent successfully");
-      // 👇 pass email + role when navigating
+      localStorage.setItem("resetToken", response.data.resetToken);
       navigate("/otp", { state: { email, role } });
     } catch (err) {
       console.error("Error:", err);
