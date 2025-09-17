@@ -1,14 +1,20 @@
+// VerificationCodeForm.jsx
 import React, { useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const VerificationCodeForm = ({ email, role }) => {
+const VerificationCodeForm = () => {
   const inputRefs = useRef([]);
   const [otp, setOtp] = useState(Array(6).fill(""));
   const [loading, setLoading] = useState(false);
 
+  const navigate = useNavigate();
+  const { state } = useLocation();
+  const email = state?.email;
+  const role = state?.role;
+
   const handleChange = (e, index) => {
     const value = e.target.value;
-
     if (/^\d$/.test(value)) {
       const updatedOtp = [...otp];
       updatedOtp[index] = value;
@@ -35,16 +41,11 @@ const VerificationCodeForm = ({ email, role }) => {
 
   const handlePaste = (e) => {
     e.preventDefault();
-    const paste = e.clipboardData
-      .getData("text")
-      .replace(/\D/g, "")
-      .slice(0, 6);
+    const paste = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
     const updatedOtp = [...otp];
-
     for (let i = 0; i < paste.length; i++) {
       updatedOtp[i] = paste[i];
     }
-
     setOtp(updatedOtp);
     if (paste.length < 6) {
       inputRefs.current[paste.length]?.focus();
@@ -62,13 +63,13 @@ const VerificationCodeForm = ({ email, role }) => {
       setLoading(true);
       const response = await axios.post(
         "https://api.thijara.me/admin/auth/verify-otp",
-        { otp: otpValue },
-        { withCredentials: true } // <---- important!
+        { otp: otpValue, email, role }, // 👈 send email + role
+        { withCredentials: true }
       );
 
       alert("OTP Verified Successfully");
       console.log(response.data);
-      // You can navigate to reset password page here
+      navigate("/reset-password"); // 👈 redirect to reset password page
     } catch (error) {
       alert(error?.response?.data?.message || "OTP Verification Failed");
       console.error(error);
@@ -92,10 +93,8 @@ const VerificationCodeForm = ({ email, role }) => {
       >
         <div className="flex flex-col items-center gap-[50px] h-full justify-between">
           <div>
-            <h1 className="text-2xl font-[Nunito] font-bold mb-4">
-              Reset your password
-            </h1>
-            <h2 className="text-lg font-[Nunito] font-bold mb-2">Verify</h2>
+            <h1 className="text-2xl font-bold mb-4">Reset your password</h1>
+            <h2 className="text-lg font-bold mb-2">Verify</h2>
             <p className="text-gray-900 whitespace-nowrap">
               Your code was sent to you via Email.
             </p>
@@ -121,7 +120,7 @@ const VerificationCodeForm = ({ email, role }) => {
             <button
               disabled={!isOtpComplete || loading}
               onClick={handleSubmit}
-              className={`w-[350px] py-3 text-white font-[Nunito] font-bold rounded-md transition ${
+              className={`w-[350px] py-3 text-white font-bold rounded-md transition ${
                 isOtpComplete
                   ? "bg-[#B3DB48]"
                   : "bg-[#CEDEA5] cursor-not-allowed"
