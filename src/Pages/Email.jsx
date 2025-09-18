@@ -53,9 +53,9 @@ export default function EmailForm() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-white">
-      <div className="bg-white p-8 rounded-3xl w-full max-w-md shadow-[0_0_20px_rgba(0,0,0,0.1)]">
+      <div className="bg-white p-8 4xl:p-16 5xl:p-16 rounded-3xl w-full max-w-sm 4xl:max-w-xl shadow-[0_0_20px_rgba(0,0,0,0.1)]">
         <form onSubmit={handleSubmit}>
-          <label className="block text-black text-lg font-[Nunito] font-bold mb-2">
+          <label className="block text-black 4xl:text-3xl 5xl:text-4xl text-lg font-[Nunito] font-bold mb-2">
             Enter Email
           </label>
           <input
@@ -64,7 +64,7 @@ export default function EmailForm() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full p-4 bg-[#ECECEC] text-gray-600 font-[Nunito] rounded-2xl mb-6 focus:outline-none focus:ring-2"
+            className="w-full p-4 4xl:p-6 5xl:p-6 4xl:text-3xl 5xl:text-4xl bg-[#ECECEC] text-gray-600 font-[Nunito] rounded-2xl mb-6 focus:outline-none focus:ring-2"
           />
 
           {error && (
@@ -75,7 +75,7 @@ export default function EmailForm() {
           <button
             type="submit"
             disabled={loading || cooldown > 0}
-            className={`w-full py-4 rounded-2xl text-lg font-[Nunito] font-bold transition-colors ${
+            className={`w-full 4xl:p-6 5xl:p-6 py-4 4xl:text-3xl 5xl:text-4xl  rounded-2xl text-lg font-[Nunito] font-bold transition-colors ${
               loading || cooldown > 0
                 ? "bg-gray-400 cursor-not-allowed text-white"
                 : "bg-[#B3DB48] text-white"

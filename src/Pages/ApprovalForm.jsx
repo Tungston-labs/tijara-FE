@@ -309,7 +309,7 @@ const handleDecline = async (userId) => {
       </div>
 
       {/* Action Buttons */}
-      <div className="flex justify-center gap-6 mt-8 font-[Nunito]">
+      <div className="flex justify-end gap-6 mt-8 font-[Nunito]">
         <button
           onClick={() => handleDecline(user._id)}
           className="px-6 py-2 border border-red-400 text-red-500 rounded-md"

@@ -85,22 +85,24 @@ const VerificationCodeForm = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 font-[Nunito]">
-      <div
-        className="text-center shadow"
-        style={{
-          width: "400px",
-          height: "450px",
-          borderRadius: "27px",
-          border: "0.2px solid #ccc",
-          padding: "78px 67px",
-          boxSizing: "border-box",
-        }}
-      >
+    <div
+  className="
+    text-center
+    shadow
+    w-[400px] 4xl:w-[600px] 5xl:w-[700px]
+    h-[450px] 4xl:h-[600px] 5xl:h-[700px]
+    rounded-[27px] 
+   border-[0.2px] border-gray-300 
+    p-[78px] px-[67px]
+    box-border
+  "
+>
+
         <div className="flex flex-col items-center gap-[50px] h-full justify-between">
           <div>
-            <h1 className="text-2xl font-bold mb-4">Reset your password</h1>
-            <h2 className="text-lg font-bold mb-2">Verify</h2>
-            <p className="text-gray-900 whitespace-nowrap">
+            <h1 className="text-2xl 4xl:text-3xl 5xl:text-4xl font-bold mb-4">Reset your password</h1>
+            <h2 className="text-lg font-bold 4xl:text-3xl 5xl:text-4xl mb-2">Verify</h2>
+            <p className="text-gray-900 4xl:text-3xl 5xl:text-4xl whitespace-nowrap">
               Your code was sent to you via Email.
             </p>
           </div>
@@ -112,7 +114,7 @@ const VerificationCodeForm = () => {
                 type="text"
                 maxLength="1"
                 value={otp[i]}
-                className="w-12 h-12 text-center text-xl border rounded-md focus:outline-none focus:ring-2"
+                className="w-12 h-12 4xl:w-20 5xl:h-20 5xl:w-20 4xl:h-20 text-center 4xl:text-3xl 5xl:text-4xl  text-xl border rounded-md focus:outline-none focus:ring-2"
                 onChange={(e) => handleChange(e, i)}
                 onKeyDown={(e) => handleKeyDown(e, i)}
                 onPaste={handlePaste}
@@ -125,7 +127,7 @@ const VerificationCodeForm = () => {
             <button
               disabled={!isOtpComplete || loading}
               onClick={handleSubmit}
-              className={`w-[350px] py-3 text-white font-bold rounded-md transition ${
+              className={`w-[350px] 4xl:w-[550px] 5xl:w-[550px] py-3 4xl:py-8 5xl:py-10 text-white 4xl:text-3xl 5xl:text-4xl font-bold rounded-md transition ${
                 isOtpComplete
                   ? "bg-[#B3DB48]"
                   : "bg-[#CEDEA5] cursor-not-allowed"

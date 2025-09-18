@@ -60,8 +60,8 @@ export default function ResetPassword() {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-white">
-      <div className="bg-white rounded-2xl p-10 w-full max-w-md shadow-[0_0_20px_rgba(0,0,0,0.2)]">
-        <h2 className="text-2xl text-center text-black mb-8 font-[Nunito] font-bold">
+      <div className="bg-white rounded-2xl p-10 4xl:p-16 5xl:p-16 w-full max-w-md 4xl:max-w-2xl 5xl:max-w-2xl shadow-[0_0_20px_rgba(0,0,0,0.2)]">
+        <h2 className="text-2xl text-center 4xl:text-3xl 5xl:text-4xl text-black mb-8 font-[Nunito] font-bold">
           Reset your password
         </h2>
 
@@ -78,14 +78,14 @@ export default function ResetPassword() {
 
         <div className="space-y-6">
           <div>
-            <label className="block text-black font-[Nunito] font-bold mb-1">
+            <label className="block text-black 4xl:text-3xl 5xl:text-4xl font-[Nunito] font-bold mb-1">
               New password
             </label>
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
                 placeholder="Enter new password"
-                className="w-full px-4 py-3 border rounded-md pr-10 focus:outline-none focus:ring-2"
+                className="w-full px-4 py-3 4xl:px-8 4xl:py-6 4xl:text-3xl 5xl:text-4xl  5xl:px-8 5xl:py-6 border rounded-md pr-10 focus:outline-none focus:ring-2"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
               />
@@ -100,14 +100,14 @@ export default function ResetPassword() {
           </div>
 
           <div>
-            <label className="block text-black font-[Nunito] font-bold mb-1">
+            <label className="block text-black  4xl:text-3xl 5xl:text-4xl font-[Nunito] font-bold mb-1">
               Confirm new password
             </label>
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
                 placeholder="Confirm password"
-                className="w-full px-4 py-3 border rounded-md pr-10 focus:outline-none focus:ring-2"
+                className="w-full px-4 5xl:px-8 5xl:py-6 4xl:px-8 4xl:py-6 4xl:text-3xl 5xl:text-4xl py-3 border rounded-md pr-10 focus:outline-none focus:ring-2"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
               />
@@ -123,7 +123,7 @@ export default function ResetPassword() {
 
           <button
             onClick={handleReset}
-            className={`w-full py-3 mt-4 text-white font-[Nunito] font-bold rounded-md transition ${
+            className={`w-full py-3 mt-4 text-white 4xl:py-6 5xl:py-6 4xl:text-3xl 5xl:text-4xl font-[Nunito] font-bold rounded-md transition ${
               isButtonDisabled
                 ? "bg-[#CEDEA5] cursor-not-allowed"
                 : "bg-[#B3DB48]"
