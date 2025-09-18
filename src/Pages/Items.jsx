@@ -92,14 +92,14 @@ useEffect(()=>{
         {/* Header */}
         <div className="flex justify-between items-start mb-4">
           <div>
-            <p className="text-sm text-gray-600">Category &gt; Item name</p>
-            <h2 className="text-2xl font-[Nunito] font-bold text-black mt-1">Item name</h2>
-            <div className="flex items-center gap-3 mt-4">
+            <p className="text-sm text-gray-600 4xl:text-3xl 5xl:text-3xl">Category &gt; Item name</p>
+            <h2 className="text-2xl font-[Nunito] font-bold text-black mt-1 4xl:text-3xl 5xl:text-3xl">Item name</h2>
+            <div className="flex items-center gap-3 mt-4 ">
               {/* Category Dropdown */}
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="px-4 py-2 rounded-md border border-gray-300 bg-white text-gray-700 focus:outline-none w-[180px]"
+                className="px-4 py-2 4xl:px-2 4xl:py-2 rounded-md border border-gray-300 4xl:text-3xl 5xl:text-3xl bg-white text-gray-700 focus:outline-none w-[180px] 4xl:w-[300px] 5xl:w-[300px] "
               >
                 <option value="" disabled>Select Category</option>
                 {categories.map((category, idx) => (
@@ -114,11 +114,11 @@ useEffect(()=>{
                 onChange={(e) => {
                 setItemname(e.target.value);
                 }}
-                className="px-4 py-2 rounded-md border border-gray-300 bg-white text-black focus:outline-none w-[250px]"
+                className="px-4 py-2 4xl:px-6 4xl:py-4 rounded-md border border-gray-300 bg-white text-black focus:outline-none 4xl:text-3xl 5xl:text-3xl w-[250px] 4xl:w-[300px] 5xl:w-[300px"
               />
                 
               {/* Add Button */}
-              <button className="bg-[#B3DB48] text-black px-6 py-2 rounded-md font-[Nunito] font-bold" onClick={additems}>
+              <button className="bg-[#B3DB48] text-black px-6 py-2 4xl:px-6 4xl:py-4  4xl:text-3xl 5xl:text-3xl rounded-md font-[Nunito] font-bold" onClick={additems}>
                 
                 + Add
               </button>
@@ -128,7 +128,7 @@ useEffect(()=>{
 
         {/* Table-style box */}
         <div className="bg-[#F6F9EF] p-4 rounded-md shadow-sm">
-          <div className="bg-[#F9FAFB] px-4 py-3 rounded-md font-[Nunito] font-bold text-black border border-gray-200 shadow-sm">
+          <div className="bg-[#F9FAFB] px-4 py-3 4xl:px-6 4xl:py-4 4xl:text-3xl 5xl:text-3xl rounded-md font-[Nunito] font-bold text-black border border-gray-200 shadow-sm">
             Item name
           </div>
 
@@ -137,7 +137,7 @@ useEffect(()=>{
               items.map((item, idx) => 
                  { return <> <div
                   key={idx}
-                  className="bg-white px-4 py-3 rounded-md border border-gray-200 text-gray-700 shadow-sm"
+                  className="bg-white px-4 py-3 4xl:px-4 4xl:py-2 4xl:text-3xl 5xl:text-3xl rounded-md border border-gray-200 text-gray-700 shadow-sm"
                 >
                   {item.itemName}
                 </div></>}

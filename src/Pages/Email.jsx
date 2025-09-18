@@ -28,10 +28,8 @@ export default function EmailForm() {
 
       localStorage.setItem("resetToken", response.data.resetToken);
 
-      // ✅ navigate immediately after OTP send
       navigate("/otp", { state: { email, role } });
 
-      // ✅ start 60s cooldown
       setCooldown(60);
     } catch (err) {
       console.error("Error:", err);

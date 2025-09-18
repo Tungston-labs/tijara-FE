@@ -238,17 +238,17 @@ export default function UserTable() {
       <div className="p-6 min-h-screen lg:w-full xl:w-full  bg-[#E9E9E9] relative">
         <div className="w-full pb-2 flex items-center justify-between">
           <div className="w-full flex-col items-center relative">
-          <p className="text-gray-500 text-sm text-left">Users &gt; {filter}</p>
-          <h2 className="text-2xl  font-[Nunito] font-bold capitalize">
+          <p className="text-gray-500 text-sm text-left 4xl:text-3xl 5xl:text-3xl">Users &gt; {filter}</p>
+          <h2 className="text-2xl 4xl:text-3xl 5xl:text-3xl  font-[Nunito] font-bold capitalize">
             {filter}
           </h2>
           </div>
           <div className="relative  ">
             <button
               onClick={() => setIsFilterOpen(!isFilterOpen)}
-              className="bg-[#B3DB48] text-black px-4 py-2 rounded-md flex  gap-2"
+              className="bg-[#B3DB48] text-black px-4 py-2 rounded-md flex 4xl:text-3xl 5xl:text-3xl gap-2"
             >
-              <Filter size={25}color="white" /> Filter
+              <Filter className="w-4 h-4 sm:w-6 sm:h-6 md:w-4 md:h-4 lg:w-6 lg:h-6 4xl:h-10 4xl:w-10 5xl:w-10" color="white" /> Filter
             </button>
             {isFilterOpen && (
               <div
@@ -257,13 +257,13 @@ export default function UserTable() {
               >
                 <button
                   onClick={() => handleFilterClick("Seller")}
-                  className="w-full text-left px-4 py-3 text-md hover:bg-[#B3DB48] rounded-[10px]"
+                  className="w-full text-left px-4 py-3 text-md 4xl:text-3xl 5xl:text-3xl hover:bg-[#B3DB48] rounded-[10px]"
                 >
                   Seller
                 </button>
                 <button
                   onClick={() => handleFilterClick("Buyer")}
-                  className="w-full text-left px-4 py-3 text-md hover:bg-[#B3DB48] rounded-[10px]"
+                  className="w-full text-left px-4 py-3 text-md 4xl:text-3xl 5xl:text-3xl hover:bg-[#B3DB48] rounded-[10px]"
                 >
                   Buyer
                 </button>
@@ -301,7 +301,7 @@ export default function UserTable() {
             {getPaginationNumbers().map((num) => (
               <button
                 key={num}
-                className={`w-8 h-8 rounded-full font-[Nunito] font-bold ${
+                className={`w-8 h-8 rounded-full 4xl:text-3xl 5xl:text-3xl font-[Nunito] font-bold ${
                   currentPage === num
                     ? "bg-[#B3DB48] text-black"
                     : "hover:underline"
@@ -320,7 +320,7 @@ export default function UserTable() {
             </button>
           </div>
 
-          <div className="flex items-center gap-2 text-sm text-gray-700">
+          <div className="flex items-center 4xl:text-3xl 5xl:text-3xl gap-2  text-sm text-gray-700">
             <span>Go to page</span>
             <input
               type="number"
@@ -328,7 +328,7 @@ export default function UserTable() {
               onKeyDown={(e) => {
                 if (e.key === "Enter") handleGoToPage(e);
               }}
-              className="w-16 px-2 py-1 border border-gray-300 rounded-md text-sm"
+              className="w-16 px-2 py-1 border 4xl:text-3xl 5xl:text-3xl border-gray-300 rounded-md text-sm"
               min={1}
               max={totalPages}
             />

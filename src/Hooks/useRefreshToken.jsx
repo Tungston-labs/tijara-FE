@@ -11,7 +11,7 @@ const useRefreshToken = () => {
         "/admin/auth/refresh",
         {},
         {
-          withCredentials: true, // important for HTTP-only cookie
+          withCredentials: true, 
         }
       );
 

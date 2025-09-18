@@ -37,20 +37,20 @@ export default function AgentTable() {
     address: "",
   });
 
-useEffect(() => {
-  setCurrentPage(1);
-}, [search]);
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search]);
 
-useEffect(() => {
-  dispatch(fetchAgentList({ page: currentPage, limit, search }))
-    .unwrap()
-    .then((res) => {
-      setTotalPages(res.totalPages);
-    })
-    .catch((err) => {
-      console.error("Error fetching agents:", err);
-    });
-}, [dispatch, currentPage, search]);
+  useEffect(() => {
+    dispatch(fetchAgentList({ page: currentPage, limit, search }))
+      .unwrap()
+      .then((res) => {
+        setTotalPages(res.totalPages);
+      })
+      .catch((err) => {
+        console.error("Error fetching agents:", err);
+      });
+  }, [dispatch, currentPage, search]);
   const handleEditClick = (agent) => {
     setSelectedAgent(agent);
     setEditName(agent?.agentName);
@@ -82,7 +82,6 @@ useEffect(() => {
       }
     });
   };
-
 
   const handleEditOk = () => {
     if (!selectedAgent) return;
@@ -125,36 +124,35 @@ useEffect(() => {
     setShowEditPopup(false);
   };
 
- 
-const handleAddOk = async () => {
-  const { agentName, phone, email, address } = addFormData;
+  const handleAddOk = async () => {
+    const { agentName, phone, email, address } = addFormData;
 
-  if (!agentName || !phone || !email || !address) {
-    return Swal.fire("Error", "All fields are required", "error");
-  }
+    if (!agentName || !phone || !email || !address) {
+      return Swal.fire("Error", "All fields are required", "error");
+    }
 
-  if (!validator.isEmail(email)) {
-    return Swal.fire("Error", "Invalid email format", "error");
-  }
+    if (!validator.isEmail(email)) {
+      return Swal.fire("Error", "Invalid email format", "error");
+    }
 
-  if (!validator.isMobilePhone(phone, "en-IN")) {
-    return Swal.fire("Error", "Invalid phone number", "error");
-  }
+    if (!validator.isMobilePhone(phone, "en-IN")) {
+      return Swal.fire("Error", "Invalid phone number", "error");
+    }
 
-  try {
-    await dispatch(addAgent(addFormData)).unwrap();
-    Swal.fire("Success", "Agent added successfully", "success");
-    setAddFormData({ agentName: "", phone: "", email: "", address: "" });
-    setShowAddPopup(false);
+    try {
+      await dispatch(addAgent(addFormData)).unwrap();
+      Swal.fire("Success", "Agent added successfully", "success");
+      setAddFormData({ agentName: "", phone: "", email: "", address: "" });
+      setShowAddPopup(false);
 
-    // Always reload first page (fixes "no agents found")
-    dispatch(fetchAgentList({ page: 1, limit:4 }));
-  } catch (err) {
-    console.error("Error adding agent:", err);
-    const message = err?.response?.data?.message || "Failed to add agent";
-    Swal.fire("Error", message , "error");
-  }
-};
+      // Always reload first page (fixes "no agents found")
+      dispatch(fetchAgentList({ page: 1, limit: 4 }));
+    } catch (err) {
+      console.error("Error adding agent:", err);
+      const message = err?.response?.data?.message || "Failed to add agent";
+      Swal.fire("Error", message, "error");
+    }
+  };
 
   const handleAddCancel = () => {
     setShowAddPopup(false);
@@ -202,10 +200,12 @@ const handleAddOk = async () => {
     <div className="min-h-screen bg-[#E9E9E9] p-4 md:p-6">
       {/* Header */}
       <div className="w-full mx-auto flex flex-col md:flex-row items-center justify-between mb-4 gap-4">
-        <h1 className="text-xl md:text-2xl font-[Nunito] font-bold">Agents</h1>
+        <h1 className="text-xl md:text-2xl font-[Nunito] font-bold 4xl:text-3xl 5xl:text-3xl">
+          Agents
+        </h1>
         <button
           onClick={() => setShowAddPopup(true)}
-          className="bg-[#B3DB48] text-black px-4 py-2 rounded-md text-sm md:text-md font-[Nunito] font-bold shadow"
+          className="bg-[#B3DB48] text-black px-4 py-2 4xl:text-3xl 5xl:text-3xl rounded-md text-sm md:text-md font-[Nunito] font-bold shadow"
         >
           + Add Agent
         </button>
@@ -213,7 +213,7 @@ const handleAddOk = async () => {
 
       {/* Table */}
       <div className="w-full mx-auto bg-[#F6F9EF] rounded-lg p-2 md:p-4 overflow-x-auto">
-        <div className="hidden md:grid grid-cols-7 font-[Nunito] font-bold text-black lg:text-[9px] xl:text-sm bg-[#2d7ece] rounded-md shadow-sm py-3 px-4">
+        <div className="hidden md:grid grid-cols-7 font-[Nunito] font-bold 4xl:text-3xl 5xl:text-3xl text-black lg:text-[9px] xl:text-sm bg-white rounded-md shadow-sm py-3 px-4">
           <div>No</div>
           <div>Full Name</div>
           <div>Email</div>
@@ -228,21 +228,35 @@ const handleAddOk = async () => {
             agentList.map((agent, index) => (
               <div
                 key={agent?._id || index}
-                className="bg-white rounded-md shadow-sm p-3 flex flex-col md:grid md:grid-cols-7  lg:text-[9px] xl:text-sm text-gray-700"
+                className="bg-white rounded-md shadow-sm p-3 4xl:text-2xl 5xl:text-3xl flex flex-col md:grid md:grid-cols-7  lg:text-[9px] xl:text-sm text-gray-700"
               >
                 <div className="font-bold md:font-normal">
                   {index + 1 + (currentPage - 1) * limit}
                 </div>
                 <div>{agent?.agentName}</div>
-                <div>{agent?.email}</div>
+                <div
+                  className="truncate max-w-[120px] cursor-pointer"
+                  title={agent?.email}
+                >
+                  {agent?.email?.length > 5
+                    ? agent.email.slice(0, 5) + "..."
+                    : agent?.email}
+                </div>
                 <div>{agent?.phone}</div>
-                <div className="truncate">{agent?.address}</div>
+                <div
+                  className="truncate max-w-[150px] cursor-pointer"
+                  title={agent?.address} 
+                >
+                  {agent?.address?.length > 15
+                    ? agent.address.slice(0, 15) + "..."
+                    : agent?.address}
+                </div>
                 <div className="flex justify-center">
                   <button
                     onClick={() => handleEditClick(agent)}
                     className="text-[#B3DB48] hover:text-green-600"
                   >
-                    <Pencil size={14} />
+                    <Pencil className="w-2 h-2 sm:w-2 sm:h-6 md:w-4 md:h-4 lg:w-4 lg:h-4 xl:h-6 xl:w-6 4xl:h-10 4xl:w-10 5xl:w-10" />
                   </button>
                 </div>
                 <div className="flex justify-center">
@@ -250,7 +264,7 @@ const handleAddOk = async () => {
                     onClick={() => handleDelete(agent._id)}
                     className="text-red-500 hover:text-red-700"
                   >
-                    <Trash2 size={14} />
+                    <Trash2 className="w-2 h-2 sm:w-2 sm:h-6 md:w-4 md:h-4 lg:w-4 lg:h-4 xl:h-6 xl:w-6 4xl:h-10 4xl:w-10 5xl:w-10" />
                   </button>
                 </div>
               </div>
@@ -263,7 +277,7 @@ const handleAddOk = async () => {
 
       {/* Pagination */}
       <div className="flex flex-col md:flex-row justify-between items-center mt-4 gap-3">
-        <div className="flex items-center space-x-1 text-gray-700">
+        <div className="flex items-center 4xl:text-3xl 5xl:text-3xl space-x-1 text-gray-700">
           <button
             onClick={handlePrev}
             className="text-lg"
@@ -295,7 +309,7 @@ const handleAddOk = async () => {
           </button>
         </div>
 
-        <div className="flex items-center gap-2 text-sm text-gray-700">
+        <div className="flex items-center gap-2 4xl:text-3xl 5xl:text-3xl text-sm text-gray-700">
           <span>Go to page</span>
           <input
             type="number"
@@ -311,7 +325,7 @@ const handleAddOk = async () => {
       </div>
 
       {/* Edit Agent Modal */}
-  <Modal
+      <Modal
         title=""
         open={showEditPopup}
         onOk={handleEditOk}
@@ -396,7 +410,7 @@ const handleAddOk = async () => {
         okText="Save"
         cancelText="Cancel"
       >
-        <h2 className="text-center text-xl font-[Nunito] font-bold mb-4">
+        <h2 className="text-center text-xl font-[Nunito] 4xl:text-3xl 5xl:text-3xl font-bold mb-4">
           Add Agent
         </h2>
         <div className="flex justify-center mb-6">

@@ -141,8 +141,8 @@ const [currentPage, setCurrentPage] = useState(1);
         {/* Header */}
         <div className="flex justify-between items-start mb-4">
           <div>
-            <p className="text-sm text-gray-600">Category &gt; Item name</p>
-            <h2 className="text-2xl font-[Nunito] font-bold text-black mt-1">
+            <p className="text-sm text-gray-600 4xl:text-3xl 5xl:text-3xl">Category &gt; Item name</p>
+            <h2 className="text-2xl font-[Nunito] 4xl:text-3xl 5xl:text-3xl font-bold text-black mt-1">
               Sub category
             </h2>
             <div className="flex items-center gap-3 mt-4 relative">
@@ -174,10 +174,10 @@ const [currentPage, setCurrentPage] = useState(1);
                       }
                     }
                   }}
-                  className="px-4 py-2 rounded-md border border-gray-300 bg-white text-black focus:outline-none w-[250px]"
+                  className="px-4 py-2 rounded-md border border-gray-300 bg-white 4xl:px-6 4xl:py-4 text-black 4xl:text-3xl 5xl:text-3xl focus:outline-none w-[250px] 4xl:w-[300px] 5xl:w-[300px"
                 />
                 {suggestions.length > 0 && (
-                  <ul className="absolute bg-white border border-gray-300 mt-1 rounded-md shadow-md z-10 w-full max-h-40 overflow-y-auto">
+                  <ul className="absolute bg-white border border-gray-300 mt-1  rounded-md shadow-md z-10 w-full max-h-40 overflow-y-auto">
                     {suggestions.map((suggestion, index) => (
                       <li
                         key={index}
@@ -203,11 +203,11 @@ const [currentPage, setCurrentPage] = useState(1);
                 onChange={(e) => {
                   setSubCategory(e.target.value);
                 }}
-                className="px-4 py-2 rounded-md border border-gray-300 bg-white text-black focus:outline-none w-[250px]"
+                className="px-4 py-2 rounded-md border 4xl:px-6 4xl:py-4 4xl:text-3xl 5xl:text-3xl 4xl:w-[300px] 5xl:w-[300px] border-gray-300 bg-white text-black focus:outline-none w-[250px]"
               />
               <button
                 onClick={handleAddSubCategory}
-                className="bg-[#B3DB48] text-black px-6 py-2 rounded-md font-[Nunito] font-bold"
+                className="bg-[#B3DB48] text-black px-6 py-2 4xl:px-6 4xl:py-4 4xl:text-3xl 5xl:text-3xl rounded-md font-[Nunito] font-bold"
               >
                 + Add
               </button>
@@ -217,7 +217,7 @@ const [currentPage, setCurrentPage] = useState(1);
 
         {/* Table */}
         <div className="bg-[#F6F9EF] p-4 rounded-md shadow-sm">
-          <div className="grid grid-cols-2 bg-[#F9FAFB] px-4 py-3 rounded-md font-[Nunito] font-bold text-black border border-gray-200 shadow-sm">
+          <div className="grid grid-cols-2 bg-[#F9FAFB] px-4 py-3 4xl:px-6 4xl:py-4 4xl:text-3xl 5xl:text-3xl rounded-md font-[Nunito] font-bold text-black border border-gray-200 shadow-sm">
             <div>Sub Category</div>
             <div>Item</div>
           </div>
@@ -226,7 +226,7 @@ const [currentPage, setCurrentPage] = useState(1);
             {items.map((item, idx) => (
               <div
                 key={idx}
-                className="grid grid-cols-2 bg-white px-4 py-3 rounded-md border border-gray-200 text-gray-700 shadow-sm"
+                className="grid grid-cols-2 4xl:px-6 4xl:py-4 4xl:text-3xl 5xl:text-3xl bg-white px-4 py-3 rounded-md border border-gray-200 text-gray-700 shadow-sm"
               >
                 <div>{item.name}</div>
                 <div>{item.itemName?.name}</div>

@@ -143,7 +143,7 @@ const handleDecline = async (userId) => {
       <div className="mb-4 text-sm text-gray-600 font-[Nunito]">
         Approval &gt; Seller
       </div>
-      <h1 className="text-2xl font-semibold font-[Nunito] mb-6">Seller</h1>
+      <h1 className="text-2xl 4xl:text-4xl 5xl:text-4xl font-semibold font-[Nunito] mb-6">Seller</h1>
 
       {/* Card */}
       <div className="bg-white rounded-lg p-8 shadow-sm">

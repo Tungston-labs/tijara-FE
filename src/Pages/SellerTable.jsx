@@ -71,7 +71,7 @@ export default function SellerTableContent({
         className="w-full lg:w-full md:w-4xl   mx-auto rounded-lg p-4"
         style={{ backgroundColor: "#F6F9EF" }}
       >
-        <div className="p-3 rounded-lg shadow-sm lg:w-full lg:text-[9px] xl:text-sm  grid grid-cols-8 font-[Nunito] font-bold text-black text-center text-sm whitespace-wrap bg-white">
+        <div className="p-3 rounded-lg shadow-sm lg:w-full 4xl:text-3xl 5xl:text-3xl lg:text-[9px] xl:text-sm  grid grid-cols-8 font-[Nunito] font-bold text-black text-center text-sm whitespace-wrap bg-white">
           <div>No</div>
           <div>Seller Name</div>
           <div>Ph no </div>
@@ -87,7 +87,7 @@ export default function SellerTableContent({
           {sellers.map((seller, index) => (
             <div
               key={index}
-              className="bg-white p-3 rounded-lg shadow-sm lg:text-[9px] xl:text-sm  grid grid-cols-8 text-center items-center text-sm whitespace-nowrap"
+              className="bg-white p-3 rounded-lg shadow-sm lg:text-[9px] 4xl:text-3xl 5xl:text-3xl xl:text-sm  grid grid-cols-8 text-center items-center text-sm whitespace-nowrap"
             >
               <div className="text-gray-700 font-[Nunito]">
                 {index + 1 + (currentPage - 1) * 10}
@@ -122,7 +122,7 @@ export default function SellerTableContent({
                   onClick={() => onEditClick(seller)}
                   className="text-[#B3DB48] hover:text-green-600"
                 >
-                  <Pencil size={14} />
+                  <Pencil className="w-2 h-2 sm:w-2 sm:h-6 md:w-4 md:h-4 lg:w-4 lg:h-4 xl:h-6 xl:w-6 4xl:h-10 4xl:w-10 5xl:w-10" />
                 </button>
               </div>
 
@@ -131,7 +131,7 @@ export default function SellerTableContent({
                   onClick={() => onDeleteClick(seller)}
                   className="text-red-500 hover:text-red-700"
                 >
-                  <Trash2 size={18} />
+                  <Trash2 className="w-2 h-2 sm:w-2 sm:h-6 md:w-4 md:h-4 lg:w-4 lg:h-4 xl:h-6 xl:w-6 4xl:h-10 4xl:w-10 5xl:w-10" />
                 </button>
               </div>
             </div>

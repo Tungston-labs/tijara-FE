@@ -461,7 +461,7 @@ const UserSlice = createSlice({
       .addCase(addAgent.fulfilled, (state, action) => {
         state.loading = false;
         state.successMessage = "Agent Added Successfully";
-        state.agentList.unshift(action.payload); // add instantly
+        state.agentList.unshift(action.payload); 
         state.total += 1;
       })
 

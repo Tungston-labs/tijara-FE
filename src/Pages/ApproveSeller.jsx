@@ -39,7 +39,9 @@ export default function ApproveSellerTable() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const result = await dispatch(fetchTradeLicense({ page: currentPage, search }));
+        const result = await dispatch(
+          fetchTradeLicense({ page: currentPage, search })
+        );
         return result;
       } catch (err) {
         console.error("Failed to fetch trade license users:", err);
@@ -61,7 +63,7 @@ export default function ApproveSellerTable() {
       document.removeEventListener("keydown", handleEsc);
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [dispatch, search,currentPage]);
+  }, [dispatch, search, currentPage]);
 
   const handleFilterClick = (type) => {
     setIsFilterOpen(false);
@@ -84,7 +86,7 @@ export default function ApproveSellerTable() {
         const result = await dispatch(
           approveTradeLicense({ userId, action: "approve" })
         );
-        dispatch(fetchTradeLicense({ page: currentPage, search }))
+        dispatch(fetchTradeLicense({ page: currentPage, search }));
 
         if (approveTradeLicense.fulfilled.match(result)) {
           Swal.fire({
@@ -96,7 +98,6 @@ export default function ApproveSellerTable() {
           });
 
           // Re-fetch list or filter it locally
-          
         } else {
           Swal.fire({
             icon: "error",
@@ -195,15 +196,23 @@ export default function ApproveSellerTable() {
     <div className="p-4 sm:p-6 min-h-screen bg-[#E9E9E9]">
       <div className="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4">
         <div className="mb-2 sm:mb-0">
-          <p className="text-gray-500 text-sm">Approval &gt; Seller</p>
-          <h2 className="text-2xl font-[Nunito] font-bold">Seller</h2>
+          <p className="text-gray-500 text-sm 4xl:text-3xl 5xl:text-3xl">
+            Approval &gt; Seller
+          </p>
+          <h2 className="text-2xl font-[Nunito] font-bold 4xl:text-3xl 5xl:text-3xl">
+            Seller
+          </h2>
         </div>
         <div className="relative">
           <button
             onClick={() => setIsFilterOpen(!isFilterOpen)}
-            className="bg-[#B3DB48] text-black px-4 py-2 rounded-md flex items-center gap-2"
+            className="bg-[#B3DB48] text-black 4xl:text-3xl 5xl:text-3xl px-4 py-2 rounded-md flex items-center gap-2"
           >
-            <Filter size={20} color="white" /> Filter
+            <Filter
+              className="w-4 h-4 sm:w-6 sm:h-6 4xl:text-3xl 5xl:text-3xl md:w-4 md:h-4 lg:w-6 lg:h-6 4xl:h-10 4xl:w-10 5xl:w-10"
+              color="white"
+            />{" "}
+            Filter
           </button>
           {isFilterOpen && (
             <div
@@ -212,13 +221,13 @@ export default function ApproveSellerTable() {
             >
               <button
                 onClick={() => handleFilterClick("approveseller")}
-                className="w-full text-left px-4 py-3 text-md hover:bg-[#B3DB48] rounded-t-lg"
+                className="w-full text-left px-4 py-3 4xl:text-3xl 5xl:text-3xl text-md hover:bg-[#B3DB48] rounded-t-lg"
               >
                 Seller
               </button>
               <button
                 onClick={() => handleFilterClick("approvebuyer")}
-                className="w-full text-left px-4 py-3 text-md hover:bg-[#B3DB48] rounded-b-lg"
+                className="w-full text-left px-4 py-3 4xl:text-3xl 5xl:text-3xl text-md hover:bg-[#B3DB48] rounded-b-lg"
               >
                 Buyer
               </button>
@@ -228,13 +237,15 @@ export default function ApproveSellerTable() {
       </div>
 
       <div className="w-full mx-auto rounded-lg p-2 sm:p-4 bg-[#F6F9EF] overflow-x-auto">
-        <div className="min-w-[768px] p-4 rounded-lg shadow-sm grid grid-cols-6 font-[Nunito] font-bold text-black text-sm text-center bg-[#F9FAFB]">
+        <div className="min-w-[768px] p-4 rounded-lg shadow-sm grid grid-cols-8 font-[Nunito] font-bold text-black 4xl:text-3xl 5xl:text-3xl text-sm text-center bg-[#F9FAFB]">
           <div>No</div>
           <div>Seller name</div>
           <div>Ph no</div>
           <div>Email</div>
           <div>Licence number</div>
           <div>Company name</div>
+          <div>View</div>
+          <div>Action</div>
         </div>
 
         {/* Rows */}
@@ -243,29 +254,34 @@ export default function ApproveSellerTable() {
           {sellers.map((seller, index) => (
             <div
               key={seller._id}
-              className="bg-white p-3 rounded-lg shadow-sm grid grid-cols-9 items-center text-center text-sm"
+              className="bg-white p-3 rounded-lg shadow-sm grid 4xl:text-3xl 5xl:text-3xl grid-cols-8  text-center text-sm"
             >
               <div>{index + 1 + (currentPage - 1) * 10}</div>
               <div>{seller.name}</div>
               <div>{seller.phone}</div>
-              <div>{seller.email}</div>
+              <div
+                className="truncate max-w-[120px] cursor-pointer"
+                title={seller.email}
+              >
+                {seller.email.length > 5
+                  ? seller.email.slice(0, 10) + "..."
+                  : seller.email}
+              </div>
+
               <div>{seller.tradeLicenseNumber}</div>
               <div>{seller.companyName}</div>
 
               {/* View + Approve Button */}
               <div className="flex flex-col gap-2 items-center">
                 <Eye
-                  className="text-[#B3DB48] w-5 h-5 cursor-pointer"
-                  onClick={() =>
-                  navigate(`/approval/${seller._id}`)
-
-                  }
+                  className="w-4 h-4 sm:w-6 sm:h-6 md:w-4 md:h-4 lg:w-6 lg:h-6 4xl:h-10 4xl:w-10 5xl:w-10"
+                  onClick={() => navigate(`/approval/${seller._id}`)}
                 />
               </div>
               <div className="flex flex-col gap-4 items-center">
                 <button
                   onClick={() => handleApprove(seller._id)}
-                  className="bg-[#B3DB48] text-white px-14 py-1 rounded-md text-sm"
+                  className="bg-[#B3DB48] text-white px-6 py-1 rounded-md text-sm 4xl:text-3xl 5xl:text-3xl"
                 >
                   Approve
                 </button>
@@ -276,7 +292,7 @@ export default function ApproveSellerTable() {
       </div>
 
       <div className="flex flex-col sm:flex-row justify-between items-center mt-6 gap-4">
-        <div className="flex items-center space-x-2 text-gray-700">
+        <div className="flex items-center 4xl:text-3xl 5xl:text-3xl space-x-2 text-gray-700">
           <button
             onClick={handlePrev}
             className="text-lg"
@@ -306,7 +322,7 @@ export default function ApproveSellerTable() {
           </button>
         </div>
 
-        <div className="flex items-center gap-2 text-sm text-gray-700">
+        <div className="flex items-center gap-2  4xl:text-3xl 5xl:text-3xl text-sm text-gray-700">
           <span>Go to page</span>
           <input
             type="number"
@@ -314,7 +330,7 @@ export default function ApproveSellerTable() {
             onKeyDown={(e) => {
               if (e.key === "Enter") handleGoToPage(e);
             }}
-            className="w-16 px-2 py-1 border border-gray-300 rounded-md text-sm"
+            className="w-16 px-2 py-1 border 4xl:text-3xl 5xl:text-3xl border-gray-300 rounded-md text-sm"
             min={1}
             max={totalPages}
           />
