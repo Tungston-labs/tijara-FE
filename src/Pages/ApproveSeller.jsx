@@ -260,11 +260,11 @@ export default function ApproveSellerTable() {
               <div>{seller.name}</div>
               <div>{seller.phone}</div>
               <div
-                className="truncate max-w-[120px] cursor-pointer"
+                className="truncate  cursor-pointer"
                 title={seller.email}
               >
                 {seller.email.length > 5
-                  ? seller.email.slice(0, 10) + "..."
+                  ? seller.email.slice(0, 5) + "..."
                   : seller.email}
               </div>
 
