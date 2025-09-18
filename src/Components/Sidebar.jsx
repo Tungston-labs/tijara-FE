@@ -61,27 +61,27 @@ export default function Sidebar() {
   };
 
   return (
-    <div className="w-96 h-screen bg-white flex flex-col justify-between p-4">
+    <div className="w-[18.5%] h-screen bg-white flex flex-col justify-between p-4">
       {/* Top Section */}
       <div>
         {/* Logo */}
-        <div className="flex justify-center items-center mb-10 mt-4">
-          <img src={logo} alt="Logo" className="h-12 object-contain" />
+        <div className="flex justify-center items-center mb-10 4xl:mb-20 mt-4">
+          <img src={logo} alt="Logo" className="h-12 4xl:h-24 5xl:h-40 object-contain" />
         </div>
 
         {/* Menu */}
-        <nav className="space-y-3">
+        <nav className="space-y-3 4xl:space-y-7 5xl:space-y-10 4xl:px-6 5xl:px-10">
           {menuItems.map(({ name, icon: Icon }) => (
             <button
               key={name}
               onClick={() => handleClick(name)}
-              className={`flex items-center w-full px-4 py-3 rounded-md text-left transition-colors duration-200 font-[Nunito] text-[20px] ${
+              className={`flex items-center  w-full px-4 py-2 2xl:py-3 2xl:px-8 4xl:py-5 4xl:px-12 5xl:py-10 5xl:px-20 rounded-md 4xl:rounded-xl text-left transition-colors duration-200 font-[Nunito] text-base xl:text-lg 2xl:text-xl 4xl:text-4xl 5xl:text-6xl ${
                 active === name
                   ? "bg-[#B3DB48] text-black font-bold"
                   : "bg-[#F2F2F2] text-black hover:bg-gray-100"
               }`}
             >
-              <Icon className="w-5 h-5 mr-3" />
+              <Icon className="w-5 h-5 4xl:h-9 4xl:w-9 5xl:h-14 5xl:w-14 mr-3" />
               {name}
             </button>
           ))}
@@ -89,9 +89,9 @@ export default function Sidebar() {
       </div>
 
       {/* Bottom Section */}
-      <div>
+      <div className="4xl:px-6">
         {/* Profile Info & Dropdown */}
-        <div className="relative inline-block text-left mt-4">
+        <div className="relative inline-block text-left mt-4 ">
           <div
             onClick={handleProfileClick}
             className="flex items-center   shadow-md cursor-pointer"
@@ -101,9 +101,9 @@ export default function Sidebar() {
             </div>
             <button
                 onClick={handleLogout}
-                className="flex items-center w-full text-[#FF5B5B] px-4 py-3 text-[18px] justify-center hover:bg-gray-100"
+                className="flex items-center w-full text-[#FF5B5B] px-4  py-3 text-base 4xl:text-3xl 5xl:text-5xl justify-center hover:bg-gray-100"
               >
-                <LogOut className="w-5 h-5 mr-2" />
+                <LogOut className="w-5 h-5 5xl:h-16 5xl:w-16 mr-2" />
                 Log out
               </button>
           </div>
@@ -117,13 +117,13 @@ export default function Sidebar() {
         </div>
 
         {/* Designed By */}
-        <div className="mt-6 flex items-center px-2">
-          <img src="/Layer 2.png" alt="Tungston Logo" className="h-10" />
+        <div className="mt-6 4xl:mt-10 flex items-center px-2">
+          <img src="/Layer 2.png" alt="Tungston Logo" className="h-8 4xl:h-14 5xl:h-20" />
           <div className="ml-2">
-            <p className="text-gray-500 text-sm leading-
+            <p className="text-gray-500 text-sm 4xl:text-2xl 5xl:text-4xl leading-
             tight">
               Designed by <br />
-              <span className="text-[#F48211] font-extrabold">
+              <span className="text-[#F48211]  font-extrabold">
                 Tungston Labs
               </span>
             </p>
