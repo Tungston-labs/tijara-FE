@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchItemList, setInputValue, setSearch } from "../Redux/userSlice";
-
+import { setInputValue, setSearch } from "../Redux/userSlice";
+import { addItemAPI, getItemNamesAPI } from "../services/userServices"; // ensure this path is correct
 
 export default function ItemNameList() {
   const dispatch = useDispatch();
@@ -14,36 +14,56 @@ export default function ItemNameList() {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [itemName , setItemname] = useState("");
   const categories = ["Vegetables", "Fruits"];
-  
 
-  const additems = () => {
-   const data = {
-    itemCategory : selectedCategory,
-    itemName : itemName,
-   }
-  console.log("data")
+  const additems = async () => {
+    if (!selectedCategory || !itemName) {
+      alert("Please select a category and enter an item name.");
+      return;
+    }
 
+    try {
+      const payload = {
+        name: itemName,
+        // backend expects lowercase enum values (fruits / vegetables)
+        category: selectedCategory.toLowerCase(),
+      };
+
+      const res = await addItemAPI(payload);
+      console.log("Item added:", res);
+
+      // Reset inputs
+      setItemname("");
+      setSelectedCategory("");
+
+      // Refresh current page
+      fetchPageItems(currentPage);
+    } catch (err) {
+      console.error("Error adding item:", err);
+      alert(err?.response?.data?.message || "Failed to add item. Try again.");
+    }
   }
 
-useEffect(()=>{
-  dispatch(setSearch(""))
-   dispatch(setInputValue(""))
-},[])
+  useEffect(()=>{
+    dispatch(setSearch(""))
+    dispatch(setInputValue(""))
+  },[])
 
 
-  const fetchPageItems = (page) => {
-    dispatch(fetchItemList({ page }))
-      .then((action) => {
-        console.log("====>here",action.payload.data.products)
-        if (action.payload?.data) {
-          setItems(action.payload.data.products);
-          setTotalPages(action.payload.data.totalPages || 1);
-        }
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  };
+ const fetchPageItems = async (page) => {
+  try {
+    const category = selectedCategory ? selectedCategory.toLowerCase() : ""; // convert to lowercase
+    const res = await getItemNamesAPI(page, category); // pass category to API
+    if (res) {
+      setItems(res.items || []);
+      setTotalPages(res.pagination?.pages || 1);
+      // ensure current page number is in sync with response
+      setCurrentPage(res.pagination?.page || page);
+    }
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 
   useEffect(() => {
     fetchPageItems(currentPage);
@@ -111,10 +131,11 @@ useEffect(()=>{
               <input
                 type="text"
                 placeholder="Enter Item name"
+                value={itemName}
                 onChange={(e) => {
-                setItemname(e.target.value);
+                  setItemname(e.target.value);
                 }}
-                className="px-4 py-2 4xl:px-6 4xl:py-4 rounded-md border border-gray-300 bg-white text-black focus:outline-none 4xl:text-3xl 5xl:text-3xl w-[250px] 4xl:w-[300px] 5xl:w-[300px"
+                className="px-4 py-2 4xl:px-6 4xl:py-4 rounded-md border border-gray-300 bg-white text-black focus:outline-none 4xl:text-3xl 5xl:text-3xl w-[250px] 4xl:w-[300px] 5xl:w-[300px]"
               />
                 
               {/* Add Button */}
@@ -134,15 +155,14 @@ useEffect(()=>{
 
           <div className="mt-4 space-y-3">
             {items.length > 0 ? (
-              items.map((item, idx) => 
-                 { return <> <div
-                  key={idx}
+              items.map((item) => (
+                <div
+                  key={item._id || item.name}
                   className="bg-white px-4 py-3 4xl:px-4 4xl:py-2 4xl:text-3xl 5xl:text-3xl rounded-md border border-gray-200 text-gray-700 shadow-sm"
                 >
-                  {item.itemName}
-                </div></>}
-              
-              )
+                  {item.name}
+                </div>
+              ))
             ) : (
               <p className="text-center text-gray-500">No items found.</p>
             )}

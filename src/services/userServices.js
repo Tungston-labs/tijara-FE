@@ -137,12 +137,23 @@ export const getSubscriptionHistory = async (userId) => {
   return response.data;
 };
 
+
 export const addSubCategoryAPI = async ({ name, itemNameId }) => {
   const response = await API.post("/items/add-subcategory", {
     name,
     itemNameId,
   });
   return response.data; 
+};
+
+export const addItemAPI = async ({ name, category }) => {
+  const response = await API.post("/items/add-name", { name, category });
+  return response.data;
+};
+
+export const getItemNamesAPI = async (page = 1, search = "") => {
+  const response = await API.get(`/items/get-names?page=${page}&search=${search}`);
+  return response.data;
 };
 
 
