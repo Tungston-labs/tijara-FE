@@ -22,13 +22,16 @@ import {
 } from "../services/userServices";
 
 // FETCH AGENT LIST
+// in your thunks file
 export const fetchAgentList = createAsyncThunk(
   "agentlist/fetch",
-  async ({ page, limit, search }, { rejectWithValue }) => {
+  async ({ page = 1, limit = 10, search = "" } = {}, { rejectWithValue }) => {
     try {
-      const response = await fetchAgents({ page, limit, search });
-      return response.data;
+      const data = await fetchAgents({ page, search });
+      // data is the normalized object from service
+      return data;
     } catch (error) {
+      console.error("fetchAgentList thunk error:", error);
       return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
@@ -232,7 +235,6 @@ export const fetchTradeLicense = createAsyncThunk(
   async ({ page = 1, search = "" }, { rejectWithValue }) => {
     try {
       const data = await pendingTradeLicense({ page, search });
-      console.log("Fetched trade license data:", data);
       return data.data || data;
     } catch (error) {
       return rejectWithValue(
@@ -361,13 +363,18 @@ const UserSlice = createSlice({
       .addCase(fetchAgentList.pending, (state) => {
         state.status = "loading";
       })
+      // userSlice.js (only the fulfilled case)
       .addCase(fetchAgentList.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.agentList = action.payload.agents;
-        state.total = action.payload.total;
-        state.page = action.payload.page;
-        state.totalPages = action.payload.totalPages;
+
+        const payload = action.payload || {};
+        const agents = payload.agents || [];
+        state.agentList = agents;
+        state.total = payload.total ?? 0;
+        state.page = payload.page ?? 1;
+        state.totalPages = payload.totalPages ?? 1;
       })
+
       .addCase(fetchAgentList.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload;
@@ -461,7 +468,7 @@ const UserSlice = createSlice({
       .addCase(addAgent.fulfilled, (state, action) => {
         state.loading = false;
         state.successMessage = "Agent Added Successfully";
-        state.agentList.unshift(action.payload); 
+        state.agentList.unshift(action.payload);
         state.total += 1;
       })
 

@@ -1,58 +1,91 @@
-// src/api.jsx
+// src/api/api.jsx
 import axios from "axios";
-import store from "../Redux/store"
-import { refreshToken } from "../services/useRefreshTokenService";
-import { setAccessToken } from "../Redux/authSlice";
-import useRefreshToken from "../Hooks/useRefreshToken";
+import store from "../Redux/store";
+import { setAccessToken, logout } from "../Redux/authSlice";
 
-const BASE_URL = import.meta.env.VITE_BACKEND_URL;
+const BASE_URL = import.meta.env.VITE_BACKEND_URL?.trim() || "https://api.thijara.me";
 
-// Public API instance
-const api = axios.create({
+// Public API instance (no auth header, used for refresh/login/etc)
+export const api = axios.create({
   baseURL: BASE_URL,
+  withCredentials: true,
+  headers: { "Content-Type": "application/json" },
 });
 
 // Private API instance (for authenticated requests)
-const axiosPrivate = axios.create({
+// NOTE: do NOT import service files into this module to avoid circular imports
+export const axiosPrivate = axios.create({
   baseURL: BASE_URL,
-  headers: { "Content-Type": "application/json" },
   withCredentials: true,
+  headers: { "Content-Type": "application/json" },
 });
 
-// Request Interceptor
+// Request interceptor: attach latest token from Redux
 axiosPrivate.interceptors.request.use(
   (config) => {
-    const state = store.getState();
-    const token = state.auth.accessToken;
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    try {
+      const token = store.getState().auth.accessToken;
+      if (token) config.headers.Authorization = `Bearer ${token}`;
+    } catch (err) {
+      // swallow
     }
     return config;
   },
   (error) => Promise.reject(error)
 );
 
-// Response Interceptor
-
-// Response Interceptor
+// Response interceptor: refresh on 401/403 using the public `api` (no circular import)
 axiosPrivate.interceptors.response.use(
   (response) => response,
   async (error) => {
-    const originalRequest = error.config;
+    const originalRequest = error?.config;
 
-    if ((error?.response?.status === 401 || error?.response?.status === 403) && !originalRequest._retry) {
+    // Only try once per request
+    if (!originalRequest || originalRequest._retry) return Promise.reject(error);
+
+    const status = error?.response?.status;
+    if (status === 401 || status === 403) {
       originalRequest._retry = true;
+      try {
+        // Call refresh endpoint using public api so we don't re-enter this interceptor
+        const refreshResponse = await api.post(
+          "/admin/auth/refresh-admin", // <- ensure this matches your backend route
+          {},
+          { withCredentials: true }
+        );
 
-      const newAccessToken = await refreshToken();
-      if (!newAccessToken) return Promise.reject(error);
+        const newAccessToken = refreshResponse?.data?.accessToken;
+        if (!newAccessToken) {
+          // couldn't refresh
+          store.dispatch(logout());
+          localStorage.removeItem("accessToken");
+          return Promise.reject(error);
+        }
 
-      axiosPrivate.defaults.headers.Authorization = `Bearer ${newAccessToken}`;
-      originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+        // Update Redux + localStorage
+        store.dispatch(setAccessToken({ accessToken: newAccessToken }));
+        localStorage.setItem("accessToken", newAccessToken);
 
-      return axiosPrivate(originalRequest);
+        // Set header for retried request
+        originalRequest.headers = originalRequest.headers || {};
+        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+
+        // Also update axiosPrivate default for subsequent requests
+        axiosPrivate.defaults.headers.Authorization = `Bearer ${newAccessToken}`;
+
+        return axiosPrivate(originalRequest);
+      } catch (refreshErr) {
+        // Refresh failed; force logout
+        try {
+          store.dispatch(logout());
+        } catch (e) {ss}
+        localStorage.removeItem("accessToken");
+        return Promise.reject(refreshErr);
+      }
     }
+
     return Promise.reject(error);
   }
 );
 
-export { api, axiosPrivate };
+export default api;

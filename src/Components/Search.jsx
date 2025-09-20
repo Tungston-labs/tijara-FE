@@ -20,7 +20,7 @@ export default function Topbar() {
   };
   
   return (
-    <div className="flex bg-[#E9E9E9] px-10 py-2 pt-8 ">
+    <div className="flex bg-[#E9E9E9] px-6 py-2 pt-8">
 
       <div className="relative flex-1  rounded-2xl max-w-xl flex justify-center">
         <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 w-5 h-5" />

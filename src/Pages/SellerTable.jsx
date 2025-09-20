@@ -18,7 +18,6 @@ export default function SellerTableContent({
 }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  console.log("Sellers:", sellers);
 
   const onDeleteClick = async (seller) => {
     const confirmResult = await Swal.fire({

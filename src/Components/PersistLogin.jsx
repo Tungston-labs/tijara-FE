@@ -2,33 +2,33 @@
 import { Outlet } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import useRefreshToken from "../Hooks/useRefreshToken";
+import { refreshToken } from "../services/useRefreshTokenService"; // service
 import { setAccessToken } from "../Redux/authSlice";
+import { axiosPrivate } from "../api/api";
 
-const PersistLogin = () => {
+const PersistLogin = ({ children }) => {
   const accessToken = useSelector((state) => state.auth.accessToken);
-  const refresh = useRefreshToken();
   const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const verifyRefreshToken = async () => {
+    const checkToken = async () => {
+      // Only call refresh if no token
       if (!accessToken) {
-        const newAccessToken = await refresh();
+        const newAccessToken = await refreshToken();
         if (newAccessToken) {
           dispatch(setAccessToken({ accessToken: newAccessToken }));
-          localStorage.setItem("accessToken",newAccessToken)
+          axiosPrivate.defaults.headers.Authorization = `Bearer ${newAccessToken}`;
         }
       }
       setIsLoading(false);
     };
-
-    verifyRefreshToken();
-  }, [accessToken, dispatch, refresh]);
+    checkToken();
+  }, [accessToken, dispatch]);
 
   if (isLoading) return <p>Loading...</p>;
-
-  return <Outlet />;
+  return children;
 };
+
 
 export default PersistLogin;

@@ -13,16 +13,21 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    login: (state, action) => {
-      state.userName = action.payload.userName;
-      state.accessToken = action.payload.accessToken;
-      state.user = action.payload.user;
-    },
+login: (state, action) => {
+  state.userName = action.payload.userName;
+  state.accessToken = action.payload.accessToken;
+  state.user = action.payload.user;
+
+  if (action.payload.accessToken) {
+    localStorage.setItem("accessToken", action.payload.accessToken);
+  }
+},
+
     logout: (state) => {
       state.userName = null;
       state.accessToken = null;
       state.user = null;
-      localStorage.removeItem("accessToken"); // Optional cleanup
+      localStorage.removeItem("accessToken"); 
     },
     setAccessToken: (state, action) => {
       state.accessToken = action.payload.accessToken;
