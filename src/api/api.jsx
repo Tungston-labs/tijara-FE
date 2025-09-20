@@ -1,8 +1,10 @@
 // src/api.jsx
 import axios from "axios";
 import store from "../Redux/store"
+import { refreshToken } from "../services/useRefreshTokenService";
 import { setAccessToken } from "../Redux/authSlice";
 import useRefreshToken from "../Hooks/useRefreshToken";
+
 const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
 // Public API instance
@@ -31,6 +33,8 @@ axiosPrivate.interceptors.request.use(
 );
 
 // Response Interceptor
+
+// Response Interceptor
 axiosPrivate.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -38,19 +42,14 @@ axiosPrivate.interceptors.response.use(
 
     if ((error?.response?.status === 401 || error?.response?.status === 403) && !originalRequest._retry) {
       originalRequest._retry = true;
-      try {
-        const newAccessToken = await useRefreshToken();
-        if (!newAccessToken) return Promise.reject(error);
 
-        // Update Redux state + axios headers
-        store.dispatch(setAccessToken({ accessToken: newAccessToken }));
-        axiosPrivate.defaults.headers.Authorization = `Bearer ${newAccessToken}`;
-        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+      const newAccessToken = await refreshToken();
+      if (!newAccessToken) return Promise.reject(error);
 
-        return axiosPrivate(originalRequest);
-      } catch (refreshError) {
-        return Promise.reject(refreshError);
-      }
+      axiosPrivate.defaults.headers.Authorization = `Bearer ${newAccessToken}`;
+      originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+
+      return axiosPrivate(originalRequest);
     }
     return Promise.reject(error);
   }
