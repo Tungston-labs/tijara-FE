@@ -16,7 +16,6 @@ export default function UserApproval() {
     }
   }, [dispatch, id]);
 
-  console.log("Fetching user:", { id });
 
   if (loading) return <div className="p-6">Loading...</div>;
   if (error) return <div className="p-6 text-red-500">Error: {error}</div>;
