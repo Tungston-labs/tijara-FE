@@ -8,7 +8,7 @@ const useRefreshToken = () => {
   const refresh = async () => {
     try {
       const response = await api.post(
-        "/admin/auth/refresh-admin",
+        "/admin/auth/refresh",
         {},
         {
           withCredentials: true, 

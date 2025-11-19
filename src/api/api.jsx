@@ -49,7 +49,7 @@ axiosPrivate.interceptors.response.use(
       try {
         // Call refresh endpoint using public api so we don't re-enter this interceptor
         const refreshResponse = await api.post(
-          "/admin/auth/refresh-admin", // <- ensure this matches your backend route
+          "/admin/auth/refresh", // <- ensure this matches your backend route
           {},
           { withCredentials: true }
         );

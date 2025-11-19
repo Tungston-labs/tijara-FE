@@ -6,7 +6,7 @@ import { setAccessToken, logout } from "../Redux/authSlice";
 export const refreshToken = async () => {
   try {
     const response = await api.post(
-      "/admin/auth/refresh-admin",
+      "/admin/auth/refresh",
       {},
       { withCredentials: true }
     );
