@@ -12,6 +12,7 @@ import { Modal, Input, message } from "antd";
 import SellerTableContent from "./SellerTable";
 import BuyerTable from "./BuyerTable";
 import Swal from "sweetalert2";
+import NoData from "../Components/NoDataModal";
 
 export default function UserTable() {
   const dispatch = useDispatch();
@@ -273,21 +274,27 @@ export default function UserTable() {
         </div>
 
         {/* Table content based on filter */}
-        {filter === "seller" ? (
-          <SellerTableContent
-            sellers={sellers.list || []}
-            onEditClick={handleEditClick}
-            onDeleteClick={handleDeleteClick}
-            currentPage={currentPage}
-          />
-        ) : (
-          <BuyerTable
-            buyers={buyers.list || []}
-            onEditClick={handleEditClick}
-            onDeleteClick={handleDeleteClick}
-            currentPage={currentPage}
-          />
-        )}
+     {filter === "seller" ? (
+  sellers.list?.length === 0 ? (
+    <NoData label="Sellers" />
+  ) : (
+    <SellerTableContent
+      sellers={sellers.list || []}
+      onEditClick={handleEditClick}
+      onDeleteClick={handleDeleteClick}
+      currentPage={currentPage}
+    />
+  )
+) : buyers.list?.length === 0 ? (
+  <NoData label="Buyers" />
+) : (
+  <BuyerTable
+    buyers={buyers.list || []}
+    onEditClick={handleEditClick}
+    onDeleteClick={handleDeleteClick}
+    currentPage={currentPage}
+  />
+)}
 
         <div className="flex flex-col sm:flex-row justify-between items-center mt-6 gap-4">
           <div className="flex items-center space-x-2 text-gray-700">

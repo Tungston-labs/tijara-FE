@@ -9,6 +9,7 @@ import {
   setSearch,
 } from "../Redux/userSlice";
 import Swal from "sweetalert2";
+import NoData from "../Components/NoDataModal";
 
 export default function ApproveBuyerTable() {
   const dispatch = useDispatch();
@@ -196,41 +197,44 @@ export default function ApproveBuyerTable() {
 
         {/* Table Rows */}
         <div className="space-y-3 mt-3">
-          {buyers.map((buyer, index) => (
-            <div
-              key={buyer._id}
-              className="bg-white p-3 4xl:text-3xl 5xl:text-3xl rounded-lg shadow-sm grid grid-cols-2 sm:grid-cols-6 items-center text-center text-xs sm:text-sm gap-2"
-            >
-              <div>{index + 1 + (currentPage - 1) * 10}</div>
-              <div>{buyer.name}</div>
-              <div>{buyer.phone}</div>
+          {buyers.length === 0 ? (
+            <NoData label="Buyer approval" />
+          ) : (
+            buyers.map((buyer, index) => (
               <div
-                className="truncate  cursor-pointer"
-                title={buyer.email} 
+                key={buyer._id}
+                className="bg-white p-3 4xl:text-3xl 5xl:text-3xl rounded-lg shadow-sm grid grid-cols-2 sm:grid-cols-6 items-center text-center text-xs sm:text-sm gap-2"
               >
-                {buyer.email.length > 5
-                  ? buyer.email.slice(0, 5) + "..."
-                  : buyer.email}
-              </div>
+                <div>{index + 1 + (currentPage - 1) * 10}</div>
+                <div>{buyer.name}</div>
+                <div>{buyer.phone}</div>
 
-              <div className="flex justify-center">
-                <Eye
-                  className="w-4 h-4 sm:w-6 sm:h-6 md:w-4 md:h-4 lg:w-6 lg:h-6 4xl:h-10 4xl:w-10 5xl:w-10"
-                  onClick={() => navigate(`/approval/${buyer._id}`)}
-                />
-              </div>
+                <div className="truncate cursor-pointer" title={buyer.email}>
+                  {buyer.email.length > 5
+                    ? buyer.email.slice(0, 5) + "..."
+                    : buyer.email}
+                </div>
 
-              <div className="text-right">
-                <button
-                  className="bg-[#B3DB48] text-white 4xl:text-3xl 5xl:text-3xl px-3 py-1 rounded-md text-xs sm:text-sm"
-                  onClick={() => handleApprove(buyer._id)}
-                >
-                  Approve
-                </button>
+                <div className="flex justify-center">
+                  <Eye
+                    className="w-4 h-4 sm:w-6 sm:h-6 md:w-4 md:h-4 lg:w-6 lg:h-6 4xl:h-10 4xl:w-10 5xl:w-10"
+                    onClick={() => navigate(`/approval/${buyer._id}`)}
+                  />
+                </div>
+
+                <div className="text-right">
+                  <button
+                    className="bg-[#B3DB48] text-white 4xl:text-3xl 5xl:text-3xl px-3 py-1 rounded-md text-xs sm:text-sm"
+                    onClick={() => handleApprove(buyer._id)}
+                  >
+                    Approve
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
+
       </div>
 
       {/* Pagination */}
@@ -246,11 +250,10 @@ export default function ApproveBuyerTable() {
           {getPaginationNumbers().map((num) => (
             <button
               key={num}
-              className={`w-8 h-8 rounded-full font-[Nunito] font-bold ${
-                currentPage === num
+              className={`w-8 h-8 rounded-full font-[Nunito] font-bold ${currentPage === num
                   ? "bg-[#B3DB48] text-black"
                   : "hover:underline"
-              }`}
+                }`}
               onClick={() => handlePageClick(num)}
             >
               {num}

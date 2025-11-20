@@ -12,6 +12,7 @@ import {
 } from "../Redux/userSlice";
 import { Pencil, Trash } from "lucide-react";
 import Swal from "sweetalert2";
+import NoData from "../Components/NoDataModal";
 
 export default function ApproveSellerTable() {
   const dispatch = useDispatch();
@@ -251,43 +252,43 @@ export default function ApproveSellerTable() {
         {/* Rows */}
         {/* Table Rows */}
         <div className="space-y-4 mt-3">
-          {sellers.map((seller, index) => (
-            <div
-              key={seller._id}
-              className="bg-white p-3 rounded-lg shadow-sm grid 4xl:text-3xl 5xl:text-3xl grid-cols-8  text-center text-sm"
-            >
-              <div>{index + 1 + (currentPage - 1) * 10}</div>
-              <div>{seller.name}</div>
-              <div>{seller.phone}</div>
+          {sellers.length === 0 ? (
+            <NoData label="Seller approval" />
+          ) : (
+            sellers.map((seller, index) => (
               <div
-                className="truncate  cursor-pointer"
-                title={seller.email}
+                key={seller._id}
+                className="bg-white p-3 rounded-lg shadow-sm grid grid-cols-8 text-center text-sm"
               >
-                {seller.email.length > 5
-                  ? seller.email.slice(0, 5) + "..."
-                  : seller.email}
-              </div>
+                <div>{index + 1 + (currentPage - 1) * 10}</div>
+                <div>{seller.name}</div>
+                <div>{seller.phone}</div>
+                <div className="truncate cursor-pointer" title={seller.email}>
+                  {seller.email.length > 5
+                    ? seller.email.slice(0, 5) + "..."
+                    : seller.email}
+                </div>
+                <div>{seller.tradeLicenseNumber}</div>
+                <div>{seller.companyName}</div>
 
-              <div>{seller.tradeLicenseNumber}</div>
-              <div>{seller.companyName}</div>
+                <div className="flex flex-col gap-2 items-center">
+                  <Eye
+                    className="w-4 h-4 sm:w-6 sm:h-6"
+                    onClick={() => navigate(`/approval/${seller._id}`)}
+                  />
+                </div>
 
-              {/* View + Approve Button */}
-              <div className="flex flex-col gap-2 items-center">
-                <Eye
-                  className="w-4 h-4 sm:w-6 sm:h-6 md:w-4 md:h-4 lg:w-6 lg:h-6 4xl:h-10 4xl:w-10 5xl:w-10"
-                  onClick={() => navigate(`/approval/${seller._id}`)}
-                />
+                <div className="flex flex-col gap-4 items-center">
+                  <button
+                    onClick={() => handleApprove(seller._id)}
+                    className="bg-[#B3DB48] text-white px-6 py-1 rounded-md text-sm"
+                  >
+                    Approve
+                  </button>
+                </div>
               </div>
-              <div className="flex flex-col gap-4 items-center">
-                <button
-                  onClick={() => handleApprove(seller._id)}
-                  className="bg-[#B3DB48] text-white px-6 py-1 rounded-md text-sm 4xl:text-3xl 5xl:text-3xl"
-                >
-                  Approve
-                </button>
-              </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
 
@@ -303,11 +304,10 @@ export default function ApproveSellerTable() {
           {getPaginationNumbers().map((num) => (
             <button
               key={num}
-              className={`w-8 h-8 rounded-full font-[Nunito] font-bold ${
-                currentPage === num
+              className={`w-8 h-8 rounded-full font-[Nunito] font-bold ${currentPage === num
                   ? "bg-[#B3DB48] text-black"
                   : "hover:underline"
-              }`}
+                }`}
               onClick={() => handlePageClick(num)}
             >
               {num}
