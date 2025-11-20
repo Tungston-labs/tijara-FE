@@ -9,6 +9,7 @@ export default function UserApproval() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user, loading, error } = useSelector((state) => state.user);
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
 
   useEffect(() => {
     if (id) {
@@ -20,120 +21,120 @@ export default function UserApproval() {
   if (loading) return <div className="p-6">Loading...</div>;
   if (error) return <div className="p-6 text-red-500">Error: {error}</div>;
   if (!user) return null;
-  
- const handleApprove = async (userId) => {
+
+  const handleApprove = async (userId) => {
 
 
-  if (user?.tradeLicenseStatus === "pending") {
-    // Approve trade license
-    const confirm = await Swal.fire({
+    if (user?.tradeLicenseStatus === "pending") {
+      // Approve trade license
+      const confirm = await Swal.fire({
+        title: "Are you sure?",
+        text: "Approve this seller's trade license?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#B3DB48",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, approve!",
+      });
+
+      if (!confirm.isConfirmed) return;
+
+      try {
+        const result = await dispatch(
+          approveTradeLicense({ userId, action: "approve" })
+        );
+
+        if (approveTradeLicense.fulfilled.match(result)) {
+          Swal.fire("Approved!", "Seller has been approved.", "success");
+          navigate("/approveseller");
+        } else {
+          Swal.fire("Failed", result.payload || "Approval failed", "error");
+        }
+      } catch (err) {
+        console.error(err);
+        Swal.fire("Error", "Something went wrong", "error");
+      }
+    } else {
+      // Approve regular buyer or seller without license logic
+      try {
+        console.log("Dispatching approveUsers with:", {
+          userId,
+          status: "approved",
+        });
+        const resultAction = await dispatch(
+          approveUsers({ userId, status: "approved", role: user.role })
+        );
+
+        if (approveUsers.fulfilled.match(resultAction)) {
+          Swal.fire("Success", "User approved successfully", "success");
+
+          if (user?.role === "buyer") {
+            navigate("/approvebuyer");
+          } else {
+            navigate("/approveseller");
+          }
+        } else {
+          Swal.fire("Error", "Approval failed", "error");
+        }
+      } catch (error) {
+        Swal.fire("Error", "An error occurred", "error");
+      }
+    }
+  };
+
+
+  const handleDecline = async (userId) => {
+    const confirmResult = await Swal.fire({
       title: "Are you sure?",
-      text: "Approve this seller's trade license?",
+      text: "This action will decline the user.",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#B3DB48",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, approve!",
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#aaa",
+      confirmButtonText: "Yes, decline",
     });
 
-    if (!confirm.isConfirmed) return;
+    if (!confirmResult.isConfirmed) return;
 
-    try {
-      const result = await dispatch(
-        approveTradeLicense({ userId, action: "approve" })
-      );
+    if (user?.tradeLicenseStatus === "pending") {
+      // Decline trade license
+      try {
+        const result = await dispatch(
+          approveTradeLicense({ userId, action: "reject" })
+        );
 
-      if (approveTradeLicense.fulfilled.match(result)) {
-        Swal.fire("Approved!", "Seller has been approved.", "success");
-        navigate("/approveseller");
-      } else {
-        Swal.fire("Failed", result.payload || "Approval failed", "error");
-      }
-    } catch (err) {
-      console.error(err);
-      Swal.fire("Error", "Something went wrong", "error");
-    }
-  } else {
-    // Approve regular buyer or seller without license logic
-    try {
-        console.log("Dispatching approveUsers with:", {
-  userId,
-  status: "approved",
-});
-      const resultAction = await dispatch(
-        approveUsers({ userId,  status: "approved", role: user.role})
-      );
-
-      if (approveUsers.fulfilled.match(resultAction)) {
-        Swal.fire("Success", "User approved successfully", "success");
-
-        if (user?.role === "buyer") {
-          navigate("/approvebuyer");
-        } else {
+        if (approveTradeLicense.fulfilled.match(result)) {
+          Swal.fire("Declined!", "Trade license has been rejected.", "success");
           navigate("/approveseller");
-        }
-      } else {
-        Swal.fire("Error", "Approval failed", "error");
-      }
-    } catch (error) {
-      Swal.fire("Error", "An error occurred", "error");
-    }
-  }
-};
-
-
-const handleDecline = async (userId) => {
-  const confirmResult = await Swal.fire({
-    title: "Are you sure?",
-    text: "This action will decline the user.",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonColor: "#d33",
-    cancelButtonColor: "#aaa",
-    confirmButtonText: "Yes, decline",
-  });
-
-  if (!confirmResult.isConfirmed) return;
-
-  if (user?.tradeLicenseStatus === "pending") {
-    // Decline trade license
-    try {
-      const result = await dispatch(
-        approveTradeLicense({ userId, action: "reject" })
-      );
-
-      if (approveTradeLicense.fulfilled.match(result)) {
-        Swal.fire("Declined!", "Trade license has been rejected.", "success");
-        navigate("/approveseller");
-      } else {
-        Swal.fire("Error", result.payload || "Failed to decline", "error");
-      }
-    } catch (err) {
-      Swal.fire("Error", "Something went wrong!", "error");
-    }
-  } else {
-    // Decline buyer or regular seller
-    try {
-      const resultAction = await dispatch(
-        approveUsers({ userId, role: user?.role, status: "rejected", })
-      );
-
-      if (approveUsers.fulfilled.match(resultAction)) {
-        Swal.fire("Declined!", "User has been declined.", "success");
-
-        if (user?.role === "buyer") {
-          navigate("/approvebuyer");
         } else {
-          navigate("/approveseller");
+          Swal.fire("Error", result.payload || "Failed to decline", "error");
         }
-      } else {
-        Swal.fire("Error", "Failed to decline user.", "error");
+      } catch (err) {
+        Swal.fire("Error", "Something went wrong!", "error");
       }
-    } catch (error) {
-      Swal.fire("Error", "Something went wrong!", "error");
+    } else {
+      // Decline buyer or regular seller
+      try {
+        const resultAction = await dispatch(
+          approveUsers({ userId, role: user?.role, status: "rejected", })
+        );
+
+        if (approveUsers.fulfilled.match(resultAction)) {
+          Swal.fire("Declined!", "User has been declined.", "success");
+
+          if (user?.role === "buyer") {
+            navigate("/approvebuyer");
+          } else {
+            navigate("/approveseller");
+          }
+        } else {
+          Swal.fire("Error", "Failed to decline user.", "error");
+        }
+      } catch (error) {
+        Swal.fire("Error", "Something went wrong!", "error");
+      }
     }
-  }
-};
+  };
 
 
   return (
@@ -245,18 +246,25 @@ const handleDecline = async (userId) => {
                     />
                   </div>
                 </div>
-
                 <div>
-                  <label className="block mb-1">
-                    Upload Trade License Copy
-                  </label>
-                  <textarea
-                    rows="5"
-                    value={user?.tradeLicenseCopy || ""}
-                    readOnly
-                    className="w-full px-4 py-2 bg-[#F2F2F2] rounded-md outline-none resize-none"
-                  />
+                  <label className="block mb-1">Trade License Copy</label>
+
+                  <div
+                    className="w-full h-64 bg-[#F2F2F2] rounded-md flex items-center justify-center overflow-hidden cursor-pointer"
+                    onClick={() => user?.tradeLicenseCopy && setIsModalOpen(true)}
+                  >
+                    {user?.tradeLicenseCopy ? (
+                      <img
+                        src={user.tradeLicenseCopy}
+                        alt="Trade License"
+                        className="max-h-full max-w-full object-contain"
+                      />
+                    ) : (
+                      <span className="text-gray-500">No image uploaded</span>
+                    )}
+                  </div>
                 </div>
+
               </div>
             </>
           )}
@@ -322,6 +330,31 @@ const handleDecline = async (userId) => {
           Approve
         </button>
       </div>
+      {isModalOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50"
+          onClick={() => setIsModalOpen(false)}
+        >
+          {/* X Button - Outside Image */}
+          <button
+            className="absolute top-5 right-5 text-white text-5xl font-bold hover:text-red-700 z-50"
+            onClick={() => setIsModalOpen(false)}
+          >
+            &times;
+          </button>
+
+          <div
+            className="relative bg-white p-4 rounded-lg max-w-3xl w-full max-h-[90vh] overflow-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={user.tradeLicenseCopy}
+              alt="Trade License Large"
+              className="w-full h-auto object-contain"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

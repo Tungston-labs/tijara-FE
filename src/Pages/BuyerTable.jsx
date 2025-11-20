@@ -96,7 +96,6 @@ export default function BuyerTableContent({
     text-gray-700 
     
   "
-              // full phone number on hover
             >
               {buyer.phone}
             </div>
