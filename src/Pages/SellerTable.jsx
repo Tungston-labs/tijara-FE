@@ -92,7 +92,7 @@ export default function SellerTableContent({
                 {index + 1 + (currentPage - 1) * 10}
               </div>
               <div
-                className="text-[#B3DB48] font-[Nunito] "
+                className="text-gray-700 font-[Nunito] "
                 onClick={() => {
                   // navigate(`/profile/seller/${seller._id}`); // pass role as string
                   dispatch(fetchSubscriptionHistory(seller._id));
