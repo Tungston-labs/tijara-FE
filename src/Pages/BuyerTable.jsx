@@ -82,9 +82,9 @@ export default function BuyerTableContent({
               {index + 1 + (currentPage - 1) * 10}
             </div>
             <div
-              className="text-gray-700 font-medium"
+              className="text-[#B3DB48] font-[Nunito] "
               onClick={() => {
-                navigate(`/profile/buyer/${buyer._id}`); // pass role as string
+                // navigate(`/profile/buyer/${buyer._id}`); // pass role as string
                 dispatch(fetchSubscriptionHistory(buyer._id));
                 dispatch(getUserById({ role: "buyer", id: buyer._id })); // pass object with role and id
               }}

@@ -257,12 +257,14 @@ export default function UserApproval() {
                       <img
                         src={user.tradeLicenseCopy}
                         alt="Trade License"
-                        className="max-h-full max-w-full object-contain"
+                        className="max-w-full max-h-full object-contain" // ensures image fits inside container
+                        style={{ display: "block" }} // removes inline gaps from img
                       />
                     ) : (
                       <span className="text-gray-500">No image uploaded</span>
                     )}
                   </div>
+
                 </div>
 
               </div>

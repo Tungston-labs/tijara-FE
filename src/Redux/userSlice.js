@@ -165,14 +165,19 @@ export const fetchProductsList = createAsyncThunk(
   "productslist/fetch",
   async ({ page }, { rejectWithValue }) => {
     try {
-      console.log("data");
+      console.log("fetchProductsList THUNK CALLED");
+
       const response = await fetchProducts({ page });
+
+      console.log("THUNK API RESPONSE:", response);
+
       return response;
     } catch (error) {
       return rejectWithValue(error.message || "Unable to fetch user list");
     }
   }
 );
+
 
 export const editAgent = createAsyncThunk(
   "agent/edit",
@@ -455,12 +460,14 @@ const UserSlice = createSlice({
       .addCase(fetchProductsList.pending, (state) => {
         state.products.loading = true;
       })
-      .addCase(fetchProductsList.fulfilled, (state, action) => {
-        state.products.loading = false;
-        state.products.items = action.payload.data.products;
-        state.products.currentPage = action.payload.page;
-        state.products.totalPages = action.payload.total;
-      })
+.addCase(fetchProductsList.fulfilled, (state, action) => {
+  state.products.loading = false;
+
+  state.products.items = action.payload.items || []; 
+  state.products.currentPage = action.payload.pagination?.page || 1;
+  state.products.totalPages = action.payload.pagination?.pages || 1;
+})
+
       .addCase(fetchProductsList.rejected, (state, action) => {
         state.products.loading = false;
         state.products.error = action.payload || "Failed to fetch products";

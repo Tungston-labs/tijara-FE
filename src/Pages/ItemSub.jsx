@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
-import { addSubCategory, fetchItemSubList } from "../Redux/userSlice";
+import { addSubCategory, fetchItemSubList, fetchProductsList } from "../Redux/userSlice";
 import { useDispatch, useSelector } from "react-redux";
 import Swal from "sweetalert2";
 
 export default function ItemNameList() {
   const dispatch = useDispatch();
-const { list, totalPages, page } = useSelector((state) => state.user.itemsubList);
-const [currentPage, setCurrentPage] = useState(1);
+  const { list, totalPages, page } = useSelector((state) => state.user.itemsubList);
+  const [currentPage, setCurrentPage] = useState(1);
   const [itemName, setItemName] = useState("");
   const [subcategory, setSubCategory] = useState("");
   const [itemNameId, setItemNameId] = useState("");
@@ -14,20 +14,21 @@ const [currentPage, setCurrentPage] = useState(1);
   const [existingItems, setExistingItems] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
   const [itemNameMap, setItemNameMap] = useState({}); // To map item name to ID
-
   const fetchPageItems = (page, itemNameFilter = "") => {
-    dispatch(fetchItemSubList({ page, search: itemNameFilter }))
+    dispatch(fetchProductsList({ page, search: itemNameFilter }))
       .then((action) => {
-        if (action.payload?.data) {
-          setItems(action.payload.data);
-          
+        const res = action.payload;
+
+        if (res?.products) {
+          setItems(res.products);
 
           const itemMap = {};
           const uniqueItems = [];
 
-          action.payload.data.forEach((item) => {
-            const name = item.itemName?.name;
-            const id = item.itemName?._id;
+          res.products.forEach((p) => {
+            const name = p.itemName;
+            const id = p._id;
+
             if (name && id && !itemMap[name]) {
               itemMap[name] = id;
               uniqueItems.push(name);
@@ -36,11 +37,10 @@ const [currentPage, setCurrentPage] = useState(1);
 
           setItemNameMap(itemMap);
           setExistingItems(uniqueItems);
+          setCurrentPage(res.page);
         }
       })
-      .catch((error) => {
-        console.error(error);
-      });
+      .catch((error) => console.error(error));
   };
 
   useEffect(() => {
@@ -52,40 +52,40 @@ const [currentPage, setCurrentPage] = useState(1);
     fetchPageItems(1, itemName);
   };
 
- const handleAddSubCategory = () => {
-  if (!subcategory || !itemName || !itemNameId) {
-    Swal.fire({
-      icon: "warning",
-      title: "Missing Input",
-      text: "Please enter a subcategory and make sure an item is selected.",
+  const handleAddSubCategory = () => {
+    if (!subcategory || !itemName || !itemNameId) {
+      Swal.fire({
+        icon: "warning",
+        title: "Missing Input",
+        text: "Please enter a subcategory and make sure an item is selected.",
+      });
+      return;
+    }
+
+
+    dispatch(addSubCategory({ name: subcategory, itemNameId })).then((action) => {
+      console.log("Thunk result:", action);
+
+      if (action.meta.requestStatus === "fulfilled") {
+        Swal.fire({
+          icon: "success",
+          title: "Subcategory Added",
+          text: `Subcategory "${subcategory}" was added successfully.`,
+          timer: 2000,
+          showConfirmButton: false,
+        });
+        setSubCategory("");
+        fetchPageItems(currentPage, itemName);
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: action.payload || "Failed to add subcategory. Please try again.",
+        });
+      }
     });
-    return;
-  }
 
-
-  dispatch(addSubCategory({ name: subcategory, itemNameId })).then((action) => {
-  console.log("Thunk result:", action);
-
-  if (action.meta.requestStatus === "fulfilled") {
-    Swal.fire({
-      icon: "success",
-      title: "Subcategory Added",
-      text: `Subcategory "${subcategory}" was added successfully.`,
-      timer: 2000,
-      showConfirmButton: false,
-    });
-    setSubCategory("");
-    fetchPageItems(currentPage, itemName);
-  } else {
-    Swal.fire({
-      icon: "error",
-      title: "Error",
-      text: action.payload || "Failed to add subcategory. Please try again.",
-    });
-  }
-});
-
-};
+  };
 
 
   const handlePageClick = (page) => {
@@ -228,8 +228,9 @@ const [currentPage, setCurrentPage] = useState(1);
                 key={idx}
                 className="grid grid-cols-2 4xl:px-6 4xl:py-4 4xl:text-3xl 5xl:text-3xl bg-white px-4 py-3 rounded-md border border-gray-200 text-gray-700 shadow-sm"
               >
-                <div>{item.name}</div>
-                <div>{item.itemName?.name}</div>
+                <div>{item.itemSubCategory}</div>
+                <div>{item.itemName}</div>
+
               </div>
             ))}
           </div>
@@ -248,11 +249,10 @@ const [currentPage, setCurrentPage] = useState(1);
             {getPaginationNumbers().map((num) => (
               <button
                 key={num}
-                className={`w-8 h-8 rounded-full font-[Nunito] font-bold ${
-                  currentPage === num
+                className={`w-8 h-8 rounded-full font-[Nunito] font-bold ${currentPage === num
                     ? "bg-[#B3DB48] text-black"
                     : "hover:underline"
-                }`}
+                  }`}
                 onClick={() => handlePageClick(num)}
               >
                 {num}

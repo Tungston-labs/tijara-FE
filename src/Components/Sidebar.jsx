@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../api/api"; // Your axios instance
@@ -13,9 +13,9 @@ import { IoReceiptOutline } from "react-icons/io5";
 import logo from '../assets/images/logotijara.png';
 import { logout } from "../Redux/authSlice";
 import { useDispatch } from "react-redux";
+import { useLocation } from "react-router-dom";
 
 export default function Sidebar() {
-  const [active, setActive] = useState("Dashboard");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const navigate = useNavigate();
   const dispatch=useDispatch();
@@ -46,6 +46,19 @@ export default function Sidebar() {
   const handleProfileClick = () => {
     setDropdownOpen((prev) => !prev);
   };
+
+const path = location.pathname;
+
+const activeMap = {
+  "/box": "Dashboard",
+  "/approveseller": "Approval",
+  "/user": "Users",
+  "/agent": "Agents",
+  "/item": "Category",
+  "/itemsub": "Sub Category",
+  "/sellproducts": "Sell Products",
+};
+const [active, setActive] = useState(activeMap[path] || "Dashboard");
 
   const handleLogout = async () => {
     try {

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from 'react-redux';
-import { setInputValue, setSearch } from "../Redux/userSlice";
+import { fetchProductsList, setInputValue, setSearch } from "../Redux/userSlice";
 import { addItemAPI, getItemNamesAPI } from "../services/userServices"; // ensure this path is correct
 
 export default function ItemNameList() {
@@ -12,7 +12,7 @@ export default function ItemNameList() {
   const [totalPages, setTotalPages] = useState(1);
   const [items, setItems] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [itemName , setItemname] = useState("");
+  const [itemName, setItemname] = useState("");
   const categories = ["Vegetables", "Fruits"];
 
   const additems = async () => {
@@ -43,26 +43,32 @@ export default function ItemNameList() {
     }
   }
 
-  useEffect(()=>{
+  useEffect(() => {
     dispatch(setSearch(""))
     dispatch(setInputValue(""))
-  },[])
+  }, [])
 
 
- const fetchPageItems = async (page) => {
-  try {
-    const category = selectedCategory ? selectedCategory.toLowerCase() : ""; // convert to lowercase
-    const res = await getItemNamesAPI(page, category); // pass category to API
-    if (res) {
-      setItems(res.items || []);
-      setTotalPages(res.pagination?.pages || 1);
-      // ensure current page number is in sync with response
-      setCurrentPage(res.pagination?.page || page);
+  const fetchPageItems = async (page) => {
+    try {
+      const result = await dispatch(fetchProductsList({ page }));
+
+      // See the API response
+      console.log("THUNK RESPONSE:", result);
+
+      if (fetchProductsList.fulfilled.match(result)) {
+        const res = result.payload;
+
+        setItems(res.products || []);
+        setTotalPages(res.pagination?.pages || 1);
+        setCurrentPage(res.pagination?.page || page);
+      } else {
+        console.error("Thunk rejected:", result.payload);
+      }
+    } catch (error) {
+      console.error("Error fetching items:", error);
     }
-  } catch (error) {
-    console.error(error);
-  }
-};
+  };
 
 
   useEffect(() => {
@@ -126,7 +132,7 @@ export default function ItemNameList() {
                   <option key={idx} value={category}>{category}</option>
                 ))}
               </select>
-              
+
               {/* Item Input */}
               <input
                 type="text"
@@ -137,10 +143,10 @@ export default function ItemNameList() {
                 }}
                 className="px-4 py-2 4xl:px-6 4xl:py-4 rounded-md border border-gray-300 bg-white text-black focus:outline-none 4xl:text-3xl 5xl:text-3xl w-[250px] 4xl:w-[300px] 5xl:w-[300px]"
               />
-                
+
               {/* Add Button */}
               <button className="bg-[#B3DB48] text-black px-6 py-2 4xl:px-6 4xl:py-4  4xl:text-3xl 5xl:text-3xl rounded-md font-[Nunito] font-bold" onClick={additems}>
-                
+
                 + Add
               </button>
             </div>
@@ -157,10 +163,10 @@ export default function ItemNameList() {
             {items.length > 0 ? (
               items.map((item) => (
                 <div
-                  key={item._id || item.name}
+                  key={item._id || item.itemName}
                   className="bg-white px-4 py-3 4xl:px-4 4xl:py-2 4xl:text-3xl 5xl:text-3xl rounded-md border border-gray-200 text-gray-700 shadow-sm"
                 >
-                  {item.name}
+                  {item.itemName}
                 </div>
               ))
             ) : (
@@ -183,11 +189,10 @@ export default function ItemNameList() {
             {getPaginationNumbers().map((num) => (
               <button
                 key={num}
-                className={`w-8 h-8 rounded-full font-[Nunito] font-bold ${
-                  currentPage === num
+                className={`w-8 h-8 rounded-full font-[Nunito] font-bold ${currentPage === num
                     ? "bg-[#B3DB48] text-black"
                     : "hover:underline"
-                }`}
+                  }`}
                 onClick={() => handlePageClick(num)}
               >
                 {num}
